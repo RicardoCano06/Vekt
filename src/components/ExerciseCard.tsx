@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import type { Exercise } from '@/lib/types'
 import { displayName } from '@/lib/i18n'
 import { useLang } from '@/lib/lang-context'
+import { DumbbellIcon } from '@/components/icons'
 
 interface Props {
   exercise: Exercise
@@ -26,7 +27,9 @@ export default function ExerciseCard({ exercise, muscleName }: Props) {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-4xl">🏋️</div>
+          <div className="flex h-full w-full items-center justify-center bg-surface2 text-dim2">
+            <DumbbellIcon className="h-10 w-10" />
+          </div>
         )}
       </div>
       <div className="p-3">

@@ -3,6 +3,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
 import { fetchExportData, fetchSessionSetsWithExercises, fetchSessions } from '@/lib/db'
 import ErrorState from '@/components/ErrorState'
+import { ClockIcon } from '@/components/icons'
 import type { ExportRow } from '@/lib/db'
 import type { Session, SessionSet } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
@@ -173,8 +174,8 @@ export default function History() {
           ))}
         </div>
       ) : sessions.length === 0 ? (
-        <div className="mt-16 text-center">
-          <div className="text-5xl">🕐</div>
+        <div className="mt-16 flex flex-col items-center">
+          <ClockIcon className="h-12 w-12 text-dim3" />
           <p className="mt-4 font-medium">{t('history.empty')}</p>
           <p className="mt-1 text-sm text-dim">{t('history.emptyHint')}</p>
         </div>
@@ -262,7 +263,7 @@ function SessionCard({ session }: { session: SessionWithMeta }) {
           </p>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-dim">⏱ {duration}</span>
+          <span className="flex items-center gap-1 text-dim"><ClockIcon /> {duration}</span>
           <span className="w-6 text-center text-lg">{feelingEmoji(session.feeling)}</span>
           <span
             className={`text-dim2 transition-transform ${open ? 'rotate-180' : ''}`}

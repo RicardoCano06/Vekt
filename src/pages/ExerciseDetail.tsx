@@ -124,7 +124,7 @@ export default function ExerciseDetail() {
       )}
 
       <div className="mt-6">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold tracking-tight">
           {displayName(exercise, lang)}
         </h1>
         {exercise.name_en &&

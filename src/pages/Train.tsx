@@ -6,6 +6,7 @@ import BottomSheet from '@/components/BottomSheet'
 import ErrorState from '@/components/ErrorState'
 import RestTimer from '@/components/RestTimer'
 import TrashIcon from '@/components/TrashIcon'
+import { ClockIcon } from '@/components/icons'
 import { RestTimerProvider } from '@/components/TimerContext'
 import { useWakeLock } from '@/hooks/useWakeLock'
 import { useConfirm } from '@/lib/use-confirm'
@@ -392,8 +393,9 @@ export default function Train() {
           >
             {t('train.discard')}
           </button>
-          <span className="rounded-full border border-edge bg-surface px-3 py-1.5 font-mono text-sm font-bold tabular-nums text-soft">
-            ⏱ {Math.floor(elapsedMinutes / 60)}h {elapsedMinutes % 60}m
+          <span className="flex items-center gap-1.5 rounded-full border border-edge bg-surface px-3 py-1.5 font-mono text-sm font-bold tabular-nums text-soft">
+            <ClockIcon />
+            {Math.floor(elapsedMinutes / 60)}h {elapsedMinutes % 60}m
           </span>
         </div>
       </div>

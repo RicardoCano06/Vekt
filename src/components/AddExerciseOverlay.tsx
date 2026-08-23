@@ -6,6 +6,7 @@ import type { Equipment, Exercise, RoutineDay } from '@/lib/types'
 import { useToast } from '@/lib/toast-context'
 import { displayName } from '@/lib/i18n'
 import { useLang } from '@/lib/lang-context'
+import { DumbbellIcon } from '@/components/icons'
 
 interface Props {
   day: RoutineDay
@@ -257,9 +258,9 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
                           className="aspect-square w-full object-cover"
                         />
                       ) : (
-                        <div className="flex aspect-square w-full items-center justify-center bg-surface2 text-2xl text-dim2">
-                          🏋️
-                        </div>
+<div className="flex aspect-square w-full items-center justify-center bg-surface2 text-dim2">
+                        <DumbbellIcon className="h-8 w-8" />
+                      </div>
                       )}
                       <div className="px-3 py-2.5">
                         <p className="truncate text-sm font-medium">

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import DayCard from '@/components/DayCard'
 import AddExerciseOverlay from '@/components/AddExerciseOverlay'
+import { PencilIcon } from '@/components/icons'
 import { useToast } from '@/lib/toast-context'
 import { dequeue, enqueueDelayed } from '@/lib/sync'
 import {
@@ -230,10 +231,10 @@ export default function RoutineDetail() {
                 setRoutineName(routine.name)
                 setEditingName(true)
               }}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm text-dim2 opacity-0 transition-opacity hover:bg-surface2 hover:text-soft group-hover:opacity-100"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-dim2 opacity-0 transition-opacity hover:bg-surface2 hover:text-soft group-hover:opacity-100"
               title={t('routines.rename')}
             >
-              ✎
+              <PencilIcon />
             </button>
           </span>
         )}

@@ -86,6 +86,15 @@ body {
   @apply bg-bg text-strong antialiased;
 }
 
+@layer base {
+  /* Foco de teclado uniforme en toda la app. :where() mantiene especificidad
+     cero: los estilos por componente pueden sobreescribirlo sin !important. */
+  :where(button, a, input, select, textarea, [role='button'], [tabindex]):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-emerald-500) 45%, transparent);
+  }
+}
+
 /* ---------- Utilidades de superficie ---------- */
 
 @layer components {

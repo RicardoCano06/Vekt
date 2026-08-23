@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import SwipeRow from '@/components/SwipeRow'
 import TrashIcon from '@/components/TrashIcon'
+import { PencilIcon } from '@/components/icons'
 import { useConfirm } from '@/lib/use-confirm'
 import { useToast } from '@/lib/toast-context'
 import { displayName } from '@/lib/i18n'
@@ -82,7 +83,7 @@ export default function DayCard({
                 <h3 className="text-lg font-bold tracking-tight">
                   {day.name ?? t('day.number', { n: day.day_number })}
                 </h3>
-                <span className="text-xs text-dim2">✎</span>
+                <PencilIcon className="text-dim2" />
               </button>
             )}
           </div>

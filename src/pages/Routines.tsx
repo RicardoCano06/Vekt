@@ -8,6 +8,7 @@ import { createRoutine, deleteRoutine, fetchRoutines, updateRoutine } from '@/li
 import type { Routine } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
 import TrashIcon from '@/components/TrashIcon'
+import { CalendarIcon, PencilIcon } from '@/components/icons'
 
 export default function Routines() {
   const { user } = useAuth()
@@ -115,8 +116,8 @@ export default function Routines() {
           ))}
         </div>
       ) : routines.length === 0 ? (
-        <div className="mt-16 text-center">
-          <div className="text-5xl">🗓️</div>
+        <div className="mt-16 flex flex-col items-center">
+          <CalendarIcon className="h-12 w-12 text-dim3" />
           <p className="mt-4 font-medium">{t('routines.empty')}</p>
           <p className="mt-1 text-sm text-dim">{t('routines.emptyHint')}</p>
         </div>
@@ -161,7 +162,7 @@ export default function Routines() {
                   className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-sm text-dim2 transition-colors hover:bg-surface2 hover:text-soft"
                   title={t('routines.rename')}
                 >
-                  ✎
+                  <PencilIcon />
                 </button>
                 <button
                   onClick={() => handleDelete(routine.id, routine.name)}

@@ -7,6 +7,7 @@ import { fetchEquipment, fetchExercises, fetchMuscles } from '@/lib/db'
 import type { Equipment, Exercise, Muscle } from '@/lib/types'
 import { localizedName } from '@/lib/i18n'
 import { useLang } from '@/lib/lang-context'
+import { SearchIcon } from '@/components/icons'
 
 export default function Catalog() {
   const [params, setParams] = useSearchParams()
@@ -195,8 +196,8 @@ export default function Catalog() {
           ))}
         </div>
       ) : exercises.length === 0 ? (
-        <div className="mt-16 text-center">
-          <div className="text-5xl">🔍</div>
+        <div className="mt-16 flex flex-col items-center">
+          <SearchIcon className="h-12 w-12 text-dim3" />
           <p className="mt-4 font-medium">{t('catalog.noResults')}</p>
           <p className="mt-1 text-sm text-dim">{t('catalog.noResultsHint')}</p>
           {hasFilters && (

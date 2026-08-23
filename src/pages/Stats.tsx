@@ -59,7 +59,7 @@ export default function Stats() {
   return (
     <div>
       <header>
-        <h1 className="text-xl font-bold tracking-tight">{t('stats.title')}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t('stats.title')}</h1>
         <p className="mt-1 text-sm text-dim2">{t('stats.subtitle')}</p>
       </header>
 

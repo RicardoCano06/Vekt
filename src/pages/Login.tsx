@@ -66,8 +66,8 @@ export default function Login() {
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-neutral-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-800 border-t-emerald-500" />
+      <div className="flex min-h-dvh items-center justify-center bg-bg">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500" />
       </div>
     )
   }
@@ -120,134 +120,136 @@ export default function Login() {
   }
 
   const inputClass =
-    'h-11 w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3.5 pl-10 font-mono text-sm text-white outline-none transition-colors duration-200 placeholder:text-neutral-600 focus:border-emerald-500/50'
+    'h-11 w-full rounded-lg border border-edge bg-surface px-3.5 pl-10 pr-4 text-sm text-high outline-none transition-colors duration-200 placeholder:text-dim3 focus:border-emerald-500'
 
   return (
-    <div className="flex min-h-dvh flex-col justify-center bg-neutral-950 px-5 py-8">
+    <div className="radial-top flex min-h-dvh flex-col justify-center bg-bg px-5 py-8">
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-7 animate-rise">
           <div className="flex items-center gap-2.5">
             <img src="/logo-vekt.png" alt="" aria-hidden className="h-[28px] w-auto" />
             <img src="/letras-vekt-white.png" alt="Vekt" className="h-10 w-auto" />
           </div>
-          <p className="mt-3 text-sm text-neutral-400">{t('login.tagline')}</p>
+          <p className="mt-3 text-sm text-dim">{t('login.tagline')}</p>
         </div>
 
-        <div className="relative mb-6 flex rounded-lg bg-neutral-900 p-1">
-          <span
-            aria-hidden
-            className={`absolute bottom-1 left-1 top-1 w-[calc(50%-4px)] rounded-md bg-neutral-800 transition-transform duration-300 ease-out ${
-              mode === 'register' ? 'translate-x-full' : ''
-            }`}
-          />
-          {(['login', 'register'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => {
-                setMode(m)
-                setError(null)
-                setMessage(null)
-              }}
-              className={`relative z-10 flex-1 rounded-md py-2 text-sm transition-colors duration-200 ${
-                mode === m ? 'font-medium text-white' : 'text-neutral-500 hover:text-neutral-300'
+        <div className="glass-card card-hairline animate-rise rounded-2xl p-5">
+          <div className="relative mb-5 flex rounded-lg bg-surface2 p-1">
+            <span
+              aria-hidden
+              className={`absolute bottom-1 left-1 top-1 w-[calc(50%-4px)] rounded-md bg-edge2 transition-transform duration-300 ease-out ${
+                mode === 'register' ? 'translate-x-full' : ''
               }`}
-            >
-              {m === 'login' ? t('login.signIn') : t('login.signUp')}
-            </button>
-          ))}
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm text-neutral-500">
-              {t('login.email')}
-            </label>
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">
-                {EnvelopeIcon}
-              </span>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-                placeholder="tu@email.com"
-                autoComplete="email"
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="password" className="mb-1.5 block text-sm text-neutral-500">
-              {t('login.password')}
-            </label>
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">
-                {LockIcon}
-              </span>
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`${inputClass} pr-12`}
-                placeholder="••••••••"
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              />
+            />
+            {(['login', 'register'] as const).map((m) => (
               <button
+                key={m}
                 type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
-                aria-pressed={showPassword}
-                className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-neutral-500 transition-colors hover:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-700"
+                onClick={() => {
+                  setMode(m)
+                  setError(null)
+                  setMessage(null)
+                }}
+                className={`relative z-10 flex-1 rounded-md py-2 text-sm transition-colors duration-200 ${
+                  mode === m ? 'font-medium text-strong' : 'text-dim2 hover:text-dim'
+                }`}
               >
-                {showPassword ? EyeSlashIcon : EyeIcon}
+                {m === 'login' ? t('login.signIn') : t('login.signUp')}
               </button>
-            </div>
+            ))}
           </div>
 
-          {error && (
-            <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400">
-              {error}
-            </p>
-          )}
-          {message && (
-            <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
-              {message}
-            </p>
-          )}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label htmlFor="email" className="mb-1.5 block text-sm text-dim2">
+                {t('login.email')}
+              </label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-dim2">
+                  {EnvelopeIcon}
+                </span>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputClass}
+                  placeholder="tu@email.com"
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="password" className="mb-1.5 block text-sm text-dim2">
+                {t('login.password')}
+              </label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-dim2">
+                  {LockIcon}
+                </span>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`${inputClass} pr-12`}
+                  placeholder="••••••••"
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+                  aria-pressed={showPassword}
+                  className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-dim2 transition-colors hover:text-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+                >
+                  {showPassword ? EyeSlashIcon : EyeIcon}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                {error}
+              </p>
+            )}
+            {message && (
+              <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+                {message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="min-h-12 w-full rounded-lg bg-emerald-500 text-sm font-semibold text-neutral-950 transition-opacity duration-200 hover:opacity-90 active:opacity-80 disabled:opacity-50"
+            >
+              {submitting ? t('dialog.busy') : mode === 'login' ? t('login.signIn') : t('login.createAccount')}
+            </button>
+          </form>
+
+          <div className="my-5 flex items-center gap-3" aria-hidden>
+            <span className="h-px flex-1 bg-edge" />
+            <span className="text-xs text-dim3">o</span>
+            <span className="h-px flex-1 bg-edge" />
+          </div>
 
           <button
-            type="submit"
+            type="button"
+            data-testid="demo-login"
             disabled={submitting}
-            className="min-h-12 w-full rounded-lg bg-emerald-500 text-sm font-semibold text-neutral-950 transition-opacity duration-200 hover:opacity-90 active:opacity-80 disabled:opacity-50"
+            onClick={handleDemo}
+            className="min-h-12 w-full rounded-lg border border-edge bg-surface text-sm font-semibold text-soft transition-colors duration-200 hover:border-emerald-500/50 hover:text-strong active:opacity-80 disabled:opacity-50"
           >
-            {submitting ? t('dialog.busy') : mode === 'login' ? t('login.signIn') : t('login.createAccount')}
+            <span className="flex items-center justify-center gap-2">
+              ⚡ {t('login.demo')}
+            </span>
           </button>
-        </form>
-
-        <div className="my-5 flex items-center gap-3" aria-hidden>
-          <span className="h-px flex-1 bg-neutral-800" />
-          <span className="text-xs text-neutral-600">o</span>
-          <span className="h-px flex-1 bg-neutral-800" />
+          <p className="mt-2 text-center text-xs text-dim3">{t('login.demoHint')}</p>
         </div>
-
-        <button
-          type="button"
-          data-testid="demo-login"
-          disabled={submitting}
-          onClick={handleDemo}
-          className="min-h-12 w-full rounded-lg border border-neutral-700 bg-neutral-900 text-sm font-semibold text-neutral-200 transition-colors duration-200 hover:border-emerald-500/50 hover:text-white active:opacity-80 disabled:opacity-50"
-        >
-          <span className="flex items-center justify-center gap-2">
-            ⚡ {t('login.demo')}
-          </span>
-        </button>
-        <p className="mt-2 text-center text-xs text-neutral-600">{t('login.demoHint')}</p>
       </div>
     </div>
   )
