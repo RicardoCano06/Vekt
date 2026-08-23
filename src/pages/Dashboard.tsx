@@ -237,65 +237,67 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-3 gap-2">
-                <StatCard
-                  label={t('dash.sessionsDone')}
-                  value={sessionsCount}
-                  delta={sessionsCount - prevSessionsCount}
-                  icon={CheckIcon}
-                />
-                <StatCard
-                  label={t('dash.totalSets')}
-                  value={totalSets}
-                  delta={totalSets - prevTotalSets}
-                  icon={DumbbellIcon}
-                />
-                <StatCard label={t('dash.groupsWorked')} value={volume.length} icon={TargetIcon} />
-              </div>
+              <div className="grid gap-4 lg:grid-cols-5">
+                <div className="grid grid-cols-3 gap-2 lg:col-span-2 lg:grid-cols-1 lg:gap-4">
+                  <StatCard
+                    label={t('dash.sessionsDone')}
+                    value={sessionsCount}
+                    delta={sessionsCount - prevSessionsCount}
+                    icon={CheckIcon}
+                  />
+                  <StatCard
+                    label={t('dash.totalSets')}
+                    value={totalSets}
+                    delta={totalSets - prevTotalSets}
+                    icon={DumbbellIcon}
+                  />
+                  <StatCard label={t('dash.groupsWorked')} value={volume.length} icon={TargetIcon} />
+                </div>
 
-              <Card className="p-5">
-                <h2 className="font-semibold">{t('dash.volumeByGroup')}</h2>
-                <p className="mb-4 mt-1 text-xs text-dim2">
-                  {t('dash.targetHint', { n: TARGET_SETS })}
-                </p>
-                {volume.length === 0 ? (
-                  <p className="text-sm text-dim">{t('dash.noVolume')}</p>
-                ) : (
-                  <ul className="space-y-4">
-                    {volume.map((m) => {
-                      const pct = Math.min(100, (m.sets / TARGET_SETS) * 100)
-                      const reached = m.sets >= TARGET_SETS
-                      return (
-                        <li key={m.group_name}>
-                          <div className="mb-1 flex items-baseline justify-between text-sm">
-                            <span className="font-medium capitalize text-high">{t(`group.${m.group_name}`)}</span>
-                            <span
-                              className={`font-mono tabular-nums ${
-                                reached ? 'text-emerald-400' : 'text-amber-400'
-                              }`}
-                            >
-                              {m.sets}/{TARGET_SETS} {t('dash.setsShort')}
-                              {!reached && m.sets < TARGET_SETS
-                                ? ` · ${t('dash.missing', { n: TARGET_SETS - m.sets })}`
-                                : ''}
-                            </span>
-                          </div>
-                          <div className="h-2.5 overflow-hidden rounded-full bg-surface2/80 ring-1 ring-inset ring-edge">
-                            <div
-                              className={`h-full rounded-full transition-all duration-700 ease-out ${
-                                reached
-                                  ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400'
-                                  : 'bg-gradient-to-r from-amber-600 to-amber-400'
-                              }`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                )}
-              </Card>
+                <Card className="p-5 lg:col-span-3">
+                  <h2 className="font-semibold">{t('dash.volumeByGroup')}</h2>
+                  <p className="mb-4 mt-1 text-xs text-dim">
+                    {t('dash.targetHint', { n: TARGET_SETS })}
+                  </p>
+                  {volume.length === 0 ? (
+                    <p className="text-sm text-dim">{t('dash.noVolume')}</p>
+                  ) : (
+                    <ul className="space-y-4">
+                      {volume.map((m) => {
+                        const pct = Math.min(100, (m.sets / TARGET_SETS) * 100)
+                        const reached = m.sets >= TARGET_SETS
+                        return (
+                          <li key={m.group_name}>
+                            <div className="mb-1 flex items-baseline justify-between text-sm">
+                              <span className="font-medium capitalize text-high">{t(`group.${m.group_name}`)}</span>
+                              <span
+                                className={`font-mono tabular-nums ${
+                                  reached ? 'text-emerald-400' : 'text-amber-400'
+                                }`}
+                              >
+                                {m.sets}/{TARGET_SETS} {t('dash.setsShort')}
+                                {!reached && m.sets < TARGET_SETS
+                                  ? ` · ${t('dash.missing', { n: TARGET_SETS - m.sets })}`
+                                  : ''}
+                              </span>
+                            </div>
+                            <div className="h-2.5 overflow-hidden rounded-full bg-surface2/80 ring-1 ring-inset ring-edge">
+                              <div
+                                className={`h-full rounded-full transition-all duration-700 ease-out ${
+                                  reached
+                                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400'
+                                    : 'bg-gradient-to-r from-amber-600 to-amber-400'
+                                }`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
+                </Card>
+              </div>
             </>
           )}
         </div>
@@ -328,7 +330,7 @@ function StatCard({
       {delta !== undefined && delta !== 0 && (
         <p
           className={`mt-1 text-[10px] font-medium ${
-            delta > 0 ? 'text-soft' : 'text-red-400'
+            delta > 0 ? 'text-emerald-400' : 'text-red-400'
           }`}
         >
           {delta > 0 ? '▲' : '▼'} {Math.abs(delta)} {t('dash.vsPrev')}
