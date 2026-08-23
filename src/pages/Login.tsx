@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
 import { useLang } from '@/lib/lang-context'
+import { useTheme } from '@/lib/theme-context'
 import { DEMO_EMAIL, DEMO_PASSWORD, enterLocalDemo, purgeDemoLocal } from '@/lib/demo'
 import { resetDemoData } from '@/lib/demoData'
 import { DEMO_LOCAL_EVENT } from '@/lib/auth'
@@ -56,6 +57,9 @@ const EyeSlashIcon = (
 export default function Login() {
   const { user, loading } = useAuth()
   const { t } = useLang()
+  const { dark } = useTheme()
+  const logo = dark ? '/logo-vekt.png' : '/logo-vekt-dark.png'
+  const letras = dark ? '/letras-vekt-white.png' : '/letras-vekt.png'
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -127,8 +131,8 @@ export default function Login() {
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-7 animate-rise">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-vekt.png" alt="" aria-hidden className="h-[28px] w-auto" />
-            <img src="/letras-vekt-white.png" alt="Vekt" className="h-10 w-auto" />
+            <img src={logo} alt="" aria-hidden className="h-[28px] w-auto" />
+            <img src={letras} alt="Vekt" className="h-10 w-auto" />
           </div>
           <p className="mt-3 text-sm text-dim">{t('login.tagline')}</p>
         </div>
