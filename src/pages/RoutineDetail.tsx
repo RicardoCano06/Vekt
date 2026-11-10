@@ -204,14 +204,15 @@ export default function RoutineDetail() {
   }
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-3xl">
       <Link
         to="/rutinas"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-dim transition-colors hover:text-emerald-400"
+        className="inline-flex items-center gap-1 text-xs font-medium text-dim2 transition-colors hover:text-high"
       >
-        {t('rdetail.back')}
+        ← {t('nav.routines')}
       </Link>
-      <h1 className="break-words text-2xl font-bold tracking-tight">
+
+      <header className="mt-3">
         {editingName ? (
           <input
             autoFocus
@@ -225,61 +226,57 @@ export default function RoutineDetail() {
               if (e.key === 'Enter') saveRoutineName()
               if (e.key === 'Escape') setEditingName(false)
             }}
-            className="w-full max-w-sm rounded-lg border border-emerald-500/50 bg-bg px-3 py-2 text-2xl font-bold outline-none"
+            className="ui-input h-10 max-w-sm text-lg font-semibold"
           />
         ) : (
-          <span className="group inline-flex items-center gap-2">
-            {routine.name}
-            <button
-              type="button"
-              onClick={() => {
-                setRoutineName(routine.name)
-                setEditingName(true)
-              }}
-              aria-label={t('routines.rename')}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-dim2 opacity-70 transition-[opacity,background-color,color] hover:bg-surface2 hover:text-soft hover:opacity-100 focus-visible:opacity-100"
-              title={t('routines.rename')}
-            >
-              <PencilIcon />
-            </button>
-          </span>
+          <h1 className="break-words text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
+            <span className="inline-flex items-center gap-2">
+              {routine.name}
+              <button
+                type="button"
+                onClick={() => {
+                  setRoutineName(routine.name)
+                  setEditingName(true)
+                }}
+                aria-label={t('routines.rename')}
+                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-dim2 transition-colors hover:bg-surface2 hover:text-soft"
+                title={t('routines.rename')}
+              >
+                <PencilIcon className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          </h1>
         )}
-      </h1>
-      <p className="mt-1 text-sm text-dim">
-        {t('rdetail.days', {
-          n: days.length,
-          noun: days.length === 1 ? t('rdetail.dayOne') : t('rdetail.daysMany'),
-        })}
-      </p>
+        <p className="mt-1 text-sm text-dim">
+          {t('rdetail.days', {
+            n: days.length,
+            noun: days.length === 1 ? t('rdetail.dayOne') : t('rdetail.daysMany'),
+          })}
+        </p>
+      </header>
 
-      <form onSubmit={handleAddDay} className="mt-6 space-y-3">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            name="day-name"
-            aria-label={t('rdetail.dayNamePlaceholder')}
-            autoComplete="off"
-            required
-            value={newDayName}
-            onChange={(e) => setNewDayName(e.target.value)}
-            placeholder={t('rdetail.dayNamePlaceholder')}
-            className="flex-1 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-          />
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50"
-          >
-            {t('rdetail.addDay')}
-          </button>
-        </div>
+      <form onSubmit={handleAddDay} className="mt-5 flex gap-2">
+        <input
+          type="text"
+          name="day-name"
+          aria-label={t('rdetail.dayNamePlaceholder')}
+          autoComplete="off"
+          required
+          value={newDayName}
+          onChange={(e) => setNewDayName(e.target.value)}
+          placeholder={t('rdetail.dayNamePlaceholder')}
+          className="ui-input flex-1"
+        />
+        <button type="submit" disabled={saving} className="ui-button-primary shrink-0 px-5">
+          {t('rdetail.addDay')}
+        </button>
       </form>
 
-      <div className="mt-6 space-y-6">
+      <div className="mt-5 space-y-4">
         {days.length === 0 && (
-          <p className="mt-10 text-center text-sm text-dim2">
-            {t('rdetail.firstDay')}
-          </p>
+          <div className="rounded-2xl border border-dashed border-edge2 px-5 py-10 text-center">
+            <p className="text-sm text-dim2">{t('rdetail.firstDay')}</p>
+          </div>
         )}
         {days.map((day) => (
           <DayCard

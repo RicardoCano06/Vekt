@@ -98,13 +98,15 @@ export default function Routines() {
   }
 
   return (
-    <div>
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">{t('routines.title')}</h1>
+    <div className="mx-auto w-full max-w-3xl">
+      <header className="mb-5">
+        <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
+          {t('routines.title')}
+        </h1>
         <p className="mt-1 text-sm text-dim">{t('routines.subtitle')}</p>
       </header>
 
-      <form onSubmit={handleCreate} className="mb-8 flex gap-2">
+      <form onSubmit={handleCreate} className="mb-5 flex gap-2">
         <input
           type="text"
           name="routine-name"
@@ -114,13 +116,9 @@ export default function Routines() {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder={t('routines.namePlaceholder')}
-          className="flex-1 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+          className="ui-input flex-1"
         />
-        <button
-          type="submit"
-          disabled={creating}
-          className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
-        >
+        <button type="submit" disabled={creating} className="ui-button-primary shrink-0 px-5">
           {t('routines.create')}
         </button>
       </form>
@@ -128,25 +126,22 @@ export default function Routines() {
       {error ? (
         <ErrorState message={error} onRetry={load} />
       ) : loading ? (
-        <div role="status" aria-busy="true" aria-live="polite" className="grid gap-4 sm:grid-cols-2">
+        <div role="status" aria-busy="true" aria-live="polite" className="ui-card divide-y divide-edge overflow-hidden">
           <span className="sr-only">{t('common.loading')}</span>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="shimmer h-28 rounded-2xl border border-edge bg-surface" />
+            <div key={i} className="shimmer h-16 bg-surface" />
           ))}
         </div>
       ) : routines.length === 0 ? (
-        <div className="mt-16 flex flex-col items-center">
-          <CalendarIcon className="h-12 w-12 text-dim3" />
-          <p className="mt-4 font-medium">{t('routines.empty')}</p>
-          <p className="mt-1 text-sm text-dim">{t('routines.emptyHint')}</p>
+        <div className="rounded-2xl border border-dashed border-edge2 px-5 py-10 text-center">
+          <CalendarIcon className="mx-auto h-8 w-8 text-dim3" />
+          <p className="mt-3 font-medium text-high">{t('routines.empty')}</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-dim">{t('routines.emptyHint')}</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="ui-card divide-y divide-edge overflow-hidden">
           {routines.map((routine) => (
-            <div
-              key={routine.id}
-              className="group card-hairline glass-card relative rounded-2xl p-5 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-emerald-500/50"
-            >
+            <div key={routine.id} className="flex items-center gap-2 px-3 py-3 sm:px-4">
               {renaming === routine.id ? (
                 <input
                   autoFocus
@@ -160,22 +155,24 @@ export default function Routines() {
                     if (e.key === 'Enter') handleRename(routine.id)
                     if (e.key === 'Escape') setRenaming(null)
                   }}
-                  className="w-full rounded-lg border border-emerald-500/50 bg-bg px-3 py-2 font-semibold outline-none"
+                  className="ui-input h-10 min-w-0 flex-1 text-sm font-semibold"
                 />
               ) : (
-                <Link to={`/rutinas/${routine.id}`} className="block">
-                  <h2 className="break-words font-semibold">{routine.name}</h2>
+                <Link to={`/rutinas/${routine.id}`} className="group min-w-0 flex-1">
+                  <h2 className="truncate text-sm font-semibold text-high transition-colors group-hover:text-emerald-400">
+                    {routine.name}
+                  </h2>
                   {routine.description && (
-                    <p className="mt-1 text-sm text-dim">{routine.description}</p>
+                    <p className="mt-0.5 line-clamp-1 text-xs text-dim">{routine.description}</p>
                   )}
-                  <p className="mt-3 text-xs text-dim2">
+                  <p className="mt-1 text-[11px] text-dim2">
                     {new Date(routine.created_at).toLocaleDateString(
                       lang === 'en' ? 'en-US' : 'es-AR',
                     )}
                   </p>
                 </Link>
               )}
-              <div className="absolute right-3 top-3 flex items-center gap-0.5">
+              <div className="flex shrink-0 items-center gap-0.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -183,20 +180,20 @@ export default function Routines() {
                     setRenaming(routine.id)
                   }}
                   aria-label={t('routines.rename')}
-                  className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-sm text-dim2 transition-colors hover:bg-surface2 hover:text-soft"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-surface2 hover:text-soft"
                   title={t('routines.rename')}
                 >
-                  <PencilIcon />
+                  <PencilIcon className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDelete(routine.id, routine.name)}
                   disabled={deleting === routine.id}
                   aria-label={t('routines.deleteHint')}
-                  className="flex min-h-11 min-w-11 items-center justify-center rounded-lg px-2 text-sm text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-30"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-30"
                   title={t('routines.deleteHint')}
                 >
-                  <TrashIcon />
+                  <TrashIcon className="h-4 w-4" />
                 </button>
               </div>
             </div>

@@ -55,9 +55,9 @@ export default function DayCard({
   const exCount = day.exercises?.length ?? 0
 
   return (
-    <section className="glass-card card-hairline relative overflow-hidden rounded-2xl">
-      <div className="px-5 pt-5 pb-4">
-        <div className="flex items-start justify-between gap-3">
+    <section className="ui-card relative overflow-hidden">
+      <div className="px-4 pb-3 pt-4">
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             {editingName ? (
               <input
@@ -69,10 +69,11 @@ export default function DayCard({
                 onChange={(e) => setName(e.target.value)}
                 onBlur={saveName}
                 onKeyDown={(e) => e.key === 'Enter' && saveName()}
-                className="w-full rounded-lg border border-emerald-500/50 bg-bg px-3 py-2 text-lg font-bold outline-none"
+                className="ui-input h-10 text-base font-semibold"
               />
             ) : (
               <button
+                type="button"
                 onClick={() => {
                   setName(day.name ?? '')
                   setEditingName(true)
@@ -80,13 +81,13 @@ export default function DayCard({
                 className="flex w-full items-center gap-2 text-left"
                 title={t('day.rename')}
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface2 text-xs font-bold text-soft">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-surface2 text-[11px] font-semibold text-dim">
                   {day.day_number}
                 </span>
-                <h3 className="break-words text-lg font-bold tracking-tight">
+                <h3 className="break-words text-base font-semibold text-strong">
                   {day.name ?? t('day.number', { n: day.day_number })}
                 </h3>
-                <PencilIcon className="text-dim2" />
+                <PencilIcon className="h-3 w-3 shrink-0 text-dim2" />
               </button>
             )}
           </div>
@@ -103,11 +104,11 @@ export default function DayCard({
                 onConfirm: onDelete,
               })
             }
-            className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400"
             title={t('day.deleteTitle')}
             aria-label={t('day.deleteTitle')}
           >
-            <TrashIcon />
+            <TrashIcon className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -126,13 +127,14 @@ export default function DayCard({
           ))}
         </ul>
       ) : (
-        <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
+        <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
           <svg
             viewBox="0 0 48 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
-            className="h-12 w-24 text-dim2"
+            aria-hidden="true"
+            className="h-10 w-20 text-dim3"
           >
             <rect x="2" y="4" width="8" height="16" rx="2" />
             <rect x="38" y="4" width="8" height="16" rx="2" />
@@ -141,8 +143,9 @@ export default function DayCard({
           <p className="text-sm font-medium text-soft">{t('day.emptyTitle')}</p>
           <p className="text-xs text-dim2">{t('day.emptyHint')}</p>
           <button
+            type="button"
             onClick={() => onOpenOverlay(day)}
-            className="mt-1 flex min-h-11 w-full max-w-xs items-center justify-center gap-1.5 rounded-xl border border-dashed border-edge2 px-4 py-2 text-sm font-medium text-dim transition-colors hover:bg-surface2 hover:text-soft"
+            className="mt-2 flex min-h-10 w-full max-w-xs items-center justify-center gap-1.5 rounded-lg border border-dashed border-edge2 px-4 text-sm font-medium text-dim transition-colors hover:bg-surface2 hover:text-soft"
           >
             <span className="text-base leading-none">+</span> {t('day.addExercises')}
           </button>
@@ -150,10 +153,11 @@ export default function DayCard({
       )}
 
       {exCount > 0 && (
-        <div className="px-4 pb-3 pt-2">
+        <div className="px-3 pb-3 pt-1">
           <button
+            type="button"
             onClick={() => onOpenOverlay(day)}
-            className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-edge2 text-sm font-medium text-dim transition-colors hover:bg-surface2 hover:text-soft"
+            className="flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-edge2 text-sm font-medium text-dim transition-colors hover:bg-surface2 hover:text-soft"
           >
             <span className="text-base leading-none">+</span> {t('day.addExercise')}
           </button>
@@ -161,7 +165,7 @@ export default function DayCard({
       )}
 
       <div className="border-t border-edge px-4 py-3">
-        <span className="text-xs text-dim2">
+        <span className="text-[11px] text-dim2">
           {t('day.count', {
             n: exCount,
             noun: exCount === 1 ? t('day.exerciseOne') : t('day.exercisesMany'),
@@ -169,10 +173,7 @@ export default function DayCard({
         </span>
 
         {exCount > 0 && (
-          <Link
-            to={`/entrenar/${day.id}`}
-            className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 hover:shadow-[0_4px_28px_rgba(167,139,250,0.5)] active:scale-[0.98]"
-          >
+          <Link to={`/entrenar/${day.id}`} className="ui-button-primary mt-2.5 w-full">
             {t('day.startTraining')}
           </Link>
         )}
@@ -218,22 +219,22 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
 
   return (
     <SwipeRow actionLabel={t('day.removeAction')} onAction={onRemove} bgClass="bg-surface">
-      <li className="flex items-start gap-3 px-4 py-3">
+      <li className="flex items-start gap-2.5 px-3 py-2.5">
         {ex?.image_url && (
           <img
             src={ex.image_url}
             alt=""
-            width={40}
-            height={40}
+            width={36}
+            height={36}
             loading="lazy"
-            className="mt-0.5 h-10 w-10 shrink-0 rounded-lg object-cover"
+            className="mt-0.5 h-9 w-9 shrink-0 rounded-lg object-cover"
           />
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <Link
               to={`/ejercicios/${ex?.id}`}
-              className="line-clamp-2 text-sm font-medium hover:text-emerald-400"
+              className="line-clamp-2 text-[13px] font-medium text-high hover:text-emerald-400"
             >
               {ex ? displayName(ex, lang) : t('day.exercise')}
             </Link>
@@ -248,9 +249,9 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
                     : t('day.makeSuperset')
                 }
                 aria-pressed={item.superset_group != null}
-                className={`flex min-h-9 min-w-9 items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30 ${
+                className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30 ${
                   item.superset_group != null
-                    ? 'bg-surface2 text-soft ring-1 ring-inset ring-edge2'
+                    ? 'bg-surface2 text-soft'
                     : 'text-dim2 hover:bg-surface2 hover:text-soft'
                 }`}
                 title={
@@ -265,14 +266,14 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
                 type="button"
                 onClick={onRemove}
                 aria-label={t('day.removeExercise')}
-                className="flex min-h-9 min-w-9 items-center justify-center rounded-lg text-sm text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400"
                 title={t('day.removeExercise')}
               >
                 <TrashIcon className="h-4 w-4" />
               </button>
             </div>
           </div>
-          <div className="mt-2 flex flex-nowrap items-center gap-1 overflow-x-auto">
+          <div className="mt-1.5 flex flex-wrap items-center gap-1">
             <input
               type="number"
               name="sets"
@@ -283,9 +284,9 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
               value={sets}
               onChange={(e) => setSets(Number(e.target.value))}
               onBlur={() => sets !== item.sets && save({ sets })}
-              className="min-h-9 w-11 shrink-0 rounded-lg border border-edge bg-bg px-1.5 text-center text-sm outline-none focus:border-emerald-500"
+              className="h-8 w-10 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
             />
-            <span className="whitespace-nowrap text-xs text-dim2">{t('day.setsShort')}</span>
+            <span className="whitespace-nowrap text-[11px] text-dim2">{t('day.setsShort')}</span>
             <span className="text-dim4">·</span>
             <input
               type="text"
@@ -295,9 +296,9 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
               value={reps}
               onChange={(e) => setReps(e.target.value)}
               onBlur={() => reps !== item.reps && save({ reps })}
-              className="min-h-9 w-11 shrink-0 rounded-lg border border-edge bg-bg px-1.5 text-center text-sm outline-none focus:border-emerald-500"
+              className="h-8 w-10 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
             />
-            <span className="whitespace-nowrap text-xs text-dim2">{t('day.repsShort')}</span>
+            <span className="whitespace-nowrap text-[11px] text-dim2">{t('day.repsShort')}</span>
             <span className="text-dim4">·</span>
             <input
               type="number"
@@ -310,10 +311,10 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
               value={rest}
               onChange={(e) => setRest(Number(e.target.value))}
               onBlur={() => rest !== item.rest_seconds && save({ rest_seconds: rest })}
-              className="min-h-9 w-12 shrink-0 rounded-lg border border-edge bg-bg px-1.5 text-center text-sm outline-none focus:border-emerald-500"
+              className="h-8 w-11 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
             />
-            <span className="whitespace-nowrap text-xs text-dim2">{t('day.sec')}</span>
-            <span role="status" aria-live="polite" className="shrink-0 text-xs text-dim">
+            <span className="whitespace-nowrap text-[11px] text-dim2">{t('day.sec')}</span>
+            <span role="status" aria-live="polite" className="text-xs text-emerald-400">
               {saved ? '✓' : ''}
               <span className="sr-only">{saved ? t('common.saved') : ''}</span>
             </span>
