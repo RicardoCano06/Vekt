@@ -62,6 +62,9 @@ export default function DayCard({
             {editingName ? (
               <input
                 autoFocus
+                name="day-name"
+                aria-label={t('day.rename')}
+                autoComplete="off"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onBlur={saveName}
@@ -80,7 +83,7 @@ export default function DayCard({
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface2 text-xs font-bold text-soft">
                   {day.day_number}
                 </span>
-                <h3 className="text-lg font-bold tracking-tight">
+                <h3 className="break-words text-lg font-bold tracking-tight">
                   {day.name ?? t('day.number', { n: day.day_number })}
                 </h3>
                 <PencilIcon className="text-dim2" />
@@ -88,6 +91,7 @@ export default function DayCard({
             )}
           </div>
           <button
+            type="button"
             onClick={() =>
               ask({
                 title: t('day.deleteTitle'),
@@ -167,7 +171,7 @@ export default function DayCard({
         {exCount > 0 && (
           <Link
             to={`/entrenar/${day.id}`}
-            className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(16,185,129,0.35)] transition-all duration-200 hover:bg-emerald-400 hover:shadow-[0_4px_28px_rgba(16,185,129,0.5)] active:scale-[0.98]"
+            className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 hover:shadow-[0_4px_28px_rgba(167,139,250,0.5)] active:scale-[0.98]"
           >
             {t('day.startTraining')}
           </Link>
@@ -219,6 +223,8 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
           <img
             src={ex.image_url}
             alt=""
+            width={40}
+            height={40}
             loading="lazy"
             className="mt-0.5 h-10 w-10 shrink-0 rounded-lg object-cover"
           />
@@ -233,8 +239,15 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
             </Link>
             <div className="flex shrink-0 items-center gap-0.5">
               <button
+                type="button"
                 onClick={onToggleSuperset}
                 disabled={item.superset_group == null && !canPair}
+                aria-label={
+                  item.superset_group != null
+                    ? t('day.removeSuperset')
+                    : t('day.makeSuperset')
+                }
+                aria-pressed={item.superset_group != null}
                 className={`flex min-h-9 min-w-9 items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30 ${
                   item.superset_group != null
                     ? 'bg-surface2 text-soft ring-1 ring-inset ring-edge2'
@@ -249,7 +262,9 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
                 ↔
               </button>
               <button
+                type="button"
                 onClick={onRemove}
+                aria-label={t('day.removeExercise')}
                 className="flex min-h-9 min-w-9 items-center justify-center rounded-lg text-sm text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400"
                 title={t('day.removeExercise')}
               >
@@ -260,37 +275,48 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
           <div className="mt-2 flex flex-nowrap items-center gap-1 overflow-x-auto">
             <input
               type="number"
+              name="sets"
+              inputMode="numeric"
+              autoComplete="off"
               min={1}
+              aria-label={t('day.sets')}
               value={sets}
               onChange={(e) => setSets(Number(e.target.value))}
               onBlur={() => sets !== item.sets && save({ sets })}
               className="min-h-9 w-11 shrink-0 rounded-lg border border-edge bg-bg px-1.5 text-center text-sm outline-none focus:border-emerald-500"
-              title={t('day.sets')}
             />
             <span className="whitespace-nowrap text-xs text-dim2">{t('day.setsShort')}</span>
             <span className="text-dim4">·</span>
             <input
               type="text"
+              name="reps"
+              aria-label={t('day.reps')}
+              autoComplete="off"
               value={reps}
               onChange={(e) => setReps(e.target.value)}
               onBlur={() => reps !== item.reps && save({ reps })}
               className="min-h-9 w-11 shrink-0 rounded-lg border border-edge bg-bg px-1.5 text-center text-sm outline-none focus:border-emerald-500"
-              title={t('day.reps')}
             />
             <span className="whitespace-nowrap text-xs text-dim2">{t('day.repsShort')}</span>
             <span className="text-dim4">·</span>
             <input
               type="number"
+              name="rest"
+              inputMode="numeric"
+              autoComplete="off"
               min={0}
               step={15}
+              aria-label={t('day.rest')}
               value={rest}
               onChange={(e) => setRest(Number(e.target.value))}
               onBlur={() => rest !== item.rest_seconds && save({ rest_seconds: rest })}
               className="min-h-9 w-12 shrink-0 rounded-lg border border-edge bg-bg px-1.5 text-center text-sm outline-none focus:border-emerald-500"
-              title={t('day.rest')}
             />
             <span className="whitespace-nowrap text-xs text-dim2">{t('day.sec')}</span>
-            {saved && <span className="shrink-0 text-xs text-dim">✓</span>}
+            <span role="status" aria-live="polite" className="shrink-0 text-xs text-dim">
+              {saved ? '✓' : ''}
+              <span className="sr-only">{saved ? t('common.saved') : ''}</span>
+            </span>
           </div>
         </div>
       </li>

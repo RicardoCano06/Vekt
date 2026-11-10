@@ -21,6 +21,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', !dark)
+    document
+      .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+      ?.setAttribute('content', dark ? '#0a0910' : '#f7f5fb')
     try {
       localStorage.setItem('gymtrack-theme', dark ? 'dark' : 'light')
     } catch {

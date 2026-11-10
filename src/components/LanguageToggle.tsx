@@ -25,11 +25,11 @@ function GlobeIcon({ className }: { className?: string }) {
 }
 
 export default function LanguageToggle({ subtle = false }: { subtle?: boolean }) {
-  const { lang, setLang } = useLang()
+  const { lang, setLang, t } = useLang()
 
   if (subtle) {
     return (
-      <div role="group" aria-label="Idioma" className="flex items-center gap-0.5">
+      <div role="group" aria-label={t('common.language')} className="flex items-center gap-0.5">
         {OPTIONS.map((o) => (
           <button
             key={o.value}
@@ -51,7 +51,7 @@ export default function LanguageToggle({ subtle = false }: { subtle?: boolean })
   return (
     <div
       role="group"
-      aria-label="Idioma"
+      aria-label={t('common.language')}
       className="relative flex h-11 min-w-28 items-stretch rounded-xl border border-edge bg-surface p-1"
     >
       <span

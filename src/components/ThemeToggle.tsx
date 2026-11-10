@@ -7,13 +7,14 @@ export default function ThemeToggle({ subtle = false }: { subtle?: boolean }) {
 
   return (
     <button
+      type="button"
       onClick={toggle}
       title={dark ? t('theme.toggleLight') : t('theme.toggleDark')}
       aria-label={dark ? t('theme.toggleLight') : t('theme.toggleDark')}
-      className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 ${
+      className={`flex h-9 w-9 items-center justify-center rounded-lg transition-[color,background-color,border-color] duration-200 ${
         subtle
           ? 'text-dim hover:text-high'
-          : 'border border-edge2 text-dim2 transition-all duration-200 hover:bg-surface2 hover:text-soft'
+          : 'border border-edge2 text-dim2 hover:bg-surface2 hover:text-soft'
       }`}
     >
       {dark ? (

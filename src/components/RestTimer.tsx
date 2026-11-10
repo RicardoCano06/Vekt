@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useRestTimer } from '@/components/TimerContext'
 import { useLang } from '@/lib/lang-context'
 
@@ -6,8 +7,18 @@ const R = 30
 const C = 2 * Math.PI * R
 
 export default function RestTimer() {
-  const { running, remaining, total, start, extend, stop } = useRestTimer()
+  const { running, remaining, total, start, extend, stop, finished } = useRestTimer()
   const { t } = useLang()
+  const [announcement, setAnnouncement] = useState('')
+  const lastFinished = useRef(finished)
+
+  useEffect(() => {
+    if (finished === lastFinished.current) return
+    lastFinished.current = finished
+    setAnnouncement(t('rest.finished'))
+    const timer = window.setTimeout(() => setAnnouncement(''), 5000)
+    return () => window.clearTimeout(timer)
+  }, [finished, t])
 
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0')
   const ss = String(remaining % 60).padStart(2, '0')
@@ -18,12 +29,13 @@ export default function RestTimer() {
     ? 'var(--color-edge2)'
     : urgent
       ? '#f43f5e'
-      : '#10b981'
+      : '#a78bfa'
 
   return (
     <div className="glass-card card-hairline flex flex-wrap items-center gap-4 rounded-2xl px-4 py-3">
+      <span className="sr-only" role="status" aria-live="polite">{announcement}</span>
       <div className="relative h-16 w-16 shrink-0">
-        <svg viewBox="0 0 72 72" className="h-full w-full -rotate-90">
+        <svg viewBox="0 0 72 72" aria-hidden="true" className="h-full w-full -rotate-90">
           <circle
             cx="36"
             cy="36"
@@ -42,7 +54,6 @@ export default function RestTimer() {
             strokeLinecap="round"
             strokeDasharray={C}
             strokeDashoffset={C * (1 - progress)}
-            className="transition-all duration-300 ease-linear"
           />
         </svg>
         <span
@@ -67,7 +78,7 @@ export default function RestTimer() {
             <button
               key={s}
               onClick={() => start(s)}
-              className="min-h-11 rounded-lg bg-surface2 px-3 py-2 font-mono text-xs font-medium text-soft transition-all duration-200 hover:bg-surface hover:text-strong active:scale-95"
+              className="min-h-11 rounded-lg bg-surface2 px-3 py-2 font-mono text-xs font-medium text-soft transition-[background-color,color,transform] duration-200 hover:bg-surface hover:text-strong active:scale-95"
             >
               {s / 60}m
             </button>
@@ -77,13 +88,13 @@ export default function RestTimer() {
         <div className="flex gap-1.5">
           <button
             onClick={extend}
-            className="min-h-11 rounded-lg bg-surface2 px-3 py-2 text-xs font-medium text-soft transition-all duration-200 hover:bg-surface hover:text-strong active:scale-95"
+            className="min-h-11 rounded-lg bg-surface2 px-3 py-2 text-xs font-medium text-soft transition-[background-color,color,transform] duration-200 hover:bg-surface hover:text-strong active:scale-95"
           >
             +30s
           </button>
           <button
             onClick={stop}
-            className="min-h-11 rounded-lg bg-surface2 px-3 py-2 text-xs font-medium text-soft transition-all duration-200 hover:bg-rose-500/20 hover:text-rose-400 active:scale-95"
+            className="min-h-11 rounded-lg bg-surface2 px-3 py-2 text-xs font-medium text-soft transition-[background-color,color,transform] duration-200 hover:bg-rose-500/20 hover:text-rose-400 active:scale-95"
           >
             {t('rest.stop')}
           </button>

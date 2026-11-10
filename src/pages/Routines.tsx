@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useConfirm } from '@/lib/use-confirm'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
+import ErrorState from '@/components/ErrorState'
 import { createRoutine, deleteRoutine, fetchRoutines, updateRoutine } from '@/lib/db'
 import type { Routine } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
@@ -17,6 +18,7 @@ export default function Routines() {
   const { lang, t } = useLang()
   const [routines, setRoutines] = useState<Routine[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -37,13 +39,23 @@ export default function Routines() {
     }
   }
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!user) return
+    setLoading(true)
+    setError(null)
     fetchRoutines(user.id)
       .then(setRoutines)
-      .catch(console.error)
+      .catch((err) => {
+        console.error(err)
+        setError(t('routines.loadError'))
+      })
       .finally(() => setLoading(false))
-  }, [user])
+  }, [user, t])
+
+  useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
+    load()
+  }, [load])
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault()
@@ -95,22 +107,29 @@ export default function Routines() {
       <form onSubmit={handleCreate} className="mb-8 flex gap-2">
         <input
           type="text"
+          name="routine-name"
+          aria-label={t('routines.namePlaceholder')}
+          autoComplete="off"
+          required
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder={t('routines.namePlaceholder')}
-          className="flex-1 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-dim2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+          className="flex-1 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
         />
         <button
           type="submit"
-          disabled={creating || !newName.trim()}
-          className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(16,185,129,0.35)] transition-all duration-200 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
+          disabled={creating}
+          className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
         >
           {t('routines.create')}
         </button>
       </form>
 
-      {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+      {error ? (
+        <ErrorState message={error} onRetry={load} />
+      ) : loading ? (
+        <div role="status" aria-busy="true" aria-live="polite" className="grid gap-4 sm:grid-cols-2">
+          <span className="sr-only">{t('common.loading')}</span>
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="shimmer h-28 rounded-2xl border border-edge bg-surface" />
           ))}
@@ -126,11 +145,14 @@ export default function Routines() {
           {routines.map((routine) => (
             <div
               key={routine.id}
-              className="group card-hairline glass-card relative rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500/50"
+              className="group card-hairline glass-card relative rounded-2xl p-5 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-emerald-500/50"
             >
               {renaming === routine.id ? (
                 <input
                   autoFocus
+                  name="routine-rename"
+                  aria-label={t('routines.rename')}
+                  autoComplete="off"
                   value={renameValue}
                   onChange={(e) => setRenameValue(e.target.value)}
                   onBlur={() => handleRename(routine.id)}
@@ -142,7 +164,7 @@ export default function Routines() {
                 />
               ) : (
                 <Link to={`/rutinas/${routine.id}`} className="block">
-                  <h2 className="font-semibold">{routine.name}</h2>
+                  <h2 className="break-words font-semibold">{routine.name}</h2>
                   {routine.description && (
                     <p className="mt-1 text-sm text-dim">{routine.description}</p>
                   )}
@@ -155,18 +177,22 @@ export default function Routines() {
               )}
               <div className="absolute right-3 top-3 flex items-center gap-0.5">
                 <button
+                  type="button"
                   onClick={() => {
                     setRenameValue(routine.name)
                     setRenaming(routine.id)
                   }}
+                  aria-label={t('routines.rename')}
                   className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-sm text-dim2 transition-colors hover:bg-surface2 hover:text-soft"
                   title={t('routines.rename')}
                 >
                   <PencilIcon />
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDelete(routine.id, routine.name)}
                   disabled={deleting === routine.id}
+                  aria-label={t('routines.deleteHint')}
                   className="flex min-h-11 min-w-11 items-center justify-center rounded-lg px-2 text-sm text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-30"
                   title={t('routines.deleteHint')}
                 >

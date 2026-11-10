@@ -33,6 +33,7 @@ const OP_TIMEOUT = 15000
 const MAX_BACKOFF = 15000
 const QUEUE_TTL_MS = 30 * 24 * 60 * 60 * 1000
 
+let currentUserId: string | null = null
 let queue: PendingOp[] = loadQueue()
 let flushTimer: number | null = null
 let flushing = false
@@ -40,7 +41,6 @@ let hasLock = false
 let lockOwner = ''
 let lockHeartbeat: number | null = null
 let paused = loadPaused()
-let currentUserId: string | null = null
 const inFlight = new Set<string>()
 
 const listeners = new Set<() => void>()

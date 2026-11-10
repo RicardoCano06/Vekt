@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
 import { fetchExportData, fetchSessionSetsWithExercises, fetchSessions } from '@/lib/db'
@@ -8,6 +9,7 @@ import type { ExportRow } from '@/lib/db'
 import type { Session, SessionSet } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
 import { displayName } from '@/lib/i18n'
+import { formatDuration } from '@/lib/format'
 
 type SessionWithMeta = Session & {
   routine_days: { name: string | null; day_number: number } | null
@@ -20,6 +22,14 @@ function feelingEmoji(f: number | null) {
   if (f >= 7) return '🙂'
   if (f >= 5) return '😐'
   return '😩'
+}
+
+function feelingLabel(f: number | null, t: (key: string) => string): string | null {
+  if (f === null) return null
+  if (f >= 9) return t('train.feelGreat')
+  if (f >= 7) return t('train.feelGood')
+  if (f >= 5) return t('train.feelOkay')
+  return t('train.feelVeryHard')
 }
 
 function escapeCell(value: string): string {
@@ -96,6 +106,8 @@ export default function History() {
   const { user } = useAuth()
   const { pushToast } = useToast()
   const { lang, t } = useLang()
+  const [params, setParams] = useSearchParams()
+  const openIds = (params.get('sesion') ?? '').split(',').filter(Boolean)
   const [sessions, setSessions] = useState<SessionWithMeta[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -115,8 +127,22 @@ export default function History() {
   }, [user, t])
 
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     load()
   }, [load])
+
+  const toggleSession = useCallback(
+    (id: string) => {
+      const next = new URLSearchParams(params)
+      const current = new Set((next.get('sesion') ?? '').split(',').filter(Boolean))
+      if (current.has(id)) current.delete(id)
+      else current.add(id)
+      if (current.size > 0) next.set('sesion', [...current].join(','))
+      else next.delete('sesion')
+      setParams(next, { replace: true })
+    },
+    [params, setParams],
+  )
 
   async function handleExport() {
     if (!user || exporting) return
@@ -157,7 +183,7 @@ export default function History() {
             <button
               onClick={handleExport}
               disabled={exporting}
-              className="rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-dim transition-all duration-200 hover:border-emerald-500 hover:text-emerald-400 active:scale-[0.98] disabled:opacity-50"
+              className="rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-dim transition-[color,border-color,transform] duration-200 hover:border-emerald-500 hover:text-emerald-400 active:scale-[0.98] disabled:opacity-50"
             >
               {exporting ? t('history.exporting') : t('history.export')}
             </button>
@@ -168,7 +194,8 @@ export default function History() {
       {error ? (
         <ErrorState message={error} onRetry={load} />
       ) : loading ? (
-        <div className="space-y-3">
+        <div role="status" aria-busy="true" aria-live="polite" className="space-y-3">
+          <span className="sr-only">{t('common.loading')}</span>
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="shimmer h-20 rounded-2xl border border-edge bg-surface" />
           ))}
@@ -192,7 +219,12 @@ export default function History() {
                 </p>
                 <div className="space-y-3">
                   {daySessions.map((session) => (
-                    <SessionCard key={session.id} session={session} />
+                    <SessionCard
+                      key={session.id}
+                      session={session}
+                      open={openIds.includes(session.id)}
+                      onToggle={() => toggleSession(session.id)}
+                    />
                   ))}
                 </div>
               </div>
@@ -203,47 +235,64 @@ export default function History() {
   )
 }
 
-function SessionCard({ session }: { session: SessionWithMeta }) {
+function SessionCard({
+  session,
+  open,
+  onToggle,
+}: {
+  session: SessionWithMeta
+  open: boolean
+  onToggle: () => void
+}) {
   const { pushToast } = useToast()
-  const { lang, t } = useLang()
-  const [open, setOpen] = useState(false)
+  const { lang, t, locale } = useLang()
   const [sets, setSets] = useState<
     (SessionSet & { exercises: { id: string; name: string; image_url: string | null } })[]
   >([])
   const [loadingSets, setLoadingSets] = useState(false)
+  const [loaded, setLoaded] = useState(false)
 
-  async function toggle() {
-    if (open) {
-      setOpen(false)
-      return
-    }
-    setOpen(true)
-    if (sets.length === 0) {
-      setLoadingSets(true)
-      try {
-        const rows = await fetchSessionSetsWithExercises(session.id)
+  useEffect(() => {
+    if (!open || loaded) return
+    let cancelled = false
+    // eslint-disable-next-line react/set-state-in-effect
+    setLoadingSets(true)
+    fetchSessionSetsWithExercises(session.id)
+      .then((rows) => {
+        if (cancelled) return
         setSets(rows)
-      } catch (err) {
+        setLoaded(true)
+      })
+      .catch((err) => {
         console.error(err)
-        pushToast('error', t('history.setsLoadError'))
-      } finally {
-        setLoadingSets(false)
-      }
+        if (!cancelled) pushToast('error', t('history.setsLoadError'))
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSets(false)
+      })
+    return () => {
+      cancelled = true
     }
-  }
+  }, [open, loaded, session.id, pushToast, t])
 
   const date = new Date(session.started_at)
-  const locale = lang === 'en' ? 'en-US' : 'es-AR'
   const dayName =
     session.routine_days?.name ??
     (session.routine_days ? t('day.number', { n: session.routine_days.day_number }) : '')
   const duration = session.duration_minutes
-    ? `${Math.floor(session.duration_minutes / 60)}h ${session.duration_minutes % 60}m`
+    ? formatDuration(session.duration_minutes, locale)
     : '—'
+  const feeling = feelingLabel(session.feeling, t)
 
   return (
-    <div className="glass-card card-hairline overflow-hidden rounded-2xl">
-      <button onClick={toggle} className="flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-surface2/40">
+    <div className="glass-card card-hairline overflow-hidden rounded-2xl [contain-intrinsic-size:auto_96px] [content-visibility:auto]">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={`session-panel-${session.id}`}
+        className="flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-surface2/40"
+      >
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">
             {dayName}
@@ -263,9 +312,20 @@ function SessionCard({ session }: { session: SessionWithMeta }) {
           </p>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <span className="flex items-center gap-1 text-dim"><ClockIcon /> {duration}</span>
-          <span className="w-6 text-center text-lg">{feelingEmoji(session.feeling)}</span>
+          <span className="flex items-center gap-1 text-dim">
+            <ClockIcon /> {duration}
+          </span>
+          {feeling ? (
+            <span role="img" aria-label={feeling} className="w-6 text-center text-lg">
+              {feelingEmoji(session.feeling)}
+            </span>
+          ) : (
+            <span aria-hidden="true" className="w-6 text-center text-lg">
+              {feelingEmoji(session.feeling)}
+            </span>
+          )}
           <span
+            aria-hidden="true"
             className={`text-dim2 transition-transform ${open ? 'rotate-180' : ''}`}
           >
             ▾
@@ -274,9 +334,11 @@ function SessionCard({ session }: { session: SessionWithMeta }) {
       </button>
 
       {open && (
-        <div className="border-t border-edge">
+        <div id={`session-panel-${session.id}`} className="border-t border-edge">
           {loadingSets ? (
-            <p className="px-4 py-6 text-center text-sm text-dim2">{t('history.loadingSets')}</p>
+            <p role="status" className="px-4 py-6 text-center text-sm text-dim2">
+              {t('history.loadingSets')}
+            </p>
           ) : sets.length === 0 ? (
             <p className="px-4 py-6 text-center text-sm text-dim2">
               {t('history.noSets')}
@@ -292,6 +354,9 @@ function SessionCard({ session }: { session: SessionWithMeta }) {
                         <img
                           src={ex.image_url}
                           alt=""
+                          width={32}
+                          height={32}
+                          loading="lazy"
                           className="h-8 w-8 rounded-md object-cover"
                         />
                       )}
@@ -301,13 +366,15 @@ function SessionCard({ session }: { session: SessionWithMeta }) {
                       {rows.map((s) => (
                         <span
                           key={s.id}
-className={`rounded-md px-2 py-1 font-mono text-xs tabular-nums ${
-  s.completed
-    ? 'bg-surface2 text-soft ring-1 ring-inset ring-edge'
-    : 'bg-surface2 text-dim2 line-through'
-}`}
+                          className={`rounded-md px-2 py-1 font-mono text-xs tabular-nums ${
+                            s.completed
+                              ? 'bg-surface2 text-soft ring-1 ring-inset ring-edge'
+                              : 'bg-surface2 text-dim2 line-through'
+                          }`}
                         >
-                          {s.weight_kg !== null ? `${s.weight_kg}kg × ${s.reps ?? '-'}` : t('history.repsOnly', { n: s.reps ?? '-' })}
+                          {s.weight_kg !== null
+                            ? `${s.weight_kg} kg × ${s.reps ?? '-'}`
+                            : t('history.repsOnly', { n: s.reps ?? '-' })}
                           {s.rpe !== null && ` · RPE ${s.rpe}`}
                         </span>
                       ))}
@@ -319,7 +386,8 @@ className={`rounded-md px-2 py-1 font-mono text-xs tabular-nums ${
           )}
           {session.notes && (
             <p className="border-t border-edge px-4 py-3 text-sm text-dim">
-              📝 {session.notes}
+              <span aria-hidden="true">📝</span>{' '}
+              <span className="break-words">{session.notes}</span>
             </p>
           )}
         </div>

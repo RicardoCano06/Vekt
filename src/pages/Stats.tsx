@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
+import ErrorState from '@/components/ErrorState'
 import { ProgressChart } from '@/components/ProgressChart'
 import { formatShortDate } from '@/lib/format'
 import {
@@ -15,7 +16,7 @@ import { useLang } from '@/lib/lang-context'
 import { displayName } from '@/lib/i18n'
 
 const GROUP_COLORS = [
-  '#10b981',
+  '#a78bfa',
   '#f59e0b',
   '#3b82f6',
   '#8b5cf6',
@@ -31,28 +32,33 @@ export default function Stats() {
   const [volume, setVolume] = useState<WeeklyVolumePoint[]>([])
   const [prs, setPrs] = useState<PR[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!user) return
-    let cancelled = false
+    setLoading(true)
+    setError(null)
     Promise.all([
       fetchStreak(user.id),
       fetchWeeklyVolumeSeries(user.id),
       fetchPRs(user.id),
     ])
       .then(([s, v, p]) => {
-        if (cancelled) return
         setStreak(s)
         setVolume(v)
         setPrs(p)
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : t('stats.loadError'))
+        console.error(e)
+        setError(t('stats.loadError'))
       })
-    return () => {
-      cancelled = true
-    }
+      .finally(() => setLoading(false))
   }, [user, t])
+
+  useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
+    load()
+  }, [load])
 
   if (!user) return null
 
@@ -63,12 +69,20 @@ export default function Stats() {
         <p className="mt-1 text-sm text-dim">{t('stats.subtitle')}</p>
       </header>
 
-      {error && (
-        <p className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-400">
-          {error}
-        </p>
-      )}
-
+      {error ? (
+        <ErrorState message={error} onRetry={load} />
+      ) : loading ? (
+        <div role="status" aria-busy="true" aria-live="polite" className="mt-6 space-y-3">
+          <span className="sr-only">{t('common.loading')}</span>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="shimmer h-24 rounded-2xl border border-edge bg-surface" />
+            <div className="shimmer h-24 rounded-2xl border border-edge bg-surface" />
+          </div>
+          <div className="shimmer h-48 rounded-2xl border border-edge bg-surface" />
+          <div className="shimmer h-32 rounded-2xl border border-edge bg-surface" />
+        </div>
+      ) : (
+        <>
       <section className="mt-6 grid grid-cols-2 gap-3">
         <StreakCard label={t('stats.currentStreak')} value={streak?.current ?? null} />
         <StreakCard label={t('stats.bestStreak')} value={streak?.best ?? null} />
@@ -90,12 +104,14 @@ export default function Stats() {
               <li key={pr.exerciseId}>
                 <Link
                   to={`/ejercicios/${pr.exerciseId}`}
-                  className="glass-card card-hairline flex items-center gap-3 rounded-2xl p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500/40 active:bg-surface2"
+                  className="glass-card card-hairline flex items-center gap-3 rounded-2xl p-3 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-emerald-500/40 active:bg-surface2"
                 >
                   {pr.imageUrl ? (
                     <img
                       src={pr.imageUrl}
                       alt=""
+                      width={44}
+                      height={44}
                       className="h-11 w-11 shrink-0 rounded-xl object-cover ring-1 ring-inset ring-edge"
                       loading="lazy"
                     />
@@ -116,7 +132,7 @@ export default function Stats() {
                   </div>
                   <div className="text-right">
                     <p className="font-mono text-sm font-bold tabular-nums text-strong">
-                      {pr.maxOneRm!.toFixed(0)} kg
+                      {pr.maxOneRm!.toFixed(0)} kg
                     </p>
                     <p className="mt-0.5 text-xs text-dim2">{t('stats.estOneRm')}</p>
                   </div>
@@ -128,6 +144,8 @@ export default function Stats() {
       </section>
 
       <ExerciseEvolution prs={prs} lang={lang} t={t} />
+        </>
+      )}
     </div>
   )
 }
@@ -195,7 +213,13 @@ function VolumeChart({
       ) : (
         <>
           <div className="glass-card card-hairline mt-4 rounded-2xl p-4">
-            <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
+            <svg
+              viewBox={`0 0 ${W} ${H}`}
+              role="img"
+              aria-label={t('stats.weeklyVolume')}
+              className="w-full"
+            >
+              <title>{t('stats.weeklyVolume')}</title>
               {weeks.map((w, i) => {
                 const colW = W / weeks.length
                 const x = i * colW + colW * 0.18
@@ -218,6 +242,16 @@ function VolumeChart({
                 )
               })}
             </svg>
+            <ul className="sr-only">
+              {weeks.map((w) => {
+                const total = [...w.groups.values()].reduce((a, b) => a + b, 0)
+                return (
+                  <li key={w.weekStart}>
+                    {formatShortDate(w.weekStart, lang)}: {total} {t('dash.setsShort')}
+                  </li>
+                )
+              })}
+            </ul>
             <div className="mt-2 flex justify-between text-xs text-dim2">
               <span>{formatShortDate(weeks[0].weekStart, lang)}</span>
               <span>{t('stats.currentWeek', { date: formatShortDate(weeks[7].weekStart, lang) })}</span>
@@ -251,7 +285,8 @@ function ExerciseEvolution({
 }) {
   const { user } = useAuth()
   const { pushToast } = useToast()
-  const [exerciseId, setExerciseId] = useState('')
+  const [params, setParams] = useSearchParams()
+  const exerciseId = params.get('ejercicio') ?? ''
   const [seriesByExercise, setSeriesByExercise] = useState<
     Record<string, ExerciseProgressEntry[]>
   >({})
@@ -285,11 +320,16 @@ function ExerciseEvolution({
       {prs.length === 0 ? null : (
         <>
           <select
+            name="ejercicio"
+            aria-label={t('stats.evolution')}
             value={exerciseId}
             onChange={(e) => {
-              setExerciseId(e.target.value)
+              const next = new URLSearchParams(params)
+              if (e.target.value) next.set('ejercicio', e.target.value)
+              else next.delete('ejercicio')
+              setParams(next, { replace: true })
             }}
-            className="mt-3 min-h-11 w-full rounded-xl border border-edge bg-surface px-3 text-sm text-strong outline-none transition-all duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            className="mt-3 min-h-11 w-full rounded-xl border border-edge bg-surface px-3 text-sm text-strong outline-none transition-[border-color,box-shadow] duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
           >
             <option value="">{t('stats.pickExercise')}</option>
             {prs.map((p) => (
@@ -312,18 +352,18 @@ function ExerciseEvolution({
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <p className="text-lg font-bold tracking-tight tabular-nums">
-                    {selected.maxWeight} kg
+                    {selected.maxWeight} kg
                   </p>
                   <p className="mt-0.5 text-xs text-dim2">{t('stats.maxWeight')}</p>
                 </div>
                 <div>
                   <p className="text-lg font-bold tracking-tight tabular-nums text-strong">
-                    {selected.maxOneRm!.toFixed(1)} kg
+                    {selected.maxOneRm!.toFixed(1)} kg
                   </p>
                   <p className="mt-0.5 text-xs text-dim2">{t('stats.estOneRm2')}</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold tracking-tight">
+                  <p className="text-lg font-bold tracking-tight tabular-nums">
                     {selected.sessions}
                   </p>
                   <p className="mt-0.5 text-xs text-dim2">{t('stats.sessions')}</p>

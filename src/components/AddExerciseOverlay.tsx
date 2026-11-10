@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useModalFocus } from '@/hooks/useModalFocus'
 import { categories, muscleGroupOrder } from '@/lib/catalog'
 import { fetchEquipment, fetchExercises } from '@/lib/db'
 import type { Equipment, Exercise, RoutineDay } from '@/lib/types'
@@ -29,21 +30,23 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
   const [kinds, setKinds] = useState<string[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [adding, setAdding] = useState(false)
+  const titleId = useId()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  useModalFocus({ onClose, panelRef, initialFocusRef: searchRef })
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden'
     fetchEquipment()
       .then((eqs) => {
         setKinds([...new Set(eqs.map((e: Equipment) => e.kind))])
       })
       .catch(console.error)
-    return () => {
-      document.body.style.overflow = ''
-    }
   }, [])
 
   useEffect(() => {
     if (!query.trim() && !group && !kind && !category) {
+      // eslint-disable-next-line react/set-state-in-effect
       setResults([])
       setTotal(0)
       setPage(0)
@@ -77,6 +80,7 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
 
   // Cambiar los filtros invalida la selección previa.
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     setSelected(new Set())
   }, [query, group, kind, category])
 
@@ -126,30 +130,43 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex flex-col bg-bg">
+    <div
+      ref={panelRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 flex flex-col overscroll-contain bg-bg"
+    >
       <div className="flex items-center gap-3 border-b border-edge px-4 py-3">
         <button
+          type="button"
           onClick={onClose}
+          aria-label={t('common.close')}
           className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-dim transition-colors hover:bg-surface2 hover:text-high"
         >
           ✕
         </button>
-        <h2 className="flex-1 text-lg font-bold">{t('add.title')}</h2>
+        <h2 id={titleId} className="flex-1 text-lg font-bold">{t('add.title')}</h2>
         {selected.size > 0 && (
-          <span className="text-sm font-medium text-emerald-400">{selected.size} ✓</span>
+          <span className="text-sm font-medium text-emerald-400">
+            {selected.size} <span aria-hidden="true">✓</span>
+          </span>
         )}
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 p-4 pb-24">
           <div>
             <p className="mb-2 text-sm text-dim2">{t('add.muscleGroup')}</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" role="group" aria-label={t('add.muscleGroup')}>
               {muscleGroupOrder.map((key) => {
                 const active = group === key
                 return (
                   <button
                     key={key}
+                    type="button"
+                    aria-pressed={active}
                     onClick={() => (active ? setGroup('') : handleGroupSelect(key))}
                     className={`flex min-h-[48px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
                       active
@@ -166,11 +183,14 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
 
           <div className="flex gap-2">
             <input
+              ref={searchRef}
               type="search"
+              name="exercise-search"
+              aria-label={t('add.searchPlaceholder')}
+              autoComplete="off"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('add.searchPlaceholder')}
-              autoFocus
               className="flex-1 rounded-xl border border-edge bg-surface px-4 py-3 text-sm outline-none transition-colors placeholder:text-dim3 focus:border-emerald-500"
             />
             {hasFilters && (
@@ -190,6 +210,8 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
 
           <div className="flex gap-2 overflow-x-auto pb-1">
             <select
+              name="equipment"
+              aria-label={t('catalog.equipment')}
               value={kind}
               onChange={(e) => setKind(e.target.value)}
               className="min-h-11 shrink-0 rounded-xl border border-edge bg-surface px-3 text-sm text-soft outline-none focus:border-emerald-500"
@@ -202,6 +224,8 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
               ))}
             </select>
             <select
+              name="category"
+              aria-label={t('catalog.category')}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="min-h-11 shrink-0 rounded-xl border border-edge bg-surface px-3 text-sm text-soft outline-none focus:border-emerald-500"
@@ -227,8 +251,9 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
           </div>
 
           {fetching ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500" />
+            <div role="status" aria-live="polite" className="flex items-center justify-center gap-3 py-16">
+              <div aria-hidden="true" className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500" />
+              <span className="sr-only">{t('common.loading')}</span>
             </div>
           ) : shown.length > 0 ? (
             <>
@@ -238,15 +263,20 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
                   return (
                     <button
                       key={ex.id}
+                      type="button"
+                      aria-pressed={isSelected}
                       onClick={() => toggleSelect(ex)}
-                      className={`group relative flex flex-col overflow-hidden rounded-xl border bg-surface text-left transition-colors ${
+                      className={`group relative flex flex-col overflow-hidden rounded-xl border bg-surface text-left transition-colors [contain-intrinsic-size:auto_280px] [content-visibility:auto] ${
                         isSelected
                           ? 'border-emerald-500 ring-2 ring-inset ring-emerald-500/30'
                           : 'border-edge hover:border-emerald-500/50 hover:bg-surface2'
                       }`}
                     >
                       {isSelected && (
-                        <span className="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-neutral-950 shadow-[0_2px_10px_rgba(16,185,129,0.5)]">
+                        <span
+                          aria-hidden="true"
+                          className="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-neutral-950 shadow-[0_2px_10px_rgba(167,139,250,0.5)]"
+                        >
                           ✓
                         </span>
                       )}
@@ -254,6 +284,8 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
                         <img
                           src={ex.image_url}
                           alt=""
+                          width={400}
+                          height={400}
                           loading="lazy"
                           className="aspect-square w-full object-cover"
                         />
@@ -319,7 +351,7 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
           <button
             onClick={addSelected}
             disabled={adding}
-            className="pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-semibold text-neutral-950 shadow-[0_8px_30px_rgba(16,185,129,0.45)] transition-all duration-200 hover:bg-emerald-400 active:scale-95 disabled:opacity-60"
+            className="pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-semibold text-neutral-950 shadow-[0_8px_30px_rgba(167,139,250,0.45)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 active:scale-95 disabled:opacity-60"
           >
             {t('add.addSelected', { n: selected.size })}
           </button>

@@ -180,7 +180,8 @@ export default function RoutineDetail() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div role="status" aria-busy="true" aria-live="polite" className="space-y-4">
+        <span className="sr-only">{t('common.loading')}</span>
         <div className="shimmer h-4 w-24 rounded bg-surface2" />
         <div className="shimmer h-8 w-1/2 rounded bg-surface2" />
         <div className="shimmer h-40 rounded-2xl bg-surface2" />
@@ -210,10 +211,13 @@ export default function RoutineDetail() {
       >
         {t('rdetail.back')}
       </Link>
-      <h1 className="text-2xl font-bold tracking-tight">
+      <h1 className="break-words text-2xl font-bold tracking-tight">
         {editingName ? (
           <input
             autoFocus
+            name="routine-name"
+            aria-label={t('routines.rename')}
+            autoComplete="off"
             value={routineName}
             onChange={(e) => setRoutineName(e.target.value)}
             onBlur={saveRoutineName}
@@ -227,11 +231,13 @@ export default function RoutineDetail() {
           <span className="group inline-flex items-center gap-2">
             {routine.name}
             <button
+              type="button"
               onClick={() => {
                 setRoutineName(routine.name)
                 setEditingName(true)
               }}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-dim2 opacity-0 transition-opacity hover:bg-surface2 hover:text-soft group-hover:opacity-100"
+              aria-label={t('routines.rename')}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-dim2 opacity-70 transition-[opacity,background-color,color] hover:bg-surface2 hover:text-soft hover:opacity-100 focus-visible:opacity-100"
               title={t('routines.rename')}
             >
               <PencilIcon />
@@ -250,15 +256,19 @@ export default function RoutineDetail() {
         <div className="flex gap-2">
           <input
             type="text"
+            name="day-name"
+            aria-label={t('rdetail.dayNamePlaceholder')}
+            autoComplete="off"
+            required
             value={newDayName}
             onChange={(e) => setNewDayName(e.target.value)}
             placeholder={t('rdetail.dayNamePlaceholder')}
-            className="flex-1 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-dim2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            className="flex-1 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
           />
           <button
             type="submit"
-            disabled={saving || !newDayName.trim()}
-            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(16,185,129,0.35)] transition-all duration-200 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50"
+            disabled={saving}
+            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50"
           >
             {t('rdetail.addDay')}
           </button>

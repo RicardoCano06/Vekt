@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
@@ -67,11 +67,13 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const emailRef = useRef<HTMLInputElement>(null)
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-bg">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500" />
+      <div role="status" aria-live="polite" className="flex min-h-dvh items-center justify-center gap-3 bg-bg">
+        <div aria-hidden="true" className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500" />
+        <span className="sr-only">{t('common.loading')}</span>
       </div>
     )
   }
@@ -86,11 +88,18 @@ export default function Login() {
     try {
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) setError(translateError(error.message, t))
+        if (error) {
+          setError(translateError(error.message, t))
+          emailRef.current?.focus()
+        }
       } else {
         const { error } = await supabase.auth.signUp({ email, password })
-        if (error) setError(translateError(error.message, t))
-        else setMessage(t('login.accountCreated'))
+        if (error) {
+          setError(translateError(error.message, t))
+          emailRef.current?.focus()
+        } else {
+          setMessage(t('login.accountCreated'))
+        }
       }
     } finally {
       setSubmitting(false)
@@ -130,15 +139,16 @@ export default function Login() {
     <div className="radial-top flex min-h-dvh flex-col justify-center bg-bg px-5 py-8">
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-7 animate-rise">
+          <h1 className="sr-only">{t('login.title')}</h1>
           <div className="flex items-center gap-2.5">
-            <img src={logo} alt="" aria-hidden className="h-[28px] w-auto" />
-            <img src={letras} alt="Vekt" className="h-10 w-auto" />
+            <img src={logo} alt="" aria-hidden width={768} height={512} className="h-[28px] w-auto" />
+            <img src={letras} alt="Vekt" width={900} height={300} className="h-10 w-auto" />
           </div>
           <p className="mt-3 text-sm text-dim">{t('login.tagline')}</p>
         </div>
 
         <div className="glass-card card-hairline animate-rise rounded-2xl p-5">
-          <div className="relative mb-5 flex rounded-lg bg-surface2 p-1">
+          <div role="group" aria-label={t('login.mode')} className="relative mb-5 flex rounded-lg bg-surface2 p-1">
             <span
               aria-hidden
               className={`absolute bottom-1 left-1 top-1 w-[calc(50%-4px)] rounded-md bg-edge2 transition-transform duration-300 ease-out ${
@@ -149,6 +159,7 @@ export default function Login() {
               <button
                 key={m}
                 type="button"
+                aria-pressed={mode === m}
                 onClick={() => {
                   setMode(m)
                   setError(null)
@@ -173,14 +184,20 @@ export default function Login() {
                   {EnvelopeIcon}
                 </span>
                 <input
+                  ref={emailRef}
                   id="email"
+                  name="email"
                   type="email"
                   required
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  aria-invalid={!!error}
+                  aria-describedby={error ? 'login-error' : undefined}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputClass}
                   placeholder="tu@email.com"
-                  autoComplete="email"
                 />
               </div>
             </div>
@@ -194,14 +211,17 @@ export default function Login() {
                 </span>
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   minLength={6}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  aria-invalid={!!error}
+                  aria-describedby={error ? 'login-error' : undefined}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`${inputClass} pr-12`}
                   placeholder="••••••••"
-                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 />
                 <button
                   type="button"
@@ -216,12 +236,20 @@ export default function Login() {
             </div>
 
             {error && (
-              <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              <p
+                id="login-error"
+                role="alert"
+                className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400"
+              >
                 {error}
               </p>
             )}
             {message && (
-              <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+              <p
+                role="status"
+                aria-live="polite"
+                className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400"
+              >
                 {message}
               </p>
             )}
@@ -249,7 +277,7 @@ export default function Login() {
             className="min-h-12 w-full rounded-lg border border-edge bg-surface text-sm font-semibold text-soft transition-colors duration-200 hover:border-emerald-500/50 hover:text-strong active:opacity-80 disabled:opacity-50"
           >
             <span className="flex items-center justify-center gap-2">
-              ⚡ {t('login.demo')}
+              <span aria-hidden="true">⚡</span> {t('login.demo')}
             </span>
           </button>
           <p className="mt-2 text-center text-xs text-dim3">{t('login.demoHint')}</p>

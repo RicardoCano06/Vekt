@@ -5,6 +5,7 @@ import { ToastProvider } from '@/components/Toast'
 import { ThemeProvider } from '@/lib/theme-context'
 import { LangProvider } from '@/lib/lang-context'
 import { useAuth } from '@/lib/auth-context'
+import { useLang } from '@/lib/lang-context'
 import Dashboard from '@/pages/Dashboard'
 import Catalog from '@/pages/Catalog'
 import ExerciseDetail from '@/pages/ExerciseDetail'
@@ -18,10 +19,12 @@ import Login from '@/pages/Login'
 
 function RequireAuth() {
   const { user, loading } = useAuth()
+  const { t } = useLang()
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-bg">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500" />
+      <div role="status" aria-live="polite" className="flex min-h-dvh items-center justify-center gap-3 bg-bg">
+        <div aria-hidden="true" className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500" />
+        <span className="sr-only">{t('common.loading')}</span>
       </div>
     )
   }

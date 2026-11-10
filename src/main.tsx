@@ -11,6 +11,9 @@ try {
 if (theme === 'light') {
   document.documentElement.classList.add('light')
 }
+document
+  .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+  ?.setAttribute('content', theme === 'light' ? '#f7f5fb' : '#0a0910')
 
 let lang = 'es'
 try {

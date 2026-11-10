@@ -25,6 +25,7 @@ import {
 import { enqueue, genId } from '@/lib/sync'
 import type { RoutineDay, RoutineExercise, Session, SessionSet } from '@/lib/types'
 import { displayName } from '@/lib/i18n'
+import { formatDuration } from '@/lib/format'
 import { useLang } from '@/lib/lang-context'
 
 const RPE_OPTIONS = ['', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10']
@@ -41,7 +42,7 @@ export default function Train() {
   const navigate = useNavigate()
   const { pushToast } = useToast()
   const { ask, dialog } = useConfirm()
-  const { t } = useLang()
+  const { t, locale } = useLang()
 
   const [day, setDay] = useState<RoutineDay | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -320,7 +321,8 @@ export default function Train() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div role="status" aria-busy="true" aria-live="polite" className="space-y-4">
+        <span className="sr-only">{t('common.loading')}</span>
         <div className="shimmer h-8 w-1/2 rounded-lg bg-surface2" />
         <div className="shimmer h-6 w-40 rounded-lg bg-surface2" />
         <div className="shimmer h-48 rounded-2xl bg-surface2" />
@@ -369,7 +371,7 @@ export default function Train() {
           <p className="text-xs uppercase tracking-wider text-dim2">
             {t('train.activeSession')}
           </p>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="break-words text-2xl font-bold tracking-tight">
             {day.name ?? t('day.number', { n: day.day_number })}
           </h1>
           {day.weekday && (
@@ -389,13 +391,13 @@ export default function Train() {
                 onConfirm: handleDiscard,
               })
             }
-            className="min-h-11 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition-all duration-200 hover:bg-red-500/10 active:scale-95"
+            className="min-h-11 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition-[background-color,transform] duration-200 hover:bg-red-500/10 active:scale-95"
           >
             {t('train.discard')}
           </button>
           <span className="flex items-center gap-1.5 rounded-full border border-edge bg-surface px-3 py-1.5 font-mono text-sm font-bold tabular-nums text-soft">
             <ClockIcon />
-            {Math.floor(elapsedMinutes / 60)}h {elapsedMinutes % 60}m
+            {formatDuration(elapsedMinutes, locale)}
           </span>
         </div>
       </div>
@@ -465,13 +467,15 @@ export default function Train() {
         })}
       </div>
 
+      <div className="h-24" aria-hidden="true" />
+
       {createPortal(
-      <div className="fixed inset-x-4 bottom-24 z-30 mx-auto max-w-5xl md:bottom-6">
+      <div className="fixed inset-x-4 bottom-[max(6rem,calc(env(safe-area-inset-bottom)+5rem))] z-30 mx-auto max-w-5xl md:bottom-6">
         {!showFinish ? (
           <div className="flex justify-end">
             <button
               onClick={() => setShowFinish(true)}
-              className="rounded-2xl bg-emerald-500 px-8 py-3.5 font-semibold text-neutral-950 shadow-[0_4px_24px_rgba(16,185,129,0.35)] transition-all duration-200 hover:bg-emerald-400 hover:shadow-[0_4px_36px_rgba(16,185,129,0.5)] active:scale-[0.98]"
+              className="rounded-2xl bg-emerald-500 px-8 py-3.5 font-semibold text-neutral-950 shadow-[0_4px_24px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 hover:shadow-[0_4px_36px_rgba(167,139,250,0.5)] active:scale-[0.98]"
             >
               {allDone ? t('train.finishAll') : t('train.finish')}
             </button>
@@ -484,10 +488,10 @@ export default function Train() {
                 <button
                   key={f.value}
                   onClick={() => handleFinish(f.value)}
-                  className="flex flex-col items-center gap-1 rounded-xl border border-edge bg-bg px-4 py-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-edge2 active:scale-95"
+                  className="flex flex-col items-center gap-1 rounded-xl border border-edge bg-bg px-4 py-2.5 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-edge2 active:scale-95"
                   title={t(f.textKey)}
                 >
-                  <span className="text-2xl">{f.label}</span>
+                  <span aria-hidden="true" className="text-2xl">{f.label}</span>
                   <span className="text-xs text-dim2">{t(f.textKey)}</span>
                 </button>
               ))}
@@ -508,12 +512,13 @@ export default function Train() {
       {noteTarget && (
         <BottomSheet title={t('train.noteTitle')} onClose={() => setNoteTarget(null)}>
           <textarea
+            name="set-note"
+            aria-label={t('train.noteTitle')}
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
             rows={3}
             placeholder={t('train.notePlaceholder')}
             className="w-full rounded-lg border border-edge bg-bg px-3 py-2 text-sm outline-none transition-colors placeholder:text-dim2 focus:border-emerald-500"
-            autoFocus
           />
           <button
             onClick={saveNote}
@@ -581,6 +586,9 @@ function ExerciseBlock({
           <img
             src={exercise.image_url}
             alt=""
+            width={44}
+            height={44}
+            loading="lazy"
             className="h-11 w-11 rounded-xl object-cover ring-1 ring-inset ring-edge"
           />
         )}
@@ -633,7 +641,11 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
 
   useEffect(() => {
     if (active) {
-      rowRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      rowRef.current?.scrollIntoView({
+        block: 'nearest',
+        behavior: reduce ? 'auto' : 'smooth',
+      })
     }
   }, [active])
 
@@ -649,28 +661,31 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
   }
 
   const btn =
-    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-edge2 bg-surface2 text-sm font-semibold text-soft transition-all duration-150 active:scale-90 hover:border-edge2 hover:text-strong'
+    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-edge2 bg-surface2 text-sm font-semibold text-soft transition-[color,border-color,transform] duration-150 active:scale-90 hover:border-edge2 hover:text-strong'
 
   const field =
-    'h-14 w-20 rounded-xl border border-edge bg-bg px-1 text-center font-mono text-lg font-semibold tabular-nums outline-none transition-all duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+    'h-14 w-20 rounded-xl border border-edge bg-bg px-1 text-center font-mono text-lg font-semibold tabular-nums outline-none transition-[border-color,box-shadow] duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
 
   return (
     <li
       ref={rowRef}
-      className={`flex items-start gap-2 px-2 py-2 transition-all duration-200 ${
+      className={`flex items-start gap-2 px-2 py-2 transition-[background-color,box-shadow] duration-200 ${
         active ? 'bg-surface2/40 ring-2 ring-inset ring-edge2' : ''
       } ${saving ? 'ring-1 ring-inset ring-edge2' : ''} ${
         done ? 'bg-surface2/60' : ''
       }`}
     >
       <button
+        type="button"
+        aria-label={done ? t('train.uncompleteSet') : t('train.completeSet')}
+        aria-pressed={done}
         onClick={() => {
           onUpdate({ completed: !done })
           if (!done) navigator.vibrate?.(30)
         }}
-        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 text-sm font-bold transition-all duration-200 active:scale-95 ${
+        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 text-sm font-bold transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-95 ${
           done
-            ? 'border-emerald-500 bg-gradient-to-b from-emerald-500 to-emerald-600 text-neutral-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+            ? 'border-emerald-500 bg-gradient-to-b from-emerald-500 to-emerald-600 text-neutral-950 shadow-[0_0_20px_rgba(167,139,250,0.4)]'
             : 'border-edge2 bg-bg text-dim2 hover:border-emerald-500/60 hover:bg-emerald-500/5 hover:text-emerald-400'
         }`}
         title={done ? t('train.uncompleteSet') : t('train.completeSet')}
@@ -696,12 +711,21 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <div className="flex items-center gap-1">
             <span className="w-8 text-xs text-dim2">{t('train.weight')}</span>
-            <button onClick={() => stepWeight(-1)} className={btn} title={t('train.lowerWeight')}>
+            <button
+              type="button"
+              onClick={() => stepWeight(-1)}
+              aria-label={t('train.lowerWeight')}
+              className={btn}
+              title={t('train.lowerWeight')}
+            >
               −
             </button>
             <input
               type="number"
+              name="weight"
               inputMode="decimal"
+              autoComplete="off"
+              aria-label={t('train.weight')}
               min={0}
               step={0.5}
               value={set.weight_kg ?? ''}
@@ -712,18 +736,33 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
               placeholder={t('train.weight')}
               className={`${field} ${done ? 'text-neutral-400' : ''}`}
             />
-            <button onClick={() => stepWeight(1)} className={btn} title={t('train.raiseWeight')}>
+            <button
+              type="button"
+              onClick={() => stepWeight(1)}
+              aria-label={t('train.raiseWeight')}
+              className={btn}
+              title={t('train.raiseWeight')}
+            >
               +
             </button>
           </div>
           <div className="flex items-center gap-1">
             <span className="w-8 text-xs text-dim2">{t('train.reps')}</span>
-            <button onClick={() => stepReps(-1)} className={btn} title={t('train.lowerReps')}>
+            <button
+              type="button"
+              onClick={() => stepReps(-1)}
+              aria-label={t('train.lowerReps')}
+              className={btn}
+              title={t('train.lowerReps')}
+            >
               −
             </button>
             <input
               type="number"
+              name="reps"
               inputMode="numeric"
+              autoComplete="off"
+              aria-label={t('train.reps')}
               min={0}
               value={set.reps ?? ''}
               onChange={(e) =>
@@ -733,7 +772,13 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
               placeholder={t('train.reps')}
               className={`${field} ${done ? 'text-neutral-400' : ''}`}
             />
-            <button onClick={() => stepReps(1)} className={btn} title={t('train.raiseReps')}>
+            <button
+              type="button"
+              onClick={() => stepReps(1)}
+              aria-label={t('train.raiseReps')}
+              className={btn}
+              title={t('train.raiseReps')}
+            >
               +
             </button>
           </div>
@@ -741,12 +786,14 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
 
         <div className="mt-2 flex items-center gap-2">
           <select
+            name="rpe"
+            aria-label={t('train.rpe')}
             value={set.rpe === null ? '' : String(set.rpe)}
             onChange={(e) =>
               onUpdate({ rpe: e.target.value === '' ? null : Number(e.target.value) })
             }
             onBlur={onCommit}
-            className={`min-h-11 min-w-0 flex-1 rounded-xl border border-edge bg-bg px-2 text-xs outline-none transition-all duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
+            className={`min-h-11 min-w-0 flex-1 rounded-xl border border-edge bg-bg px-2 text-xs text-strong outline-none transition-[border-color,box-shadow] duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
               done ? 'text-dim2' : ''
             }`}
             title={t('train.rpe')}
@@ -757,12 +804,19 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
               </option>
             ))}
           </select>
-          {saved && (
-            <span className="animate-pop text-xs text-dim">✓</span>
-          )}
+          <span role="status" aria-live="polite" className="text-xs text-dim">
+            {saved ? (
+              <>
+                <span aria-hidden="true" className="animate-pop">✓</span>
+                <span className="sr-only">{t('common.saved')}</span>
+              </>
+            ) : null}
+          </span>
           <button
+            type="button"
             onClick={onNote}
-            className={`flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-lg transition-all duration-200 active:scale-90 ${
+            aria-label={set.notes ? t('train.editNote') : t('train.addNote')}
+            className={`flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-lg transition-[color,background-color,transform] duration-200 active:scale-90 ${
               set.notes ? 'text-soft' : 'text-dim2 hover:bg-surface2 hover:text-soft'
             }`}
             title={set.notes ? t('train.editNote') : t('train.addNote')}
@@ -770,6 +824,8 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
             ⋯
           </button>
           <button
+            type="button"
+            aria-label={t('train.deleteSetTitle')}
             onClick={() =>
               ask({
                 title: t('train.deleteSetTitle'),
@@ -781,7 +837,7 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
                 onConfirm: onDelete,
               })
             }
-            className="flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-dim2 transition-all duration-200 hover:bg-red-500/10 hover:text-red-400 active:scale-90"
+            className="flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-dim2 transition-[color,background-color,transform] duration-200 hover:bg-red-500/10 hover:text-red-400 active:scale-90"
             title={t('train.deleteSetTitle')}
           >
             <TrashIcon className="h-4 w-4" />

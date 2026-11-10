@@ -36,7 +36,9 @@ export default function SyncStatus() {
 
   return (
     <span
-      className={`glass rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
+      role="status"
+      aria-live="polite"
+      className={`glass rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${
         !online
           ? 'border-amber-500/40 bg-amber-500/10 text-amber-400'
           : paused && pending > 0
@@ -44,7 +46,8 @@ export default function SyncStatus() {
             : 'border-sky-500/40 bg-sky-500/10 text-sky-400'
       }`}
     >
-      {!online ? '⚠' : paused && pending > 0 ? '🔒' : '⏳'} {label}
+      <span aria-hidden="true">{!online ? '⚠' : paused && pending > 0 ? '🔒' : '⏳'}</span>{' '}
+      {label}
     </span>
   )
 }

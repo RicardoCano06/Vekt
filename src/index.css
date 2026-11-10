@@ -1,23 +1,46 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
-  --color-bg: #0a0a0a;
-  --color-surface: #171717;
-  --color-surface2: #262626;
-  --color-edge: #262626;
-  --color-edge2: #404040;
-  --color-dim: #a3a3a3;
-  --color-dim2: #737373;
-  --color-dim3: #525252;
-  --color-dim4: #404040;
-  --color-soft: #d4d4d4;
-  --color-high: #e5e5e5;
-  --color-strong: #ffffff;
 
-  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.16);
-  --shadow-glow-lg: 0 0 36px rgba(16, 185, 129, 0.24);
+  /* Superficies */
+  --color-bg: #0a0910;
+  --color-surface: #121019;
+  --color-surface2: #1a1724;
+  --color-surface3: #221e2e;
+  --color-edge: #2a2535;
+  --color-edge2: #3b3448;
+
+  /* Texto */
+  --color-dim: #a49cb4;
+  --color-dim2: #817990;
+  --color-dim3: #645d72;
+  --color-dim4: #4a4456;
+  --color-soft: #cec7dc;
+  --color-high: #e9e4f2;
+  --color-strong: #fbf9ff;
+
+  /* Acento lila (los alias emerald permiten migrar por fases) */
+  --color-accent: #a78bfa;
+  --color-accent-strong: #8b5cf6;
+  --color-accent-soft: #c4b5fd;
+  --color-accent-contrast: #0a0910;
+  --color-emerald-400: #c4b5fd;
+  --color-emerald-500: #a78bfa;
+  --color-emerald-600: #8b5cf6;
+
+  /* Radios */
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  /* Elevación discreta */
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -32px rgba(0, 0, 0, 0.9);
+  --shadow-pop: 0 18px 50px -24px rgba(0, 0, 0, 0.8);
+
+  --shadow-glow: none;
+  --shadow-glow-lg: none;
 
   --animate-shimmer: shimmer 1.8s linear infinite;
   --animate-rise: rise 0.34s ease-out both;
@@ -26,10 +49,10 @@
 
   @keyframes shimmer {
     0% {
-      background-position: -200% 0;
+      transform: translateX(-100%);
     }
     100% {
-      background-position: 200% 0;
+      transform: translateX(100%);
     }
   }
   @keyframes rise {
@@ -65,107 +88,167 @@
 }
 
 .light {
-  --color-bg: #fafaf9;
+  --color-bg: #f7f5fb;
   --color-surface: #ffffff;
-  --color-surface2: #e7e5e4;
-  --color-edge: #d6d3d1;
-  --color-edge2: #a8a29e;
-  --color-dim: #57534e;
-  --color-dim2: #78716c;
-  --color-dim3: #a8a29e;
-  --color-dim4: #78716c;
-  --color-soft: #292524;
-  --color-high: #1c1917;
-  --color-strong: #0c0a09;
-  --color-emerald-400: #047857;
+  --color-surface2: #efebf7;
+  --color-surface3: #e7e1f2;
+  --color-edge: #e0dae9;
+  --color-edge2: #c9c1d6;
+
+  --color-dim: #625a70;
+  --color-dim2: #746c82;
+  --color-dim3: #9a93a7;
+  --color-dim4: #b7b0c3;
+  --color-soft: #3b3448;
+  --color-high: #241d2f;
+  --color-strong: #140f1d;
+
+  --color-accent: #7c3aed;
+  --color-accent-strong: #6d28d9;
+  --color-accent-soft: #8b5cf6;
+  --color-accent-contrast: #ffffff;
+  --color-emerald-400: #6d28d9;
+  --color-emerald-500: #8b5cf6;
+  --color-emerald-600: #6d28d9;
+
   --color-red-400: #dc2626;
   --color-amber-400: #b45309;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html.light {
+  color-scheme: light;
 }
 
 body {
   @apply bg-bg text-strong antialiased;
 }
 
-@layer base {
-  /* Foco de teclado uniforme en toda la app. :where() mantiene especificidad
-     cero: los estilos por componente pueden sobreescribirlo sin !important. */
-  :where(button, a, input, select, textarea, [role='button'], [tabindex]):focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-emerald-500) 45%, transparent);
+button,
+a,
+input,
+select,
+textarea,
+[role='button'] {
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3 {
+  scroll-margin-top: 5rem;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .shimmer::after {
+    animation: none;
   }
 }
 
-/* ---------- Utilidades de superficie ---------- */
+@layer base {
+  :where(button, a, input, select, textarea, [role='button'], [tabindex]):focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-bg),
+      0 0 0 4px var(--color-accent);
+  }
+}
 
 @layer components {
-  /* Cristal translúcido con blur (glassmorphism). Reservado al chrome fijo
-     (nav, header, toasts, modales): el backdrop-filter se recalcula en cada
-     frame de scroll y satura la GPU en teléfonos de gama media/baja. */
-  .glass {
-    background-color: color-mix(in oklab, var(--color-surface) 68%, transparent);
-    -webkit-backdrop-filter: blur(12px) saturate(1.4);
-    backdrop-filter: blur(12px) saturate(1.4);
-    border: 1px solid color-mix(in oklab, var(--color-edge2) 55%, transparent);
-  }
-  .glass-strong {
-    background-color: color-mix(in oklab, var(--color-surface) 84%, transparent);
-    -webkit-backdrop-filter: blur(16px) saturate(1.4);
-    backdrop-filter: blur(16px) saturate(1.4);
-    border: 1px solid color-mix(in oklab, var(--color-edge2) 45%, transparent);
+  /* Primitivas compartidas del rediseño. */
+  .ui-card {
+    @apply rounded-2xl border border-edge bg-surface;
   }
 
-  /* Tarjeta de contenido: translucidez por capas SIN backdrop-filter. Cuesta
-     un compositing alfa, no un recompute de blur por píxel, y puede scrollear
-     sin caídas de FPS. */
+  .ui-button {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .ui-button-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 text-sm font-semibold text-neutral-950 transition-colors duration-150 hover:bg-emerald-400 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .ui-button-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-surface px-4 text-sm font-semibold text-high transition-colors duration-150 hover:bg-surface2 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .ui-input {
+    @apply min-h-11 w-full rounded-xl border border-edge bg-surface px-3.5 text-sm text-strong outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20;
+  }
+
+  /* Superficies planas. Los nombres viejos se mantienen para migrar por fases. */
+  .glass,
+  .glass-strong,
   .glass-card {
-    background-image: linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--color-surface) 86%, transparent),
-      color-mix(in oklab, var(--color-surface) 62%, transparent)
-    );
+    background-color: var(--color-surface);
+    background-image: none;
     border: 1px solid var(--color-edge);
-    box-shadow:
-      inset 0 1px 0 0 color-mix(in oklab, var(--color-strong) 7%, transparent),
-      0 10px 28px -16px rgba(0, 0, 0, 0.65);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
-  /* Borde dual: luz superior + sombra inferior */
+  .glass-strong {
+    box-shadow: var(--shadow-pop);
+  }
+
   .card-hairline {
     border: 1px solid var(--color-edge);
-    box-shadow:
-      inset 0 1px 0 0 color-mix(in oklab, var(--color-strong) 7%, transparent),
-      0 10px 28px -16px rgba(0, 0, 0, 0.65);
+    box-shadow: none;
   }
+
   .edge-light {
-    border-top: 1px solid color-mix(in oklab, var(--color-strong) 8%, transparent);
+    border-top: 1px solid var(--color-edge);
   }
 
-  /* Resplandores de acento */
-  .glow-emerald {
-    box-shadow: var(--shadow-glow);
-  }
+  .glow-emerald,
   .glow-emerald-lg {
-    box-shadow: var(--shadow-glow-lg);
+    box-shadow: none;
   }
 
-  /* Fondo con gradiente radial sutil en la parte superior */
   .radial-top {
-    background-image: radial-gradient(
-      ellipse at top,
-      color-mix(in oklab, var(--color-emerald-500) 16%, transparent),
-      transparent 62%
-    );
+    background-image: none;
   }
 
-  /* Skeleton con barrido de luz (shimmer) */
   .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
     background-image: linear-gradient(
       100deg,
       transparent 32%,
-      color-mix(in oklab, var(--color-strong) 9%, transparent) 50%,
+      color-mix(in oklab, var(--color-strong) 7%, transparent) 50%,
       transparent 68%
     );
-    background-size: 200% 100%;
+    transform: translateX(-100%);
     animation: var(--animate-shimmer);
   }
+}
+
+/* En tema claro los botones lila necesitan texto blanco. */
+.light .bg-emerald-500,
+.light .bg-emerald-400,
+.light .hover\:bg-emerald-400:hover {
+  color: #fff;
 }

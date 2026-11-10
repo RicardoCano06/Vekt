@@ -1,29 +1,28 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import SyncStatus from '@/components/SyncStatus'
 import HeaderStatus from '@/components/HeaderStatus'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageToggle from '@/components/LanguageToggle'
 import ScrollToTop from '@/components/ScrollToTop'
-import { useTheme } from '@/lib/theme-context'
 import { useLang } from '@/lib/lang-context'
 import { useConfirm } from '@/lib/use-confirm'
 import { logout } from '@/lib/auth'
 
-const links = [
+const mainLinks = [
   { to: '/', key: 'nav.home', end: true },
-  { to: '/ejercicios', key: 'nav.exercises' },
   { to: '/rutinas', key: 'nav.routines' },
+  { to: '/ejercicios', key: 'nav.exercises' },
   { to: '/historial', key: 'nav.history' },
-  { to: '/estadisticas', key: 'nav.stats' },
   { to: '/perfil', key: 'nav.profile' },
 ]
 
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `relative z-10 flex min-h-14 flex-col items-center justify-center gap-0.5 px-0.5 transition-colors duration-200 ${
-    isActive ? 'text-emerald-400' : 'text-dim hover:text-high'
-  }`
+const desktopLinks = [
+  ...mainLinks.slice(0, 4),
+  { to: '/estadisticas', key: 'nav.stats' },
+  mainLinks[4],
+]
 
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -31,11 +30,11 @@ function Icon({ children }: { children: ReactNode }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
+      strokeWidth={1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="h-5 w-5 sm:h-6 sm:w-6"
+      className="h-5 w-5"
     >
       {children}
     </svg>
@@ -85,52 +84,29 @@ const icons: Record<string, ReactNode> = {
   '/perfil': UserIcon,
 }
 
+function Brand() {
+  return (
+    <Link
+      to="/"
+      aria-label="Vekt"
+      className="inline-flex items-baseline text-[19px] font-semibold tracking-[-0.04em] text-strong"
+    >
+      vekt<span className="text-emerald-400">.</span>
+    </Link>
+  )
+}
+
 function BottomNav() {
-  const location = useLocation()
-  const navRef = useRef<HTMLElement>(null)
-  const [indicator, setIndicator] = useState({ left: 0, width: 0 })
-  const [kbOpen, setKbOpen] = useState(false)
+  const [keyboardOpen, setKeyboardOpen] = useState(false)
   const { t } = useLang()
 
-  // La medición solo se dispara al cambiar de ruta o de tamaño (ResizeObserver
-  // + rAF), nunca en cada render: evita layout thrashing al rotar/redimensionar.
-  useLayoutEffect(() => {
-    const measure = () => {
-      const nav = navRef.current
-      if (!nav) return
-      const active = nav.querySelector<HTMLAnchorElement>('a[aria-current="page"]')
-      if (!active) return
-      const c = nav.getBoundingClientRect()
-      const el = active.getBoundingClientRect()
-      setIndicator((prev) =>
-        prev.left === el.left - c.left && prev.width === el.width
-          ? prev
-          : { left: el.left - c.left, width: el.width },
-      )
-    }
-    measure()
-    let raf = 0
-    const onResize = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(measure)
-    }
-    const ro = new ResizeObserver(onResize)
-    if (navRef.current) ro.observe(navRef.current)
-    window.addEventListener('orientationchange', onResize)
-    return () => {
-      cancelAnimationFrame(raf)
-      ro.disconnect()
-      window.removeEventListener('orientationchange', onResize)
-    }
-  }, [location.pathname])
-
-  // Ocultar la barra cuando se despliega el teclado virtual: en iOS Safari un
-  // elemento fixed queda flotando sobre el teclado y tapa los campos en foco.
+  // En iOS Safari un elemento fixed queda flotando sobre el teclado y tapa el
+  // campo enfocado. Ocultamos la barra mientras haya un control editable activo.
   useEffect(() => {
-    const isEditable = (t: EventTarget | null) =>
-      t instanceof Element && !!t.closest('input, textarea, select')
-    const onFocusIn = (e: FocusEvent) => setKbOpen(isEditable(e.target))
-    const onFocusOut = (e: FocusEvent) => setKbOpen(isEditable(e.relatedTarget))
+    const isEditable = (target: EventTarget | null) =>
+      target instanceof Element && !!target.closest('input, textarea, select')
+    const onFocusIn = (event: FocusEvent) => setKeyboardOpen(isEditable(event.target))
+    const onFocusOut = (event: FocusEvent) => setKeyboardOpen(isEditable(event.relatedTarget))
     document.addEventListener('focusin', onFocusIn)
     document.addEventListener('focusout', onFocusOut)
     return () => {
@@ -141,23 +117,35 @@ function BottomNav() {
 
   return (
     <nav
-      ref={navRef}
-      className={`glass-strong fixed inset-x-4 bottom-[max(0.625rem,env(safe-area-inset-bottom))] z-40 mx-auto max-w-lg rounded-2xl pb-[max(env(safe-area-inset-bottom),0.25rem)] shadow-[0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-all duration-300 ease-out md:hidden ${
-        kbOpen ? 'pointer-events-none translate-y-28 opacity-0' : ''
+      aria-label={t('nav.mobile')}
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-bg pb-[env(safe-area-inset-bottom)] transition-transform duration-200 ease-out md:hidden ${
+        keyboardOpen ? 'pointer-events-none translate-y-full' : ''
       }`}
     >
-      <div className="relative mx-auto grid max-w-lg grid-cols-6">
-        <div
-          aria-hidden
-          className="absolute inset-y-1.5 left-0 rounded-xl bg-emerald-500/15 ring-1 ring-inset ring-emerald-500/20 transition-all duration-300 ease-out"
-          style={{ left: indicator.left + 2, width: Math.max(0, indicator.width - 4) }}
-        />
-        {links.map((link) => (
-          <NavLink key={link.to} to={link.to} end={link.end} className={navLinkClass}>
-            {icons[link.to]}
-            <span className="w-full truncate text-center text-[10px] font-medium leading-none">
-              {t(link.key)}
-            </span>
+      <div className="grid h-16 grid-cols-5">
+        {mainLinks.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            end={link.end}
+            className={({ isActive }) =>
+              `relative flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors duration-150 ${
+                isActive ? 'text-emerald-400' : 'text-dim2 hover:text-high'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-0 h-0.5 w-7 rounded-full bg-emerald-400"
+                  />
+                )}
+                {icons[link.to]}
+                <span className="max-w-full truncate px-1 leading-none">{t(link.key)}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </div>
@@ -167,62 +155,72 @@ function BottomNav() {
 
 export default function Layout() {
   const location = useLocation()
-  const { dark } = useTheme()
   const { t } = useLang()
   const { ask, dialog } = useConfirm()
 
   const isTrainRoute = location.pathname.startsWith('/entrenar/')
 
-  // El isotipo tiene su masa visual arriba (arcos de carga) y su arte ocupa
-  // casi todo el alto del lienzo; el wordmark es más bajo y liviano. Se renderiza
-  // el isotipo a ~71% de la altura del texto para que los bordes del arte
-  // coincidan con el alto de las mayúsculas (verificación por centroide).
-  const logo = dark ? '/logo-vekt.png' : '/logo-vekt-dark.png'
-  const letras = dark ? '/letras-vekt-white.png' : '/letras-vekt.png'
-
   return (
-    <div className="radial-top min-h-dvh md:flex">
+    <div className="min-h-dvh bg-bg md:flex">
       <ScrollToTop />
-      <header className="glass-strong sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-edge px-4 md:hidden">
-        <img src={logo} alt="" aria-hidden className="h-[19px] w-auto" />
-        <img src={letras} alt="Vekt" className="h-[26px] w-auto" />
-        <span className="ml-auto">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-high focus:shadow-lg"
+      >
+        {t('common.skipToContent')}
+      </a>
+
+      <header className="sticky top-0 z-30 flex h-12 items-center gap-1 border-b border-edge bg-bg px-4 md:hidden">
+        <Brand />
+        <div className="ml-auto flex items-center gap-1">
+          <Link
+            to="/estadisticas"
+            aria-label={t('nav.stats')}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-surface2 hover:text-high"
+          >
+            {ChartIcon}
+          </Link>
           <HeaderStatus />
-        </span>
+        </div>
       </header>
 
-      <nav className="hidden md:sticky md:top-0 md:flex md:h-dvh md:w-56 md:flex-col md:overflow-y-auto md:border-r md:border-edge md:px-4 md:py-6">
-        <div className="flex items-center gap-2 px-2 pb-6 text-lg font-bold tracking-tight">
-          <img src={logo} alt="" aria-hidden className="h-[21px] w-auto" />
-          <img src={letras} alt="Vekt" className="h-[30px] w-auto" />
+      <nav
+        aria-label={t('nav.primary')}
+        className="hidden shrink-0 md:sticky md:top-0 md:flex md:h-dvh md:w-60 md:flex-col md:border-r md:border-edge md:bg-bg md:px-3 md:py-5"
+      >
+        <div className="px-3 pb-7">
+          <Brand />
+          <p className="mt-0.5 text-[11px] text-dim2">{t('nav.tagline')}</p>
         </div>
-        <div className="flex flex-col gap-1">
-          {links.map((link) => (
+
+        <div className="flex flex-col gap-0.5">
+          {desktopLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.end}
               className={({ isActive }) =>
-                `relative rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                `relative flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150 ${
                   isActive
-                    ? 'bg-gradient-to-r from-emerald-500/15 to-transparent text-emerald-400'
-                    : 'text-dim hover:bg-surface2 hover:text-high'
+                    ? 'bg-surface2 text-strong'
+                    : 'text-dim hover:bg-surface hover:text-high'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  {isActive && (
-                    <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
-                  )}
+                  <span className={isActive ? 'text-emerald-400' : 'text-dim2'}>
+                    {icons[link.to]}
+                  </span>
                   {t(link.key)}
                 </>
               )}
             </NavLink>
           ))}
         </div>
-        <div className="mt-auto flex flex-col gap-2 pt-8">
-          <div className="flex items-center gap-1 px-3">
+
+        <div className="mt-auto flex flex-col gap-1 pt-8">
+          <div className="flex items-center gap-1 px-3 pb-2">
             <LanguageToggle subtle />
             <ThemeToggle subtle />
           </div>
@@ -237,17 +235,17 @@ export default function Layout() {
                 onConfirm: () => logout(),
               })
             }
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-dim transition-all duration-200 hover:bg-red-500/10 hover:text-red-400"
+            className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-dim transition-colors duration-150 hover:bg-red-500/10 hover:text-red-400"
           >
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth={2}
+              strokeWidth={1.8}
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
-              className="h-4 w-4"
+              className="h-5 w-5"
             >
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
             </svg>
@@ -256,7 +254,11 @@ export default function Layout() {
         </div>
       </nav>
 
-      <main className="mx-auto w-full flex-1 px-4 pb-32 pt-6 md:px-8 md:py-10 lg:max-w-7xl">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-[1180px] flex-1 px-4 pb-28 pt-5 md:px-8 md:py-8"
+      >
         <div key={location.pathname} className="animate-rise">
           <Outlet />
         </div>
@@ -264,7 +266,7 @@ export default function Layout() {
 
       <BottomNav />
 
-      <div className="fixed bottom-24 left-3 z-40 md:bottom-8 md:left-auto md:right-4">
+      <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-3 z-40 md:bottom-6 md:left-auto md:right-6">
         {!isTrainRoute && <SyncStatus />}
       </div>
       {dialog}

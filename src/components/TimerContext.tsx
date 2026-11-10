@@ -12,6 +12,7 @@ interface RestTimerValue {
   running: boolean
   remaining: number
   total: number
+  finished: number
   start: (seconds: number) => void
   extend: () => void
   stop: () => void
@@ -52,8 +53,9 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
   const [running, setRunning] = useState(false)
   const [remaining, setRemaining] = useState(0)
   const [total, setTotal] = useState(0)
+  const [finished, setFinished] = useState(0)
   const endAtRef = useRef(0)
-  const rafRef = useRef(0)
+  const intervalRef = useRef(0)
 
   const computeRemaining = () =>
     Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000))
@@ -72,7 +74,7 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const stop = useCallback(() => {
-    cancelAnimationFrame(rafRef.current)
+    window.clearInterval(intervalRef.current)
     setRunning(false)
     setRemaining(0)
     setTotal(0)
@@ -82,16 +84,16 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
     if (!running) return
     const tick = () => {
       const left = computeRemaining()
-      setRemaining(left)
+      setRemaining((prev) => (prev === left ? prev : left))
       if (left <= 0) {
         alertExpired()
+        setFinished((count) => count + 1)
         setRunning(false)
-        return
       }
-      rafRef.current = requestAnimationFrame(tick)
     }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafRef.current)
+    tick()
+    intervalRef.current = window.setInterval(tick, 1000)
+    return () => window.clearInterval(intervalRef.current)
   }, [running])
 
   useEffect(() => {
@@ -102,6 +104,7 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
       setRemaining(left)
       if (left <= 0) {
         alertExpired()
+        setFinished((count) => count + 1)
         setRunning(false)
       }
     }
@@ -109,7 +112,7 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [running])
 
-  const value: RestTimerValue = { running, remaining, total, start, extend, stop }
+  const value: RestTimerValue = { running, remaining, total, finished, start, extend, stop }
 
   return (
     <RestTimerContext.Provider value={value}>{children}</RestTimerContext.Provider>

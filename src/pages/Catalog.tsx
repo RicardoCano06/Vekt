@@ -120,6 +120,9 @@ export default function Catalog() {
           </svg>
           <input
             type="search"
+            name="q"
+            aria-label={t('catalog.search')}
+            autoComplete="off"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={t('catalog.searchPlaceholder')}
@@ -127,8 +130,10 @@ export default function Catalog() {
           />
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label={t('catalog.filters')}>
           <button
+            type="button"
+            aria-pressed={!group}
             onClick={() => setFilter('grupo', '')}
             className={`flex min-h-11 items-center whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
               !group
@@ -141,6 +146,8 @@ export default function Catalog() {
           {muscleGroupOrder.map((g) => (
             <button
               key={g}
+              type="button"
+              aria-pressed={group === g}
               onClick={() => setFilter('grupo', group === g ? '' : g)}
               className={`flex min-h-11 items-center whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 group === g
@@ -155,6 +162,8 @@ export default function Catalog() {
 
         <div className="flex flex-wrap gap-2">
           <select
+            name="equipment"
+            aria-label={t('catalog.equipment')}
             value={kind}
             onChange={(e) => setFilter('equipo', e.target.value)}
             className="min-h-11 rounded-lg border border-edge bg-surface px-3 py-1.5 text-sm text-soft outline-none focus:border-emerald-500"
@@ -167,6 +176,8 @@ export default function Catalog() {
             ))}
           </select>
           <select
+            name="category"
+            aria-label={t('catalog.category')}
             value={category}
             onChange={(e) => setFilter('categoria', e.target.value)}
             className="min-h-11 rounded-lg border border-edge bg-surface px-3 py-1.5 text-sm text-soft outline-none focus:border-emerald-500"
@@ -184,7 +195,13 @@ export default function Catalog() {
       {error ? (
         <ErrorState message={error} onRetry={load} />
       ) : loading ? (
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        <div
+          role="status"
+          aria-busy="true"
+          aria-live="polite"
+          className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+        >
+          <span className="sr-only">{t('common.loading')}</span>
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="overflow-hidden rounded-2xl border border-edge bg-surface">
               <div className="shimmer aspect-square bg-surface2" />

@@ -5,7 +5,7 @@ import { useLang } from '@/lib/lang-context'
 
 export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
   const [hovered, setHovered] = useState<number | null>(null)
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const weights = series.map((e) => e.weight_kg ?? 0)
   const min = Math.min(...weights)
   const max = Math.max(...weights)
@@ -23,11 +23,30 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
 
   return (
     <div className="mt-5">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        role="group"
+        aria-label={t('detail.yourProgress')}
+        tabIndex={0}
+        onFocus={() => setHovered((prev) => prev ?? 0)}
+        onBlur={() => setHovered(null)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+            e.preventDefault()
+            setHovered((prev) => Math.min((prev ?? -1) + 1, coords.length - 1))
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+            e.preventDefault()
+            setHovered((prev) => Math.max((prev ?? coords.length) - 1, 0))
+          } else if (e.key === 'Escape') {
+            setHovered(null)
+          }
+        }}
+        className="w-full rounded outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+      >
         <defs>
           <linearGradient id="progress-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
           </linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map((t) => (
@@ -54,15 +73,16 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
           return (
             <g
               key={i}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
+              onPointerEnter={() => setHovered(i)}
+              onPointerLeave={() => setHovered(null)}
+              onPointerDown={() => setHovered(i)}
               className="cursor-pointer"
             >
               <circle
                 cx={x}
                 cy={y}
                 r={active ? 6 : 3.5}
-                className="fill-emerald-500 transition-all duration-150"
+                className="fill-emerald-500"
               />
               <circle cx={x} cy={y} r={22} className="fill-transparent" />
               {active && (
@@ -76,7 +96,15 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
                     strokeDasharray="2 3"
                   />
                   <g transform={`translate(${Math.min(Math.max(x, 34), W - 34)} ${Math.max(y - 26, 10)})`}>
-                    <rect x={-30} y={-11} width={60} height={20} rx={6} className="fill-neutral-950/90" />
+                    <rect
+                      x={-30}
+                      y={-11}
+                      width={60}
+                      height={20}
+                      rx={6}
+                      className="fill-surface stroke-edge"
+                      strokeWidth={1}
+                    />
                     <text
                       x={0}
                       y={2}
@@ -85,7 +113,7 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
                       fontWeight={700}
                       className="fill-emerald-400"
                     >
-                      {series[i].weight_kg} kg
+                      {series[i].weight_kg} kg
                     </text>
                   </g>
                 </>
@@ -94,12 +122,17 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
           )
         })}
       </svg>
+      <span className="sr-only" role="status" aria-live="polite">
+        {hovered !== null && series[hovered]
+          ? `${formatShortDate(series[hovered].date, lang)}: ${series[hovered].weight_kg} kg`
+          : ''}
+      </span>
       <div className="mt-1 flex justify-between text-xs text-dim2">
         <span className="font-mono tabular-nums">
-          {formatShortDate(series[0].date, lang)} · {series[0].weight_kg} kg
+          {formatShortDate(series[0].date, lang)} · {series[0].weight_kg} kg
         </span>
         <span className="font-mono tabular-nums">
-          {series[series.length - 1].weight_kg} kg · {formatShortDate(series[series.length - 1].date, lang)}
+          {series[series.length - 1].weight_kg} kg · {formatShortDate(series[series.length - 1].date, lang)}
         </span>
       </div>
     </div>

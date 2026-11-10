@@ -15,12 +15,6 @@ import { useLang } from '@/lib/lang-context'
 const TARGET_SETS = 10
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
-function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`card-hairline glass-card rounded-2xl ${className}`}>{children}</div>
-  )
-}
-
 function Skeleton({ className = '' }: { className?: string }) {
   return (
     <div className={`shimmer relative overflow-hidden rounded-2xl border border-edge bg-surface ${className}`} />
@@ -44,22 +38,6 @@ function Icon({ children }: { children: React.ReactNode }) {
   )
 }
 
-const CheckIcon = (
-  <Icon>
-    <path d="M20 6 9 17l-5-5" />
-  </Icon>
-)
-const DumbbellIcon = (
-  <Icon>
-    <path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11" />
-  </Icon>
-)
-const TargetIcon = (
-  <Icon>
-    <circle cx="12" cy="12" r="9" />
-    <circle cx="12" cy="12" r="4" />
-  </Icon>
-)
 const PlayIcon = (
   <Icon>
     <path d="M6 4v16l14-8z" />
@@ -149,18 +127,21 @@ export default function Dashboard() {
 
   const lastTrainedLabel = (iso: string | null) => {
     if (!iso) return t('dash.neverTrained')
+    // eslint-disable-next-line react/purity
     const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
     if (days <= 0) return t('dash.trainedToday')
     if (days === 1) return t('dash.lastTrainYesterday')
-    return t('dash.lastTrainDays', { n: days })
+    const relative = new Intl.RelativeTimeFormat(lang === 'en' ? 'en-US' : 'es-AR', {
+      numeric: 'auto',
+    }).format(-days, 'day')
+    return t('dash.lastTrainRelative', { relative })
   }
 
   return (
-    <div>
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">{t('dash.summary')}</h1>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <p className="text-sm text-dim">
+    <div className="mx-auto w-full max-w-5xl">
+      <header className="mb-5 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-dim2">
             {t('common.week', {
               date: weekStart.toLocaleDateString(
                 lang === 'en' ? 'en-US' : 'es-AR',
@@ -168,20 +149,29 @@ export default function Dashboard() {
               ),
             })}
           </p>
-          {lastWeight && (
-            <Link
-              to="/perfil"
-              className="rounded-full border border-edge bg-surface px-3 py-1 text-xs text-soft transition-all duration-200 hover:border-edge2 hover:text-strong"
-            >
-              {t('dash.lastWeight', { weight: lastWeight.weight })}
-              {lastWeight.date === todayStr ? t('dash.todayTag') : ''}
-            </Link>
-          )}
+          <h1 className="mt-1 text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
+            {t('dash.summary')}
+          </h1>
         </div>
+        {lastWeight && (
+          <Link
+            to="/perfil"
+            className="mt-1 shrink-0 rounded-lg border border-edge bg-surface px-2.5 py-1.5 text-right text-[11px] leading-tight text-dim2 transition-colors hover:border-edge2 hover:text-high"
+          >
+            <span className="block font-medium text-soft">
+              {lastWeight.weight}
+              <span className="ml-0.5 text-dim2">kg</span>
+            </span>
+            <span className="block">
+              {lastWeight.date === todayStr ? t('dash.todayTag') : t('dash.lastWeightLabel')}
+            </span>
+          </Link>
+        )}
       </header>
 
       {loading ? (
-        <div className="space-y-4">
+        <div role="status" aria-busy="true" aria-live="polite" className="space-y-4">
+          <span className="sr-only">{t('common.loading')}</span>
           <Skeleton className="h-28" />
           <div className="grid gap-4 sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -193,111 +183,106 @@ export default function Dashboard() {
       ) : (
         <div className="space-y-4">
           {nextDayId ? (
-            <div className="glass-card card-hairline p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-dim">
-                {activeSession ? t('dash.sessionActive') : t('dash.suggestion')}
-              </p>
-              <h2 className="mt-1 text-xl font-bold tracking-tight text-high">
+            <section className="ui-card p-4 sm:p-5">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+                  {activeSession ? t('dash.sessionActive') : t('dash.suggestion')}
+                </span>
+              </div>
+              <h2 className="mt-3 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-strong">
                 {activeSession
                   ? next?.dayId === activeSession.day_id
                     ? next.dayName
                     : t('dash.resumeWhere')
                   : next?.dayName}
               </h2>
-              <p className="mt-1 text-sm text-dim">
+              <p className="mt-1 text-sm leading-relaxed text-dim">
                 {activeSession
                   ? t('dash.activeSessionNote')
                   : `${next?.routineName} · ${lastTrainedLabel(next?.lastTrainedAt ?? null)}`}
               </p>
               <Link
                 to={`/entrenar/${nextDayId}`}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(16,185,129,0.35)] transition-all duration-200 hover:bg-emerald-400 hover:shadow-[0_4px_32px_rgba(16,185,129,0.55)] active:scale-[0.98]"
+                className="ui-button-primary mt-5 w-full sm:w-auto"
               >
                 {PlayIcon}
                 {activeSession ? t('dash.resume') : t('dash.train')}
               </Link>
-            </div>
+            </section>
           ) : (
-            <Card className="p-5">
-              <h2 className="font-semibold">{t('dash.noSuggested')}</h2>
+            <section className="ui-card p-4 sm:p-5">
+              <h2 className="font-semibold text-strong">{t('dash.noSuggested')}</h2>
               <p className="mt-1 text-sm text-dim">{t('dash.noSuggestedHint')}</p>
-              <Link
-                to="/rutinas"
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 shadow-[0_4px_20px_rgba(16,185,129,0.35)] transition-all duration-200 hover:bg-emerald-400 active:scale-[0.98]"
-              >
+              <Link to="/rutinas" className="ui-button-primary mt-4 w-full sm:w-auto">
                 {t('dash.goRoutines')}
               </Link>
-            </Card>
+            </section>
           )}
 
           {sessionsCount === 0 ? (
-            <div className="mt-4 text-center">
-              <p className="font-medium">{t('dash.noTrainWeek')}</p>
-              <p className="mt-1 text-sm text-dim">{t('dash.noTrainWeekHint')}</p>
+            <div className="rounded-2xl border border-dashed border-edge2 px-5 py-8 text-center">
+              <p className="font-medium text-high">{t('dash.noTrainWeek')}</p>
+              <p className="mx-auto mt-1 max-w-sm text-sm text-dim">{t('dash.noTrainWeekHint')}</p>
             </div>
           ) : (
             <>
-              <div className="grid gap-4 lg:grid-cols-5">
-                <div className="grid grid-cols-3 gap-2 lg:col-span-2 lg:grid-cols-1 lg:gap-4">
-                  <StatCard
-                    label={t('dash.sessionsDone')}
-                    value={sessionsCount}
-                    delta={sessionsCount - prevSessionsCount}
-                    icon={CheckIcon}
-                  />
-                  <StatCard
-                    label={t('dash.totalSets')}
-                    value={totalSets}
-                    delta={totalSets - prevTotalSets}
-                    icon={DumbbellIcon}
-                  />
-                  <StatCard label={t('dash.groupsWorked')} value={volume.length} icon={TargetIcon} />
-                </div>
+              <div className="grid grid-cols-3 gap-2.5">
+                <StatCard
+                  label={t('dash.sessionsDone')}
+                  value={sessionsCount}
+                  delta={sessionsCount - prevSessionsCount}
+                />
+                <StatCard
+                  label={t('dash.totalSets')}
+                  value={totalSets}
+                  delta={totalSets - prevTotalSets}
+                />
+                <StatCard label={t('dash.groupsWorked')} value={volume.length} />
+              </div>
 
-                <Card className="p-5 lg:col-span-3">
-                  <h2 className="font-semibold">{t('dash.volumeByGroup')}</h2>
-                  <p className="mb-4 mt-1 text-xs text-dim">
+              <section className="ui-card">
+                <div className="px-4 pb-1 pt-4 sm:px-5">
+                  <h2 className="font-semibold text-strong">{t('dash.volumeByGroup')}</h2>
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-dim2">
                     {t('dash.targetHint', { n: TARGET_SETS })}
                   </p>
-                  {volume.length === 0 ? (
-                    <p className="text-sm text-dim">{t('dash.noVolume')}</p>
-                  ) : (
-                    <ul className="space-y-4">
-                      {volume.map((m) => {
-                        const pct = Math.min(100, (m.sets / TARGET_SETS) * 100)
-                        const reached = m.sets >= TARGET_SETS
-                        return (
-                          <li key={m.group_name}>
-                            <div className="mb-1 flex items-baseline justify-between text-sm">
-                              <span className="font-medium capitalize text-high">{t(`group.${m.group_name}`)}</span>
-                              <span
-                                className={`font-mono tabular-nums ${
-                                  reached ? 'text-emerald-400' : 'text-amber-400'
-                                }`}
-                              >
-                                {m.sets}/{TARGET_SETS} {t('dash.setsShort')}
-                                {!reached && m.sets < TARGET_SETS
-                                  ? ` · ${t('dash.missing', { n: TARGET_SETS - m.sets })}`
-                                  : ''}
-                              </span>
-                            </div>
-                            <div className="h-2.5 overflow-hidden rounded-full bg-surface2/80 ring-1 ring-inset ring-edge">
-                              <div
-                                className={`h-full rounded-full transition-all duration-700 ease-out ${
-                                  reached
-                                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400'
-                                    : 'bg-gradient-to-r from-amber-600 to-amber-400'
-                                }`}
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  )}
-                </Card>
-              </div>
+                </div>
+                {volume.length === 0 ? (
+                  <p className="px-4 pb-4 pt-2 text-sm text-dim sm:px-5">{t('dash.noVolume')}</p>
+                ) : (
+                  <ul className="grid gap-x-8 px-4 pb-2 pt-1 sm:grid-cols-2 sm:px-5">
+                    {volume.map((m) => {
+                      const pct = Math.min(100, (m.sets / TARGET_SETS) * 100)
+                      const reached = m.sets >= TARGET_SETS
+                      return (
+                        <li key={m.group_name} className="border-b border-edge/60 py-3 last:border-0">
+                          <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
+                            <span className="font-medium capitalize text-high">
+                              {t(`group.${m.group_name}`)}
+                            </span>
+                            <span
+                              className={`shrink-0 tabular-nums ${
+                                reached ? 'text-emerald-400' : 'text-amber-400'
+                              }`}
+                            >
+                              {m.sets}/{TARGET_SETS}
+                            </span>
+                          </div>
+                          <div className="h-1.5 overflow-hidden rounded-full bg-surface2">
+                            <div
+                              className={`h-full w-full origin-left rounded-full transition-transform duration-500 ease-out ${
+                                reached ? 'bg-emerald-500' : 'bg-amber-400'
+                              }`}
+                              style={{ transform: `scaleX(${pct / 100})` }}
+                            />
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </section>
             </>
           )}
         </div>
@@ -310,30 +295,26 @@ function StatCard({
   label,
   value,
   delta,
-  icon,
 }: {
   label: string
   value: number
   delta?: number
-  icon: React.ReactNode
 }) {
   const { t } = useLang()
   return (
-    <div className="card-hairline glass-card rounded-2xl p-3">
-      <div className="flex items-center justify-between gap-1.5">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface2 text-dim ring-1 ring-inset ring-edge">
-          {icon}
-        </span>
-        <p className="text-2xl font-bold tracking-tight tabular-nums">{value}</p>
-      </div>
-      <p className="mt-1.5 text-[11px] leading-tight text-dim">{label}</p>
+    <div className="ui-card p-3 sm:p-3.5">
+      <p className="text-[11px] leading-tight text-dim2">{label}</p>
+      <p className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums text-strong">
+        {value}
+      </p>
       {delta !== undefined && delta !== 0 && (
         <p
           className={`mt-1 text-[10px] font-medium ${
             delta > 0 ? 'text-emerald-400' : 'text-red-400'
           }`}
         >
-          {delta > 0 ? '▲' : '▼'} {Math.abs(delta)} {t('dash.vsPrev')}
+          <span aria-hidden="true">{delta > 0 ? '▲' : '▼'}</span> {Math.abs(delta)}{' '}
+          {t('dash.vsPrev')}
         </p>
       )}
     </div>

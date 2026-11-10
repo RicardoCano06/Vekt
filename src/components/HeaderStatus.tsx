@@ -35,13 +35,17 @@ export default function HeaderStatus() {
       to="/perfil"
       aria-label={t('header.goProfile')}
       title={t('header.profile')}
-      className="relative flex h-9 w-9 items-center justify-center rounded-full border border-edge2 bg-surface2 text-sm font-semibold text-soft transition-all duration-200 hover:border-edge2 hover:text-strong active:scale-95"
+      className="relative flex h-9 w-9 items-center justify-center rounded-full border border-edge2 bg-surface2 text-sm font-semibold text-soft transition-[color,border-color,transform] duration-200 hover:border-edge2 hover:text-strong active:scale-95"
     >
       {initial}
       <span
         aria-hidden
         className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-bg ${dotClass}`}
       />
+      {!online && <span className="sr-only">{t('sync.offline')}</span>}
+      {online && pending > 0 && (
+        <span className="sr-only">{t('sync.pending', { n: pending })}</span>
+      )}
     </NavLink>
   )
 }

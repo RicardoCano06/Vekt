@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { logout } from '@/lib/auth'
@@ -54,11 +54,15 @@ export default function Profile() {
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
   const [profileSaved, setProfileSaved] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<{ height?: string; age?: string }>({})
+  const heightRef = useRef<HTMLInputElement>(null)
+  const ageRef = useRef<HTMLInputElement>(null)
 
   const [weight, setWeight] = useState('')
   const [weightNotes, setWeightNotes] = useState('')
   const [weightSaving, setWeightSaving] = useState(false)
   const [weightError, setWeightError] = useState<string | null>(null)
+  const weightRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!user) return
@@ -103,17 +107,20 @@ export default function Profile() {
     if (!user || profileSaving) return
     setProfileError(null)
     setProfileSaved(false)
+    setFieldErrors({})
 
     const heightNum = parseFloat(height.replace(',', '.'))
     if (Number.isNaN(heightNum) || heightNum < 100 || heightNum > 250) {
-      setProfileError(t('profile.heightError'))
+      setFieldErrors({ height: t('profile.heightError') })
+      heightRef.current?.focus()
       return
     }
     let ageNum: number | null = null
     if (age.trim()) {
       ageNum = parseInt(age, 10)
       if (Number.isNaN(ageNum) || ageNum < 10 || ageNum > 120) {
-        setProfileError(t('profile.ageError'))
+        setFieldErrors({ age: t('profile.ageError') })
+        ageRef.current?.focus()
         return
       }
     }
@@ -145,6 +152,7 @@ export default function Profile() {
     const weightNum = parseFloat(weight.replace(',', '.'))
     if (Number.isNaN(weightNum) || weightNum <= 0 || weightNum > 500) {
       setWeightError(t('profile.weightError'))
+      weightRef.current?.focus()
       return
     }
 
@@ -167,7 +175,8 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2">
+      <div role="status" aria-busy="true" aria-live="polite" className="grid gap-4 md:grid-cols-2">
+        <span className="sr-only">{t('common.loading')}</span>
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="shimmer h-40 rounded-2xl border border-edge bg-surface" />
         ))}
@@ -195,40 +204,64 @@ export default function Profile() {
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1.5 block text-sm text-dim">{t('profile.height')}</label>
+                  <label htmlFor="height" className="mb-1.5 block text-sm text-dim">{t('profile.height')}</label>
                   <input
+                    ref={heightRef}
+                    id="height"
+                    name="height"
                     type="number"
                     inputMode="decimal"
+                    autoComplete="off"
                     step="0.1"
                     min={100}
                     max={250}
+                    aria-invalid={!!fieldErrors.height}
+                    aria-describedby={fieldErrors.height ? 'height-error' : undefined}
                     value={height}
                     onChange={(e) => setHeight(e.target.value)}
                     placeholder="175"
-                    className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                   />
+                  {fieldErrors.height && (
+                    <p id="height-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                      {fieldErrors.height}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm text-dim">{t('profile.age')}</label>
+                  <label htmlFor="age" className="mb-1.5 block text-sm text-dim">{t('profile.age')}</label>
                   <input
+                    ref={ageRef}
+                    id="age"
+                    name="age"
                     type="number"
                     inputMode="numeric"
+                    autoComplete="off"
                     min={10}
                     max={120}
+                    aria-invalid={!!fieldErrors.age}
+                    aria-describedby={fieldErrors.age ? 'age-error' : undefined}
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
                     placeholder="28"
-                    className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                   />
+                  {fieldErrors.age && (
+                    <p id="age-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                      {fieldErrors.age}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm text-dim">{t('profile.sex')}</label>
+                <label htmlFor="sex" className="mb-1.5 block text-sm text-dim">{t('profile.sex')}</label>
                 <select
+                  id="sex"
+                  name="sex"
                   value={sex}
                   onChange={(e) => setSex(e.target.value as Sex | '')}
-                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-emerald-500"
+                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm text-strong outline-none transition-colors focus:border-emerald-500"
                 >
                   <option value="">{t('profile.sexUndefined')}</option>
                   <option value="male">{t('profile.male')}</option>
@@ -238,11 +271,13 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm text-dim">{t('profile.level')}</label>
+                <label htmlFor="level" className="mb-1.5 block text-sm text-dim">{t('profile.level')}</label>
                 <select
+                  id="level"
+                  name="level"
                   value={level}
                   onChange={(e) => setLevel(e.target.value as Level)}
-                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-emerald-500"
+                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm text-strong outline-none transition-colors focus:border-emerald-500"
                 >
                   {LEVELS.map((l) => (
                     <option key={l} value={l}>
@@ -253,11 +288,13 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm text-dim">{t('profile.goal')}</label>
+                <label htmlFor="goal" className="mb-1.5 block text-sm text-dim">{t('profile.goal')}</label>
                 <select
+                  id="goal"
+                  name="goal"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value as Goal)}
-                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-emerald-500"
+                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm text-strong outline-none transition-colors focus:border-emerald-500"
                 >
                   {GOALS.map((g) => (
                     <option key={g} value={g}>
@@ -268,12 +305,12 @@ export default function Profile() {
               </div>
 
               {profileError && (
-                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
                   {profileError}
                 </p>
               )}
               {profileSaved && (
-                <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+                <p role="status" aria-live="polite" className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
                   {t('profile.saved')}
                 </p>
               )}
@@ -293,40 +330,48 @@ export default function Profile() {
             <p className="mb-4 text-sm text-dim">{t('profile.weightHint')}</p>
             <form onSubmit={handleSaveWeight} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm text-dim">{t('profile.weightKg')}</label>
+                <label htmlFor="weight" className="mb-1.5 block text-sm text-dim">{t('profile.weightKg')}</label>
                 <input
+                  ref={weightRef}
+                  id="weight"
+                  name="weight"
                   type="number"
                   inputMode="decimal"
+                  autoComplete="off"
                   step="0.1"
                   min={1}
                   max={500}
+                  aria-invalid={!!weightError}
+                  aria-describedby={weightError ? 'weight-error' : undefined}
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
                   placeholder="80.5"
                   required
-                  className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
+                {weightError && (
+                  <p id="weight-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                    {weightError}
+                  </p>
+                )}
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-dim">{t('profile.note')}</label>
+                <label htmlFor="weight-note" className="mb-1.5 block text-sm text-dim">{t('profile.note')}</label>
                 <input
+                  id="weight-note"
+                  name="weight-note"
                   type="text"
+                  autoComplete="off"
                   value={weightNotes}
                   onChange={(e) => setWeightNotes(e.target.value)}
                   placeholder={t('profile.notePlaceholder')}
-                  className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
 
-              {weightError && (
-                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
-                  {weightError}
-                </p>
-              )}
-
               <button
                 type="submit"
-                disabled={weightSaving || !weight.trim()}
+                disabled={weightSaving}
                 className="w-full rounded-lg bg-emerald-500 py-2.5 text-sm font-semibold text-neutral-950 transition-colors hover:bg-emerald-400 disabled:opacity-50"
               >
                 {weightSaving ? t('profile.saving') : t('profile.saveWeight')}
@@ -368,7 +413,7 @@ export default function Profile() {
             <ul className="space-y-2.5">
               {recommendations.items.map((item, i) => (
                 <li key={i} className="flex gap-2.5 text-sm text-soft">
-                  <span className="mt-0.5 text-emerald-500">✓</span>
+                  <span aria-hidden="true" className="mt-0.5 text-emerald-500">✓</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -386,7 +431,7 @@ export default function Profile() {
                   {metrics.slice(0, 14).map((m) => (
                     <div key={m.id} className="flex items-center justify-between py-2 text-sm">
                       <span className="text-dim">{formatDate(m.date, lang)}</span>
-                      <span className="font-mono font-medium tabular-nums">{m.weight_kg} kg</span>
+                      <span className="font-mono font-medium tabular-nums">{m.weight_kg} kg</span>
                     </div>
                   ))}
                 </div>
@@ -409,7 +454,7 @@ export default function Profile() {
               },
             })
           }
-          className="min-h-12 w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition-all duration-200 hover:bg-red-500/20 active:scale-[0.99] md:hidden"
+          className="min-h-12 w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition-[background-color,transform] duration-200 hover:bg-red-500/20 active:scale-[0.99] md:hidden"
         >
           {t('profile.logout')}
         </button>
@@ -424,7 +469,7 @@ function BmiScale({ bmi }: { bmi: number }) {
   const MAX = 40
   const pos = Math.min(100, Math.max(0, ((bmi - MIN) / (MAX - MIN)) * 100))
   return (
-    <div className="mt-4">
+    <div className="mt-4" aria-hidden="true">
       <div
         className="relative h-2 rounded-full"
         style={{
@@ -480,7 +525,12 @@ function WeightSparkline({
 
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label={t('profile.weightHistory')}
+        className="w-full"
+      >
         <polyline points={coords.map(([x, y]) => `${x},${y}`).join(' ')} className="fill-none stroke-emerald-500" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         {coords.map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r={2.5} className="fill-emerald-500" />
@@ -488,10 +538,10 @@ function WeightSparkline({
       </svg>
       <div className="mt-1 flex justify-between text-xs text-dim2">
         <span>
-          {formatDate(points[0].date, lang)} · {points[0].weight_kg} kg
+          {formatDate(points[0].date, lang)} · {points[0].weight_kg} kg
         </span>
         <span>
-          {points[points.length - 1].weight_kg} kg · {formatDate(points[points.length - 1].date, lang)}
+          {points[points.length - 1].weight_kg} kg · {formatDate(points[points.length - 1].date, lang)}
         </span>
       </div>
     </div>

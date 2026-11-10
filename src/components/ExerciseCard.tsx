@@ -16,13 +16,15 @@ export default function ExerciseCard({ exercise, muscleName }: Props) {
   return (
     <Link
       to={`/ejercicios/${exercise.id}`}
-      className="card-hairline glass-card group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-[0_0_28px_rgba(16,185,129,0.14)]"
+      className="card-hairline glass-card group overflow-hidden rounded-2xl transition-[transform,border-color,box-shadow] duration-300 [contain-intrinsic-size:auto_280px] [content-visibility:auto] hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-[0_0_28px_rgba(167,139,250,0.14)]"
     >
       <div className="aspect-square overflow-hidden bg-surface2">
         {exercise.image_url ? (
           <img
             src={exercise.image_url}
             alt={name}
+            width={400}
+            height={400}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />

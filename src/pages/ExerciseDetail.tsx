@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '@/lib/auth-context'
+import ErrorState from '@/components/ErrorState'
 import { ProgressChart } from '@/components/ProgressChart'
 import { formatShortDate } from '@/lib/format'
 import { fetchExerciseDetail, fetchExerciseProgress } from '@/lib/db'
@@ -19,20 +20,24 @@ export default function ExerciseDetail() {
     equipment: Equipment | null
   } | null>(null)
   const [progress, setProgress] = useState<ExerciseProgressEntry[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const loading = !id || !detail || detail.exercise.id !== id
 
-  useEffect(() => {
+  const loadDetail = useCallback(() => {
     if (!id) return
-    let cancelled = false
+    setError(null)
     fetchExerciseDetail(id)
-      .then((res) => {
-        if (!cancelled) setDetail(res)
+      .then(setDetail)
+      .catch((err) => {
+        console.error(err)
+        setError(t('detail.loadError'))
       })
-      .catch(console.error)
-    return () => {
-      cancelled = true
-    }
-  }, [id])
+  }, [id, t])
+
+  useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
+    loadDetail()
+  }, [loadDetail])
 
   useEffect(() => {
     if (!id || !user) return
@@ -47,9 +52,14 @@ export default function ExerciseDetail() {
     }
   }, [id, user])
 
+  if (error) {
+    return <ErrorState message={error} onRetry={loadDetail} />
+  }
+
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div role="status" aria-busy="true" aria-live="polite" className="space-y-4">
+        <span className="sr-only">{t('common.loading')}</span>
         <div className="shimmer h-4 w-24 rounded bg-surface2" />
         <div className="shimmer aspect-video rounded-2xl bg-surface2" />
         <div className="shimmer h-8 w-2/3 rounded bg-surface2" />
@@ -63,7 +73,7 @@ export default function ExerciseDetail() {
   if (!exercise) {
     return (
       <div className="mt-16 text-center">
-        <div className="text-5xl">🤔</div>
+        <div aria-hidden="true" className="text-5xl">🤔</div>
         <p className="mt-4 font-medium">{t('detail.notFound')}</p>
         <Link
           to="/ejercicios"
@@ -118,7 +128,10 @@ export default function ExerciseDetail() {
       {exercise.image_url && (
         <img
           src={exercise.image_url}
-          alt={exercise.name}
+          alt={displayName(exercise, lang)}
+          width={800}
+          height={450}
+          fetchPriority="high"
           className="aspect-video w-full rounded-2xl border border-edge object-cover shadow-[0_20px_50px_-24px_rgba(0,0,0,0.8)]"
         />
       )}
@@ -210,8 +223,8 @@ export default function ExerciseDetail() {
           ) : (
             <>
               <div className="mt-4 grid grid-cols-3 gap-3">
-                <Stat label={t('detail.maxWeight')} value={maxWeight ? `${maxWeight} kg` : '—'} />
-                <Stat label={t('detail.estOneRm')} value={maxOneRm ? `${maxOneRm.toFixed(1)} kg` : '—'} />
+                <Stat label={t('detail.maxWeight')} value={maxWeight ? `${maxWeight} kg` : '—'} />
+                <Stat label={t('detail.estOneRm')} value={maxOneRm ? `${maxOneRm.toFixed(1)} kg` : '—'} />
                 <Stat label={t('detail.sessions')} value={String(perSession.size)} />
               </div>
 
@@ -225,7 +238,7 @@ export default function ExerciseDetail() {
                     <li key={e.session_id} className="flex items-center justify-between py-2 text-sm">
                       <span className="text-dim">{formatShortDate(e.date, lang)}</span>
                       <span className="font-medium">
-                        {e.weight_kg ? `${e.weight_kg} kg` : t('detail.bodyweight')} × {e.reps ?? '—'}
+                        {e.weight_kg ? `${e.weight_kg} kg` : t('detail.bodyweight')} × {e.reps ?? '—'}
                         {e.rpe ? ` · RPE ${e.rpe}` : ''}
                       </span>
                     </li>
