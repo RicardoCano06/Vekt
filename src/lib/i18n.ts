@@ -78,6 +78,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'catalog.title': 'Biblioteca',
     'catalog.count': '{n} ejercicios encontrados',
     'catalog.available': '867 ejercicios disponibles, con fotos e instrucciones',
+    'catalog.availableCount': '{n} ejercicios con fotos e instrucciones',
     'catalog.searchPlaceholder': 'Buscar ejercicio (ej: press, dominada, gemelos…)',
     'catalog.search': 'Buscar ejercicios',
     'catalog.filters': 'Filtros',
@@ -252,6 +253,7 @@ export const messages: Record<Lang, Record<string, string>> = {
 
     // ---------- rutinas ----------
     'routines.title': 'Rutinas',
+    'routines.eyebrow': 'Programas',
     'routines.subtitle': 'Tus planes de entrenamiento organizados por día',
     'routines.namePlaceholder': 'Nombre de la rutina (ej: Volumen 5 días)',
     'routines.create': 'Crear',
@@ -320,6 +322,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'train.lowerReps': 'Bajar reps',
     'train.raiseReps': 'Subir reps',
     'train.completeSet': 'Marcar serie completada',
+    'train.editingSet': 'Editando serie',
     'train.uncompleteSet': 'Desmarcar serie',
     'train.plan': 'Plan: {sets} × {reps}',
     'train.done': 'Ejercicio completado',
@@ -366,9 +369,14 @@ export const messages: Record<Lang, Record<string, string>> = {
 
     // ---------- estadísticas ----------
     'stats.title': 'Progreso',
+    'stats.eyebrow': 'Estadísticas',
     'stats.subtitle': 'Tu progreso, en números y gráficos.',
     'stats.loadError': 'Error al cargar estadísticas',
     'stats.currentStreak': 'Racha actual',
+    'stats.consistency': 'Constancia',
+    'stats.heatmapSummary': '{n} sesiones en las últimas 12 semanas',
+    'stats.less': 'Menos',
+    'stats.more': 'Más',
     'stats.bestStreak': 'Mejor racha',
     'stats.prs': 'Récords personales',
     'stats.noPrs': 'Todavía no hay récords. Registrá sesiones y vas a ver acá tus mejores marcas por ejercicio.',
@@ -389,6 +397,7 @@ export const messages: Record<Lang, Record<string, string>> = {
 
     // ---------- perfil ----------
     'profile.title': 'Perfil',
+    'profile.eyebrow': 'Cuenta',
     'profile.subtitle': 'Tus datos corporales y recomendaciones de entrenamiento',
     'profile.data': 'Datos del perfil',
     'profile.height': 'Altura (cm)',
@@ -521,6 +530,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'catalog.title': 'Library',
     'catalog.count': '{n} exercises found',
     'catalog.available': '867 exercises available, with photos and instructions',
+    'catalog.availableCount': '{n} exercises with photos and instructions',
     'catalog.searchPlaceholder': 'Search exercise (e.g. bench press, pull-up…)',
     'catalog.search': 'Search exercises',
     'catalog.filters': 'Filters',
@@ -687,6 +697,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'day.sec': 's',
 
     'routines.title': 'Routines',
+    'routines.eyebrow': 'Programs',
     'routines.subtitle': 'Your training plans organized by day',
     'routines.namePlaceholder': 'Routine name (e.g. 5-day Volume)',
     'routines.create': 'Create',
@@ -752,6 +763,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'train.lowerReps': 'Lower reps',
     'train.raiseReps': 'Raise reps',
     'train.completeSet': 'Mark set as complete',
+    'train.editingSet': 'Editing set',
     'train.uncompleteSet': 'Unmark set',
     'train.plan': 'Plan: {sets} × {reps}',
     'train.done': 'Exercise complete',
@@ -796,9 +808,14 @@ export const messages: Record<Lang, Record<string, string>> = {
     'history.csvHeader.Duracion_min': 'Duration_min',
 
     'stats.title': 'Progress',
+    'stats.eyebrow': 'Statistics',
     'stats.subtitle': 'Your progress, in numbers and charts.',
     'stats.loadError': 'Error loading statistics',
     'stats.currentStreak': 'Current streak',
+    'stats.consistency': 'Consistency',
+    'stats.heatmapSummary': '{n} sessions in the last 12 weeks',
+    'stats.less': 'Less',
+    'stats.more': 'More',
     'stats.bestStreak': 'Best streak',
     'stats.prs': 'Personal records',
     'stats.noPrs': 'No records yet. Log sessions and you will see your best marks per exercise here.',
@@ -818,6 +835,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'stats.evolutionError': 'Could not load the exercise evolution',
 
     'profile.title': 'Profile',
+    'profile.eyebrow': 'Account',
     'profile.subtitle': 'Your body data and training recommendations',
     'profile.data': 'Profile data',
     'profile.height': 'Height (cm)',

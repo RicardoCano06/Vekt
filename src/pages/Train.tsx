@@ -149,6 +149,12 @@ export default function Train() {
     }
   }
 
+  function activateSet(exerciseId: string, index: number) {
+    const next = { exerciseId, index }
+    setActive(next)
+    persistActive(next)
+  }
+
   useEffect(() => {
     if (!session || activeInitRef.current || Object.keys(setsByEx).length === 0) return
     activeInitRef.current = true
@@ -443,6 +449,7 @@ export default function Train() {
                         onDeleteSet={(i) => deleteSet(g.exercise_id, i)}
                         onNoteSet={(i) => openNote(g.exercise_id, i)}
                         onCommit={(i) => commitSet(g.exercise_id, i)}
+                        onActivateSet={(i) => activateSet(g.exercise_id, i)}
                         activeIndex={
                           active?.exerciseId === g.exercise_id ? active.index : undefined
                         }
@@ -467,6 +474,7 @@ export default function Train() {
                 onDeleteSet={(i) => deleteSet(re.exercise_id, i)}
                 onNoteSet={(i) => openNote(re.exercise_id, i)}
                 onCommit={(i) => commitSet(re.exercise_id, i)}
+                onActivateSet={(i) => activateSet(re.exercise_id, i)}
                 activeIndex={
                   active?.exerciseId === re.exercise_id ? active.index : undefined
                 }
@@ -558,6 +566,7 @@ interface SetRowProps {
   onCommit: () => void
   onDelete: () => void
   onNote: () => void
+  onActivate: () => void
 }
 
 interface ExerciseBlockProps {
@@ -569,6 +578,7 @@ interface ExerciseBlockProps {
   onDeleteSet: (index: number) => void
   onNoteSet: (index: number) => void
   onCommit: (index: number) => void
+  onActivateSet: (index: number) => void
   activeIndex?: number
   timer?: ReactNode
   bare?: boolean
@@ -583,6 +593,7 @@ function ExerciseBlock({
   onDeleteSet,
   onNoteSet,
   onCommit,
+  onActivateSet,
   activeIndex,
   timer,
   bare,
@@ -637,6 +648,7 @@ function ExerciseBlock({
             onCommit={() => onCommit(i)}
             onDelete={() => onDeleteSet(i)}
             onNote={() => onNoteSet(i)}
+            onActivate={() => onActivateSet(i)}
           />
         ))}
       </ul>
@@ -652,7 +664,17 @@ function ExerciseBlock({
   )
 }
 
-function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNote }: SetRowProps) {
+function SetRow({
+  set,
+  saved,
+  saving,
+  active,
+  onUpdate,
+  onCommit,
+  onDelete,
+  onNote,
+  onActivate,
+}: SetRowProps) {
   const { ask, dialog } = useConfirm()
   const { t } = useLang()
   const rowRef = useRef<HTMLLIElement>(null)
@@ -685,12 +707,27 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
   const field =
     'h-9 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1 text-center font-mono text-sm font-semibold tabular-nums outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
 
+  const completeClass = `flex shrink-0 items-center justify-center rounded-lg border text-sm font-semibold transition-colors active:scale-95 ${
+    done
+      ? 'border-emerald-500 bg-emerald-500 text-neutral-950'
+      : 'border-edge2 bg-surface text-dim2 hover:border-emerald-500/50 hover:text-emerald-400'
+  }`
+
+  const toggleComplete = () => {
+    onUpdate({ completed: !done })
+    if (!done) {
+      navigator.vibrate?.(30)
+    } else {
+      onActivate()
+    }
+  }
+
   return (
     <li
       ref={rowRef}
       aria-busy={saving}
-      className={`relative px-3 py-2.5 transition-colors ${
-        done ? 'bg-surface2/40' : ''
+      className={`relative transition-colors ${
+        done ? 'bg-surface2/30' : ''
       } ${active ? 'bg-emerald-500/[0.06]' : ''}`}
     >
       {active && (
@@ -700,183 +737,259 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
         />
       )}
 
-      <div className="flex items-end gap-2">
-        <button
-          type="button"
-          aria-label={done ? t('train.uncompleteSet') : t('train.completeSet')}
-          aria-pressed={done}
-          onClick={() => {
-            onUpdate({ completed: !done })
-            if (!done) navigator.vibrate?.(30)
-          }}
-          className={`mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold transition-colors active:scale-95 ${
-            done
-              ? 'border-emerald-500 bg-emerald-500 text-neutral-950'
-              : 'border-edge2 bg-surface text-dim2 hover:border-emerald-500/50 hover:text-emerald-400'
-          }`}
-          title={done ? t('train.uncompleteSet') : t('train.completeSet')}
-        >
-          {done ? (
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={3}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5 animate-pop"
+      {/* Resumen colapsado: solo el set activo se expande. */}
+      <div
+        aria-hidden={active || undefined}
+        inert={active ? true : undefined}
+        className="overflow-hidden transition-[max-height,opacity] duration-300 ease-out"
+        style={{ maxHeight: active ? '0px' : '80px', opacity: active ? 0 : 1 }}
+      >
+        <div>
+          <div className="flex items-center gap-2 px-3 py-2">
+            <button
+              type="button"
+              aria-label={done ? t('train.uncompleteSet') : t('train.completeSet')}
+              aria-pressed={done}
+              onClick={toggleComplete}
+              className={`${completeClass} h-9 w-9`}
+              title={done ? t('train.uncompleteSet') : t('train.completeSet')}
             >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          ) : (
-            <span className="font-mono tabular-nums">{set.set_number}</span>
-          )}
-        </button>
+              {done ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4 animate-pop"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              ) : (
+                <span className="font-mono tabular-nums">{set.set_number}</span>
+              )}
+            </button>
 
-        <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
-          <label className="min-w-0">
-            <span className="mb-1 block text-[10px] font-medium text-dim2">
-              {t('train.weight')}
-            </span>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => stepWeight(-1)}
-                aria-label={t('train.lowerWeight')}
-                className={btn}
-                title={t('train.lowerWeight')}
-              >
-                −
-              </button>
-              <input
-                type="number"
-                name="weight"
-                inputMode="decimal"
-                autoComplete="off"
-                aria-label={t('train.weight')}
-                min={0}
-                step={0.5}
-                value={set.weight_kg ?? ''}
-                onChange={(e) =>
-                  onUpdate({ weight_kg: e.target.value === '' ? null : Number(e.target.value) })
-                }
-                onBlur={onCommit}
-                placeholder="0"
-                className={`${field} ${done ? 'text-dim2' : ''}`}
-              />
-              <button
-                type="button"
-                onClick={() => stepWeight(1)}
-                aria-label={t('train.raiseWeight')}
-                className={btn}
-                title={t('train.raiseWeight')}
-              >
-                +
-              </button>
-            </div>
-          </label>
+            <button
+              type="button"
+              onClick={onActivate}
+              aria-expanded={false}
+              title={set.notes ?? undefined}
+              className="flex min-w-0 flex-1 items-center gap-2 text-left"
+            >
+              <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-dim3">
+                SET {set.set_number}
+              </span>
+              <span className="truncate font-mono text-sm font-semibold tabular-nums text-soft">
+                {set.weight_kg !== null ? `${set.weight_kg} kg` : '—'}{' '}
+                <span className="text-dim3">×</span> {set.reps ?? '—'}
+              </span>
+              {set.rpe !== null && (
+                <span className="hidden shrink-0 text-[10px] text-dim2 sm:inline">
+                  RPE {set.rpe}
+                </span>
+              )}
+              {set.notes && (
+                <>
+                  <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+                  <span className="sr-only">{t('train.editNote')}</span>
+                </>
+              )}
+            </button>
 
-          <label className="min-w-0">
-            <span className="mb-1 block text-[10px] font-medium text-dim2">
-              {t('train.reps')}
+            <span aria-hidden="true" className="shrink-0 text-dim3">
+              ›
             </span>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => stepReps(-1)}
-                aria-label={t('train.lowerReps')}
-                className={btn}
-                title={t('train.lowerReps')}
-              >
-                −
-              </button>
-              <input
-                type="number"
-                name="reps"
-                inputMode="numeric"
-                autoComplete="off"
-                aria-label={t('train.reps')}
-                min={0}
-                value={set.reps ?? ''}
-                onChange={(e) =>
-                  onUpdate({ reps: e.target.value === '' ? null : Number(e.target.value) })
-                }
-                onBlur={onCommit}
-                placeholder="0"
-                className={`${field} ${done ? 'text-dim2' : ''}`}
-              />
-              <button
-                type="button"
-                onClick={() => stepReps(1)}
-                aria-label={t('train.raiseReps')}
-                className={btn}
-                title={t('train.raiseReps')}
-              >
-                +
-              </button>
-            </div>
-          </label>
+          </div>
         </div>
       </div>
 
-      <div className="mt-2 flex items-center gap-1.5 pl-12">
-        <select
-          name="rpe"
-          aria-label={t('train.rpe')}
-          value={set.rpe === null ? '' : String(set.rpe)}
-          onChange={(e) =>
-            onUpdate({ rpe: e.target.value === '' ? null : Number(e.target.value) })
-          }
-          onBlur={onCommit}
-          className={`h-8 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1.5 text-[11px] text-strong outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
-            done ? 'text-dim2' : ''
-          }`}
-          title={t('train.rpe')}
-        >
-          {RPE_OPTIONS.map((o) => (
-            <option key={o} value={o}>
-              {o === '' ? 'RPE' : `RPE ${o}`}
-            </option>
-          ))}
-        </select>
-        <span role="status" aria-live="polite" className="w-3 shrink-0 text-[11px] text-emerald-400">
-          {saved ? (
-            <>
-              <span aria-hidden="true" className="animate-pop">✓</span>
-              <span className="sr-only">{t('common.saved')}</span>
-            </>
-          ) : null}
-        </span>
-        <button
-          type="button"
-          onClick={onNote}
-          aria-label={set.notes ? t('train.editNote') : t('train.addNote')}
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-base transition-colors active:scale-90 ${
-            set.notes ? 'text-soft' : 'text-dim2 hover:bg-surface2 hover:text-soft'
-          }`}
-          title={set.notes ? t('train.editNote') : t('train.addNote')}
-        >
-          ⋯
-        </button>
-        <button
-          type="button"
-          aria-label={t('train.deleteSetTitle')}
-          onClick={() =>
-            ask({
-              title: t('train.deleteSetTitle'),
-              message: t('train.deleteSetMessage', {
-                n: set.set_number,
-              }),
-              confirmLabel: t('train.delete'),
-              danger: true,
-              onConfirm: onDelete,
-            })
-          }
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 active:scale-90"
-          title={t('train.deleteSetTitle')}
-        >
-          <TrashIcon className="h-3.5 w-3.5" />
-        </button>
+      {/* Editor del set activo. */}
+      <div
+        aria-hidden={!active || undefined}
+        inert={!active ? true : undefined}
+        className="overflow-hidden transition-[max-height,opacity] duration-300 ease-out"
+        style={{ maxHeight: active ? '240px' : '0px', opacity: active ? 1 : 0 }}
+      >
+        <div>
+          <div className="px-3 pb-3 pt-1">
+            <p className="mb-1 text-right font-mono text-[8px] uppercase tracking-[0.14em] text-emerald-400">
+              {t('train.editingSet')}
+            </p>
+            <div className="flex items-end gap-2">
+              <button
+                type="button"
+                aria-label={done ? t('train.uncompleteSet') : t('train.completeSet')}
+                aria-pressed={done}
+                onClick={toggleComplete}
+                className={`${completeClass} mb-0.5 h-10 w-10`}
+                title={done ? t('train.uncompleteSet') : t('train.completeSet')}
+              >
+                {done ? (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5 animate-pop"
+                  >
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                ) : (
+                  <span className="font-mono tabular-nums">{set.set_number}</span>
+                )}
+              </button>
+
+              <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
+                <label className="min-w-0">
+                  <span className="mb-1 block text-[10px] font-medium text-dim2">
+                    {t('train.weight')}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => stepWeight(-1)}
+                      aria-label={t('train.lowerWeight')}
+                      className={btn}
+                      title={t('train.lowerWeight')}
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      name="weight"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      aria-label={t('train.weight')}
+                      min={0}
+                      step={0.5}
+                      value={set.weight_kg ?? ''}
+                      onChange={(e) =>
+                        onUpdate({ weight_kg: e.target.value === '' ? null : Number(e.target.value) })
+                      }
+                      onBlur={onCommit}
+                      placeholder="0"
+                      className={`${field} ${done ? 'text-dim2' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => stepWeight(1)}
+                      aria-label={t('train.raiseWeight')}
+                      className={btn}
+                      title={t('train.raiseWeight')}
+                    >
+                      +
+                    </button>
+                  </div>
+                </label>
+
+                <label className="min-w-0">
+                  <span className="mb-1 block text-[10px] font-medium text-dim2">
+                    {t('train.reps')}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => stepReps(-1)}
+                      aria-label={t('train.lowerReps')}
+                      className={btn}
+                      title={t('train.lowerReps')}
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      name="reps"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      aria-label={t('train.reps')}
+                      min={0}
+                      value={set.reps ?? ''}
+                      onChange={(e) =>
+                        onUpdate({ reps: e.target.value === '' ? null : Number(e.target.value) })
+                      }
+                      onBlur={onCommit}
+                      placeholder="0"
+                      className={`${field} ${done ? 'text-dim2' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => stepReps(1)}
+                      aria-label={t('train.raiseReps')}
+                      className={btn}
+                      title={t('train.raiseReps')}
+                    >
+                      +
+                    </button>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-2 flex items-center gap-1.5 pl-12">
+              <select
+                name="rpe"
+                aria-label={t('train.rpe')}
+                value={set.rpe === null ? '' : String(set.rpe)}
+                onChange={(e) =>
+                  onUpdate({ rpe: e.target.value === '' ? null : Number(e.target.value) })
+                }
+                onBlur={onCommit}
+                className={`h-8 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1.5 text-[11px] text-strong outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
+                  done ? 'text-dim2' : ''
+                }`}
+                title={t('train.rpe')}
+              >
+                {RPE_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o === '' ? 'RPE' : `RPE ${o}`}
+                  </option>
+                ))}
+              </select>
+              <span role="status" aria-live="polite" className="w-3 shrink-0 text-[11px] text-emerald-400">
+                {saved ? (
+                  <>
+                    <span aria-hidden="true" className="animate-pop">✓</span>
+                    <span className="sr-only">{t('common.saved')}</span>
+                  </>
+                ) : null}
+              </span>
+              <button
+                type="button"
+                onClick={onNote}
+                aria-label={set.notes ? t('train.editNote') : t('train.addNote')}
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-base transition-colors active:scale-90 ${
+                  set.notes ? 'text-soft' : 'text-dim2 hover:bg-surface2 hover:text-soft'
+                }`}
+                title={set.notes ? t('train.editNote') : t('train.addNote')}
+              >
+                ⋯
+              </button>
+              <button
+                type="button"
+                aria-label={t('train.deleteSetTitle')}
+                onClick={() =>
+                  ask({
+                    title: t('train.deleteSetTitle'),
+                    message: t('train.deleteSetMessage', {
+                      n: set.set_number,
+                    }),
+                    confirmLabel: t('train.delete'),
+                    danger: true,
+                    onConfirm: onDelete,
+                  })
+                }
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 active:scale-90"
+                title={t('train.deleteSetTitle')}
+              >
+                <TrashIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       {dialog}
     </li>

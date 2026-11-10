@@ -101,7 +101,13 @@ export default function Catalog() {
         index="02"
         eyebrow={t('nav.exercises')}
         title={t('catalog.title')}
-        description={hasFilters ? t('catalog.count', { n: total }) : t('catalog.available')}
+        description={
+          loading
+            ? t('common.loading')
+            : hasFilters
+              ? t('catalog.count', { n: total })
+              : t('catalog.availableCount', { n: total })
+        }
       />
 
       <div className="sticky top-12 z-20 -mx-4 space-y-2.5 border-b border-edge bg-bg px-4 pb-3 pt-2 md:top-0 md:-mx-8 md:px-8">

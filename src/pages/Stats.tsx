@@ -5,14 +5,17 @@ import { useToast } from '@/lib/toast-context'
 import ErrorState from '@/components/ErrorState'
 import PageHeader from '@/components/PageHeader'
 import { ProgressChart } from '@/components/ProgressChart'
+import { useCountUp } from '@/hooks/useCountUp'
 import { formatShortDate } from '@/lib/format'
 import {
   fetchExerciseProgress,
   fetchPRs,
+  fetchSessions,
   fetchStreak,
   fetchWeeklyVolumeSeries,
 } from '@/lib/db'
 import type { ExerciseProgressEntry, PR, Streak, WeeklyVolumePoint } from '@/lib/db'
+import type { Session } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
 import { displayName } from '@/lib/i18n'
 
@@ -32,6 +35,7 @@ export default function Stats() {
   const [streak, setStreak] = useState<Streak | null>(null)
   const [volume, setVolume] = useState<WeeklyVolumePoint[]>([])
   const [prs, setPrs] = useState<PR[]>([])
+  const [sessions, setSessions] = useState<Session[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -43,11 +47,13 @@ export default function Stats() {
       fetchStreak(user.id),
       fetchWeeklyVolumeSeries(user.id),
       fetchPRs(user.id),
+      fetchSessions(user.id),
     ])
-      .then(([s, v, p]) => {
+      .then(([s, v, p, ses]) => {
         setStreak(s)
         setVolume(v)
         setPrs(p)
+        setSessions(ses)
       })
       .catch((e) => {
         console.error(e)
@@ -67,7 +73,7 @@ export default function Stats() {
     <div className="mx-auto w-full max-w-4xl">
       <PageHeader
         index="05"
-        eyebrow={t('nav.stats')}
+        eyebrow={t('stats.eyebrow')}
         title={t('stats.title')}
         description={t('stats.subtitle')}
       />
@@ -90,6 +96,8 @@ export default function Stats() {
             <StreakCard label={t('stats.currentStreak')} value={streak?.current ?? null} />
             <StreakCard label={t('stats.bestStreak')} value={streak?.best ?? null} />
           </section>
+
+          <TrainingHeatmap sessions={sessions} />
 
           <VolumeChart volume={volume} lang={lang} t={t} />
 
@@ -150,10 +158,11 @@ export default function Stats() {
 }
 
 function StreakCard({ label, value }: { label: string; value: number | null }) {
+  const displayValue = useCountUp(value ?? 0)
   return (
     <div className="ui-card p-4">
       <p className="font-display text-[28px] font-semibold leading-none tabular-nums text-strong">
-        {value ?? '—'}
+        {value === null ? '—' : displayValue}
       </p>
       <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.08em] text-dim2">{label}</p>
     </div>
@@ -381,6 +390,108 @@ function ExerciseEvolution({
           )}
         </>
       )}
+    </section>
+  )
+}
+
+function localDayKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+    date.getDate(),
+  ).padStart(2, '0')}`
+}
+
+function heatLevel(minutes: number): string {
+  if (minutes <= 0) return 'bg-surface2'
+  if (minutes < 45) return 'bg-emerald-500/20'
+  if (minutes < 75) return 'bg-emerald-500/40'
+  if (minutes < 105) return 'bg-emerald-500/60'
+  return 'bg-emerald-400'
+}
+
+function TrainingHeatmap({ sessions }: { sessions: Session[] }) {
+  const { lang, t } = useLang()
+  const locale = lang === 'en' ? 'en-US' : 'es-AR'
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const mondayOffset = (today.getDay() + 6) % 7
+  const start = new Date(today)
+  start.setDate(today.getDate() - mondayOffset - 11 * 7)
+
+  const minutesByDay = new Map<string, number>()
+  for (const session of sessions) {
+    const day = new Date(session.started_at)
+    const key = localDayKey(day)
+    minutesByDay.set(key, (minutesByDay.get(key) ?? 0) + (session.duration_minutes ?? 30))
+  }
+
+  const todayKey = localDayKey(today)
+  const cells = Array.from({ length: 84 }, (_, i) => {
+    const date = new Date(start)
+    date.setDate(start.getDate() + i)
+    const key = localDayKey(date)
+    return { key, date, minutes: minutesByDay.get(key) ?? 0 }
+  })
+  const startTime = start.getTime()
+  const totalSessions = sessions.filter(
+    (session) => new Date(session.started_at).getTime() >= startTime,
+  ).length
+
+  return (
+    <section className="mt-5">
+      <div className="ui-card p-4">
+        <h2 className="font-display text-sm font-semibold text-high">
+          {t('stats.consistency')}
+        </h2>
+
+        <div className="mt-3 overflow-x-auto pb-1">
+          <div
+            aria-hidden="true"
+            className="grid w-max grid-flow-col grid-rows-7 gap-1"
+          >
+            {cells.map((cell) => {
+              const dateLabel = new Intl.DateTimeFormat(locale, {
+                day: 'numeric',
+                month: 'short',
+              }).format(cell.date)
+              return (
+                <span
+                  key={cell.key}
+                  title={`${dateLabel}: ${cell.minutes} min`}
+                  className={`h-3 w-3 rounded-[2px] ${heatLevel(cell.minutes)} ${
+                    cell.key === todayKey ? 'ring-1 ring-inset ring-emerald-400/70' : ''
+                  }`}
+                />
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.08em] text-dim2">
+          <span>{t('stats.heatmapSummary', { n: totalSessions })}</span>
+          <span className="flex items-center gap-1">
+            {t('stats.less')}
+            {[0, 1, 2, 3, 4].map((level) => (
+              <span
+                key={level}
+                aria-hidden="true"
+                className={`h-2.5 w-2.5 rounded-[2px] ${
+                  level === 0
+                    ? 'bg-surface2'
+                    : level === 1
+                      ? 'bg-emerald-500/20'
+                      : level === 2
+                        ? 'bg-emerald-500/40'
+                        : level === 3
+                          ? 'bg-emerald-500/60'
+                          : 'bg-emerald-400'
+                }`}
+              />
+            ))}
+            {t('stats.more')}
+          </span>
+        </div>
+      </div>
     </section>
   )
 }

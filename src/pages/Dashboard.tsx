@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
+import { useCountUp } from '@/hooks/useCountUp'
 import { useAuth } from '@/lib/auth-context'
 import {
   countSessionsSince,
@@ -303,11 +304,12 @@ function StatCard({
   delta?: number
 }) {
   const { t } = useLang()
+  const displayValue = useCountUp(value)
   return (
     <div className="min-w-0 p-3 sm:p-3.5">
       <p className="truncate font-mono text-[9px] uppercase leading-tight tracking-[0.08em] text-dim2">{label}</p>
       <p className="mt-1.5 font-display text-[26px] font-semibold leading-none tabular-nums text-strong">
-        {value}
+        {displayValue}
       </p>
       {delta !== undefined && delta !== 0 && (
         <p

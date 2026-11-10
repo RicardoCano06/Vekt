@@ -189,7 +189,7 @@ export default function Profile() {
     <div className="mx-auto w-full max-w-5xl">
       <PageHeader
         index="06"
-        eyebrow={t('nav.profile')}
+        eyebrow={t('profile.eyebrow')}
         title={t('profile.title')}
         description={t('profile.subtitle')}
         action={

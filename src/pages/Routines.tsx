@@ -102,7 +102,7 @@ export default function Routines() {
     <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         index="03"
-        eyebrow={t('nav.routines')}
+        eyebrow={t('routines.eyebrow')}
         title={t('routines.title')}
         description={t('routines.subtitle')}
       />
