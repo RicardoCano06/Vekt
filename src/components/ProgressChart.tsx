@@ -113,7 +113,7 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
                       fontWeight={700}
                       className="fill-emerald-400"
                     >
-                      {series[i].weight_kg} kg
+                      {series[i].weight_kg ?? '—'} kg
                     </text>
                   </g>
                 </>
@@ -124,15 +124,15 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
       </svg>
       <span className="sr-only" role="status" aria-live="polite">
         {hovered !== null && series[hovered]
-          ? `${formatShortDate(series[hovered].date, lang)}: ${series[hovered].weight_kg} kg`
+          ? `${formatShortDate(series[hovered].date, lang)}: ${series[hovered].weight_kg ?? '—'} kg`
           : ''}
       </span>
       <div className="mt-1 flex justify-between text-xs text-dim2">
         <span className="font-mono tabular-nums">
-          {formatShortDate(series[0].date, lang)} · {series[0].weight_kg} kg
+          {formatShortDate(series[0].date, lang)} · {series[0].weight_kg ?? '—'} kg
         </span>
         <span className="font-mono tabular-nums">
-          {series[series.length - 1].weight_kg} kg · {formatShortDate(series[series.length - 1].date, lang)}
+          {series[series.length - 1].weight_kg ?? '—'} kg · {formatShortDate(series[series.length - 1].date, lang)}
         </span>
       </div>
     </div>

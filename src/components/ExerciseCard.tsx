@@ -16,7 +16,7 @@ export default function ExerciseCard({ exercise, muscleName }: Props) {
   return (
     <Link
       to={`/ejercicios/${exercise.id}`}
-      className="card-hairline glass-card group overflow-hidden rounded-2xl transition-[transform,border-color,box-shadow] duration-300 [contain-intrinsic-size:auto_280px] [content-visibility:auto] hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-[0_0_28px_rgba(167,139,250,0.14)]"
+      className="ui-card group overflow-hidden transition-colors duration-150 [contain-intrinsic-size:auto_240px] [content-visibility:auto] hover:border-emerald-500/40"
     >
       <div className="aspect-square overflow-hidden bg-surface2">
         {exercise.image_url ? (
@@ -26,22 +26,22 @@ export default function ExerciseCard({ exercise, muscleName }: Props) {
             width={400}
             height={400}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-surface2 text-dim2">
-            <DumbbellIcon className="h-10 w-10" />
+            <DumbbellIcon className="h-8 w-8" />
           </div>
         )}
       </div>
-      <div className="p-3">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-high">
+      <div className="p-2.5">
+        <h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-high">
           {name}
         </h3>
         {exercise.muscle_primary != null && (
-          <span className="mt-2 inline-block rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 ring-1 ring-inset ring-emerald-500/25">
+          <p className="mt-1 truncate text-[10px] text-dim2">
             {muscleName(exercise.muscle_primary)}
-          </span>
+          </p>
         )}
       </div>
     </Link>
