@@ -264,7 +264,7 @@ export default function Layout() {
         </div>
       </main>
 
-      <BottomNav />
+      {!isTrainRoute && <BottomNav />}
 
       <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-3 z-40 md:bottom-6 md:left-auto md:right-6">
         {!isTrainRoute && <SyncStatus />}

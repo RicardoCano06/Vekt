@@ -365,23 +365,38 @@ export default function Train() {
 
   return (
     <RestTimerProvider>
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-dim2">
-            {t('train.activeSession')}
-          </p>
-          <h1 className="break-words text-2xl font-bold tracking-tight">
-            {day.name ?? t('day.number', { n: day.day_number })}
-          </h1>
-          {day.weekday && (
-            <span className="mt-1 inline-block rounded-full border border-edge bg-surface2 px-2.5 py-0.5 text-xs text-dim">
-              {day.weekday.charAt(0).toUpperCase() + day.weekday.slice(1)}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <Link
+              to="/rutinas"
+              className="inline-flex items-center gap-1 text-xs font-medium text-dim2 transition-colors hover:text-high"
+            >
+              ← {t('nav.routines')}
+            </Link>
+            <div className="mt-3 flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              <p className="text-[11px] font-medium text-emerald-400">
+                {t('train.activeSession')}
+              </p>
+            </div>
+            <h1 className="mt-1 break-words text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
+              {day.name ?? t('day.number', { n: day.day_number })}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-dim2">
+              {day.weekday && (
+                <span className="rounded-md bg-surface2 px-2 py-0.5 text-soft">
+                  {day.weekday.charAt(0).toUpperCase() + day.weekday.slice(1)}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1 tabular-nums">
+                <ClockIcon />
+                {formatDuration(elapsedMinutes, locale)}
+              </span>
+            </div>
+          </div>
           <button
+            type="button"
             onClick={() =>
               ask({
                 title: t('train.discardTitle'),
@@ -391,123 +406,128 @@ export default function Train() {
                 onConfirm: handleDiscard,
               })
             }
-            className="min-h-11 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition-[background-color,transform] duration-200 hover:bg-red-500/10 active:scale-95"
+            className="shrink-0 rounded-lg border border-edge bg-surface px-3 py-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/10"
           >
             {t('train.discard')}
           </button>
-          <span className="flex items-center gap-1.5 rounded-full border border-edge bg-surface px-3 py-1.5 font-mono text-sm font-bold tabular-nums text-soft">
-            <ClockIcon />
-            {formatDuration(elapsedMinutes, locale)}
-          </span>
         </div>
-      </div>
 
-      <div className="mt-4">
-        {!active && <RestTimer />}
-      </div>
+        <div className="mt-4">{!active && <RestTimer />}</div>
 
-      <div className="mt-6 space-y-5">
-        {(day.exercises ?? []).map((re) => {
-          if (re.superset_group != null) {
-            const group = supersets.get(re.superset_group)
-            if (!group || group[0].exercise_id !== re.exercise_id) return null
-            return (
-              <div
-                key={`ss-${re.superset_group}`}
-                className="glass-card card-hairline overflow-hidden rounded-2xl"
-              >
-                <div className="flex items-center justify-between border-b border-edge bg-surface2/60 px-4 py-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-dim2">
-                    {t('train.superset')}
-                  </span>
-                  <span className="text-xs text-dim2">{t('train.supersetHint')}</span>
-                </div>
-                <div className="grid gap-px bg-edge/60 sm:grid-cols-2">
-                  {group.map((g) => (
-                    <ExerciseBlock
-                      key={g.exercise_id}
-                      re={g}
-                      rows={setsByEx[g.exercise_id] ?? []}
-                      savedMap={savedMap}
-                      savingMap={savingMap}
-                      onUpdateSet={(i, patch) => updateSet(g.exercise_id, i, patch)}
-                      onDeleteSet={(i) => deleteSet(g.exercise_id, i)}
-                      onNoteSet={(i) => openNote(g.exercise_id, i)}
-                      onCommit={(i) => commitSet(g.exercise_id, i)}
-                      activeIndex={
-                        active?.exerciseId === g.exercise_id ? active.index : undefined
-                      }
-                      timer={
-                        active?.exerciseId === g.exercise_id ? <RestTimer /> : undefined
-                      }
-                      bare
-                    />
-                  ))}
-                </div>
-              </div>
-            )
-          }
-          return (
-            <ExerciseBlock
-              key={re.exercise_id}
-              re={re}
-              rows={setsByEx[re.exercise_id] ?? []}
-              savedMap={savedMap}
-              savingMap={savingMap}
-              onUpdateSet={(i, patch) => updateSet(re.exercise_id, i, patch)}
-              onDeleteSet={(i) => deleteSet(re.exercise_id, i)}
-              onNoteSet={(i) => openNote(re.exercise_id, i)}
-              onCommit={(i) => commitSet(re.exercise_id, i)}
-              activeIndex={
-                active?.exerciseId === re.exercise_id ? active.index : undefined
-              }
-              timer={active?.exerciseId === re.exercise_id ? <RestTimer /> : undefined}
-            />
-          )
-        })}
-      </div>
-
-      <div className="h-24" aria-hidden="true" />
-
-      {createPortal(
-      <div className="fixed inset-x-4 bottom-[max(6rem,calc(env(safe-area-inset-bottom)+5rem))] z-30 mx-auto max-w-5xl md:bottom-6">
-        {!showFinish ? (
-          <div className="flex justify-end">
-            <button
-              onClick={() => setShowFinish(true)}
-              className="rounded-2xl bg-emerald-500 px-8 py-3.5 font-semibold text-neutral-950 shadow-[0_4px_24px_rgba(167,139,250,0.35)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 hover:shadow-[0_4px_36px_rgba(167,139,250,0.5)] active:scale-[0.98]"
-            >
-              {allDone ? t('train.finishAll') : t('train.finish')}
-            </button>
-          </div>
-        ) : (
-          <div className="glass-strong card-hairline rounded-2xl p-4 text-center">
-            <p className="font-semibold">{t('train.howFeel')}</p>
-            <div className="mt-3 flex justify-center gap-2">
-              {FEELINGS.map((f) => (
-                <button
-                  key={f.value}
-                  onClick={() => handleFinish(f.value)}
-                  className="flex flex-col items-center gap-1 rounded-xl border border-edge bg-bg px-4 py-2.5 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-edge2 active:scale-95"
-                  title={t(f.textKey)}
+        <div className="mt-5 space-y-3">
+          {(day.exercises ?? []).map((re) => {
+            if (re.superset_group != null) {
+              const group = supersets.get(re.superset_group)
+              if (!group || group[0].exercise_id !== re.exercise_id) return null
+              return (
+                <section
+                  key={`ss-${re.superset_group}`}
+                  className="ui-card overflow-hidden"
                 >
-                  <span aria-hidden="true" className="text-2xl">{f.label}</span>
-                  <span className="text-xs text-dim2">{t(f.textKey)}</span>
-                </button>
-              ))}
+                  <div className="flex items-center justify-between gap-3 border-b border-edge px-3 py-2">
+                    <span className="text-[11px] font-medium text-emerald-400">
+                      {t('train.superset')}
+                    </span>
+                    <span className="truncate text-[10px] text-dim2">
+                      {t('train.supersetHint')}
+                    </span>
+                  </div>
+                  <div className="grid gap-px bg-edge/60 sm:grid-cols-2">
+                    {group.map((g) => (
+                      <ExerciseBlock
+                        key={g.exercise_id}
+                        re={g}
+                        rows={setsByEx[g.exercise_id] ?? []}
+                        savedMap={savedMap}
+                        savingMap={savingMap}
+                        onUpdateSet={(i, patch) => updateSet(g.exercise_id, i, patch)}
+                        onDeleteSet={(i) => deleteSet(g.exercise_id, i)}
+                        onNoteSet={(i) => openNote(g.exercise_id, i)}
+                        onCommit={(i) => commitSet(g.exercise_id, i)}
+                        activeIndex={
+                          active?.exerciseId === g.exercise_id ? active.index : undefined
+                        }
+                        timer={
+                          active?.exerciseId === g.exercise_id ? <RestTimer /> : undefined
+                        }
+                        bare
+                      />
+                    ))}
+                  </div>
+                </section>
+              )
+            }
+            return (
+              <ExerciseBlock
+                key={re.exercise_id}
+                re={re}
+                rows={setsByEx[re.exercise_id] ?? []}
+                savedMap={savedMap}
+                savingMap={savingMap}
+                onUpdateSet={(i, patch) => updateSet(re.exercise_id, i, patch)}
+                onDeleteSet={(i) => deleteSet(re.exercise_id, i)}
+                onNoteSet={(i) => openNote(re.exercise_id, i)}
+                onCommit={(i) => commitSet(re.exercise_id, i)}
+                activeIndex={
+                  active?.exerciseId === re.exercise_id ? active.index : undefined
+                }
+                timer={active?.exerciseId === re.exercise_id ? <RestTimer /> : undefined}
+              />
+            )
+          })}
+        </div>
+
+        <div className="h-28" aria-hidden="true" />
+      </div>
+
+      {!showFinish &&
+        createPortal(
+          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-edge bg-bg px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:left-60">
+            <div className="mx-auto flex w-full max-w-4xl justify-end">
+              <button
+                type="button"
+                onClick={() => setShowFinish(true)}
+                className="ui-button-primary w-full sm:w-auto sm:min-w-52"
+              >
+                {allDone ? t('train.finishAll') : t('train.finish')}
+              </button>
             </div>
-            <button
-              onClick={() => handleFinish(null)}
-              disabled={finishing}
-              className="mt-3 text-sm text-dim2 hover:text-soft disabled:opacity-50"
-            >
-              {finishing ? t('train.saving') : t('train.finishNoFeeling')}
-            </button>
-          </div>
+          </div>,
+          document.body,
         )}
-      </div>,
-      document.body,
-    )}
+
+      {showFinish && (
+        <BottomSheet
+          title={t('train.howFeel')}
+          onClose={() => {
+            if (!finishing) setShowFinish(false)
+          }}
+        >
+          <div className="grid grid-cols-4 gap-1.5">
+            {FEELINGS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => handleFinish(f.value)}
+                disabled={finishing}
+                className="flex min-h-20 flex-col items-center justify-center gap-1 rounded-xl border border-edge bg-surface px-1 text-center transition-colors hover:border-emerald-500/40 hover:bg-surface2 disabled:opacity-50"
+                title={t(f.textKey)}
+              >
+                <span aria-hidden="true" className="text-2xl">{f.label}</span>
+                <span className="text-[10px] leading-tight text-dim2">{t(f.textKey)}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => handleFinish(null)}
+            disabled={finishing}
+            className="ui-button-secondary mt-3 w-full"
+          >
+            {finishing ? t('train.saving') : t('train.finishNoFeeling')}
+          </button>
+        </BottomSheet>
+      )}
 
       {noteTarget && (
         <BottomSheet title={t('train.noteTitle')} onClose={() => setNoteTarget(null)}>
@@ -518,18 +538,14 @@ export default function Train() {
             onChange={(e) => setNoteText(e.target.value)}
             rows={3}
             placeholder={t('train.notePlaceholder')}
-            className="w-full rounded-lg border border-edge bg-bg px-3 py-2 text-sm outline-none transition-colors placeholder:text-dim2 focus:border-emerald-500"
+            className="ui-input min-h-24 resize-none py-2"
           />
-          <button
-            onClick={saveNote}
-            className="mt-4 min-h-12 w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-neutral-950 transition-colors hover:bg-emerald-400"
-          >
+          <button type="button" onClick={saveNote} className="ui-button-primary mt-3 w-full">
             {t('train.saveNote')}
           </button>
         </BottomSheet>
       )}
       {dialog}
-    </div>
     </RestTimerProvider>
   )
 }
@@ -576,32 +592,36 @@ function ExerciseBlock({
   const doneCount = rows.filter((s) => s.completed).length
   const { lang, t } = useLang()
   return (
-    <section
-      className={`overflow-hidden transition-shadow duration-300 ${
-        bare ? 'bg-bg' : 'glass-card card-hairline rounded-2xl'
-      }`}
-    >
-      <div className="flex items-center gap-3 border-b border-edge px-4 py-3">
+    <section className={bare ? 'bg-surface' : 'ui-card overflow-hidden'}>
+      <div className="flex items-center gap-3 border-b border-edge px-3 py-2.5">
         {exercise?.image_url && (
           <img
             src={exercise.image_url}
             alt=""
-            width={44}
-            height={44}
+            width={40}
+            height={40}
             loading="lazy"
-            className="h-11 w-11 rounded-xl object-cover ring-1 ring-inset ring-edge"
+            className="h-10 w-10 shrink-0 rounded-lg object-cover"
           />
         )}
         <div className="min-w-0 flex-1">
           <Link
             to={`/ejercicios/${exercise?.id}`}
-            className="block truncate font-semibold text-high transition-colors hover:text-emerald-400"
+            className="block truncate text-sm font-semibold text-high transition-colors hover:text-emerald-400"
           >
-                        {exercise ? displayName(exercise, lang) : t('day.exercise')}
+            {exercise ? displayName(exercise, lang) : t('day.exercise')}
           </Link>
-          <p className="text-xs text-dim2">{t('train.plan', { sets: re.sets, reps: re.reps ?? '?' })}</p>
+          <p className="mt-0.5 text-[11px] text-dim2">
+            {t('train.plan', { sets: re.sets, reps: re.reps ?? '?' })}
+          </p>
         </div>
-        <span className="rounded-full bg-surface2/80 px-2.5 py-1 font-mono text-xs font-semibold tabular-nums text-dim">
+        <span
+          className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-medium tabular-nums ${
+            doneCount === rows.length && rows.length > 0
+              ? 'bg-emerald-500/10 text-emerald-400'
+              : 'bg-surface2 text-dim'
+          }`}
+        >
           {doneCount}/{rows.length}
         </span>
       </div>
@@ -622,10 +642,10 @@ function ExerciseBlock({
         ))}
       </ul>
 
-      {timer && <div className="border-t border-edge px-3 py-3">{timer}</div>}
+      {timer && <div className="border-t border-edge p-2">{timer}</div>}
 
       {doneCount === rows.length && rows.length > 0 && (
-        <div className="border-t border-edge px-4 py-2 text-center text-xs font-medium text-emerald-400">
+        <div className="border-t border-edge px-3 py-2 text-center text-[11px] font-medium text-emerald-400">
           {t('train.done')}
         </div>
       )}
@@ -661,188 +681,203 @@ function SetRow({ set, saved, saving, active, onUpdate, onCommit, onDelete, onNo
   }
 
   const btn =
-    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-edge2 bg-surface2 text-sm font-semibold text-soft transition-[color,border-color,transform] duration-150 active:scale-90 hover:border-edge2 hover:text-strong'
+    'flex h-9 w-7 shrink-0 items-center justify-center rounded-lg border border-edge bg-surface text-base font-medium text-soft transition-colors hover:bg-surface2 hover:text-strong active:scale-95'
 
   const field =
-    'h-14 w-20 rounded-xl border border-edge bg-bg px-1 text-center font-mono text-lg font-semibold tabular-nums outline-none transition-[border-color,box-shadow] duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+    'h-9 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1 text-center font-mono text-sm font-semibold tabular-nums outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
 
   return (
     <li
       ref={rowRef}
-      className={`flex items-start gap-2 px-2 py-2 transition-[background-color,box-shadow] duration-200 ${
-        active ? 'bg-surface2/40 ring-2 ring-inset ring-edge2' : ''
-      } ${saving ? 'ring-1 ring-inset ring-edge2' : ''} ${
-        done ? 'bg-surface2/60' : ''
-      }`}
+      aria-busy={saving}
+      className={`relative px-3 py-2.5 transition-colors ${
+        done ? 'bg-surface2/40' : ''
+      } ${active ? 'bg-emerald-500/[0.06]' : ''}`}
     >
-      <button
-        type="button"
-        aria-label={done ? t('train.uncompleteSet') : t('train.completeSet')}
-        aria-pressed={done}
-        onClick={() => {
-          onUpdate({ completed: !done })
-          if (!done) navigator.vibrate?.(30)
-        }}
-        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 text-sm font-bold transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-95 ${
-          done
-            ? 'border-emerald-500 bg-gradient-to-b from-emerald-500 to-emerald-600 text-neutral-950 shadow-[0_0_20px_rgba(167,139,250,0.4)]'
-            : 'border-edge2 bg-bg text-dim2 hover:border-emerald-500/60 hover:bg-emerald-500/5 hover:text-emerald-400'
-        }`}
-        title={done ? t('train.uncompleteSet') : t('train.completeSet')}
-      >
-        {done ? (
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={3}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6 animate-pop"
-          >
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
-        ) : (
-          <span className="font-mono tabular-nums">{set.set_number}</span>
-        )}
-      </button>
+      {active && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-emerald-400"
+        />
+      )}
 
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <div className="flex items-center gap-1">
-            <span className="w-8 text-xs text-dim2">{t('train.weight')}</span>
-            <button
-              type="button"
-              onClick={() => stepWeight(-1)}
-              aria-label={t('train.lowerWeight')}
-              className={btn}
-              title={t('train.lowerWeight')}
+      <div className="flex items-end gap-2">
+        <button
+          type="button"
+          aria-label={done ? t('train.uncompleteSet') : t('train.completeSet')}
+          aria-pressed={done}
+          onClick={() => {
+            onUpdate({ completed: !done })
+            if (!done) navigator.vibrate?.(30)
+          }}
+          className={`mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold transition-colors active:scale-95 ${
+            done
+              ? 'border-emerald-500 bg-emerald-500 text-neutral-950'
+              : 'border-edge2 bg-surface text-dim2 hover:border-emerald-500/50 hover:text-emerald-400'
+          }`}
+          title={done ? t('train.uncompleteSet') : t('train.completeSet')}
+        >
+          {done ? (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5 animate-pop"
             >
-              −
-            </button>
-            <input
-              type="number"
-              name="weight"
-              inputMode="decimal"
-              autoComplete="off"
-              aria-label={t('train.weight')}
-              min={0}
-              step={0.5}
-              value={set.weight_kg ?? ''}
-              onChange={(e) =>
-                onUpdate({ weight_kg: e.target.value === '' ? null : Number(e.target.value) })
-              }
-              onBlur={onCommit}
-              placeholder={t('train.weight')}
-              className={`${field} ${done ? 'text-neutral-400' : ''}`}
-            />
-            <button
-              type="button"
-              onClick={() => stepWeight(1)}
-              aria-label={t('train.raiseWeight')}
-              className={btn}
-              title={t('train.raiseWeight')}
-            >
-              +
-            </button>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-8 text-xs text-dim2">{t('train.reps')}</span>
-            <button
-              type="button"
-              onClick={() => stepReps(-1)}
-              aria-label={t('train.lowerReps')}
-              className={btn}
-              title={t('train.lowerReps')}
-            >
-              −
-            </button>
-            <input
-              type="number"
-              name="reps"
-              inputMode="numeric"
-              autoComplete="off"
-              aria-label={t('train.reps')}
-              min={0}
-              value={set.reps ?? ''}
-              onChange={(e) =>
-                onUpdate({ reps: e.target.value === '' ? null : Number(e.target.value) })
-              }
-              onBlur={onCommit}
-              placeholder={t('train.reps')}
-              className={`${field} ${done ? 'text-neutral-400' : ''}`}
-            />
-            <button
-              type="button"
-              onClick={() => stepReps(1)}
-              aria-label={t('train.raiseReps')}
-              className={btn}
-              title={t('train.raiseReps')}
-            >
-              +
-            </button>
-          </div>
-        </div>
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          ) : (
+            <span className="font-mono tabular-nums">{set.set_number}</span>
+          )}
+        </button>
 
-        <div className="mt-2 flex items-center gap-2">
-          <select
-            name="rpe"
-            aria-label={t('train.rpe')}
-            value={set.rpe === null ? '' : String(set.rpe)}
-            onChange={(e) =>
-              onUpdate({ rpe: e.target.value === '' ? null : Number(e.target.value) })
-            }
-            onBlur={onCommit}
-            className={`min-h-11 min-w-0 flex-1 rounded-xl border border-edge bg-bg px-2 text-xs text-strong outline-none transition-[border-color,box-shadow] duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
-              done ? 'text-dim2' : ''
-            }`}
-            title={t('train.rpe')}
-          >
-            {RPE_OPTIONS.map((o) => (
-              <option key={o} value={o}>
-                {o === '' ? 'RPE' : `RPE ${o}`}
-              </option>
-            ))}
-          </select>
-          <span role="status" aria-live="polite" className="text-xs text-dim">
-            {saved ? (
-              <>
-                <span aria-hidden="true" className="animate-pop">✓</span>
-                <span className="sr-only">{t('common.saved')}</span>
-              </>
-            ) : null}
-          </span>
-          <button
-            type="button"
-            onClick={onNote}
-            aria-label={set.notes ? t('train.editNote') : t('train.addNote')}
-            className={`flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-lg transition-[color,background-color,transform] duration-200 active:scale-90 ${
-              set.notes ? 'text-soft' : 'text-dim2 hover:bg-surface2 hover:text-soft'
-            }`}
-            title={set.notes ? t('train.editNote') : t('train.addNote')}
-          >
-            ⋯
-          </button>
-          <button
-            type="button"
-            aria-label={t('train.deleteSetTitle')}
-            onClick={() =>
-              ask({
-                title: t('train.deleteSetTitle'),
-                message: t('train.deleteSetMessage', {
-                  n: set.set_number,
-                }),
-                confirmLabel: t('train.delete'),
-                danger: true,
-                onConfirm: onDelete,
-              })
-            }
-            className="flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-dim2 transition-[color,background-color,transform] duration-200 hover:bg-red-500/10 hover:text-red-400 active:scale-90"
-            title={t('train.deleteSetTitle')}
-          >
-            <TrashIcon className="h-4 w-4" />
-          </button>
+        <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
+          <label className="min-w-0">
+            <span className="mb-1 block text-[10px] font-medium text-dim2">
+              {t('train.weight')}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => stepWeight(-1)}
+                aria-label={t('train.lowerWeight')}
+                className={btn}
+                title={t('train.lowerWeight')}
+              >
+                −
+              </button>
+              <input
+                type="number"
+                name="weight"
+                inputMode="decimal"
+                autoComplete="off"
+                aria-label={t('train.weight')}
+                min={0}
+                step={0.5}
+                value={set.weight_kg ?? ''}
+                onChange={(e) =>
+                  onUpdate({ weight_kg: e.target.value === '' ? null : Number(e.target.value) })
+                }
+                onBlur={onCommit}
+                placeholder="0"
+                className={`${field} ${done ? 'text-dim2' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => stepWeight(1)}
+                aria-label={t('train.raiseWeight')}
+                className={btn}
+                title={t('train.raiseWeight')}
+              >
+                +
+              </button>
+            </div>
+          </label>
+
+          <label className="min-w-0">
+            <span className="mb-1 block text-[10px] font-medium text-dim2">
+              {t('train.reps')}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => stepReps(-1)}
+                aria-label={t('train.lowerReps')}
+                className={btn}
+                title={t('train.lowerReps')}
+              >
+                −
+              </button>
+              <input
+                type="number"
+                name="reps"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label={t('train.reps')}
+                min={0}
+                value={set.reps ?? ''}
+                onChange={(e) =>
+                  onUpdate({ reps: e.target.value === '' ? null : Number(e.target.value) })
+                }
+                onBlur={onCommit}
+                placeholder="0"
+                className={`${field} ${done ? 'text-dim2' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => stepReps(1)}
+                aria-label={t('train.raiseReps')}
+                className={btn}
+                title={t('train.raiseReps')}
+              >
+                +
+              </button>
+            </div>
+          </label>
         </div>
+      </div>
+
+      <div className="mt-2 flex items-center gap-1.5 pl-12">
+        <select
+          name="rpe"
+          aria-label={t('train.rpe')}
+          value={set.rpe === null ? '' : String(set.rpe)}
+          onChange={(e) =>
+            onUpdate({ rpe: e.target.value === '' ? null : Number(e.target.value) })
+          }
+          onBlur={onCommit}
+          className={`h-8 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1.5 text-[11px] text-strong outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
+            done ? 'text-dim2' : ''
+          }`}
+          title={t('train.rpe')}
+        >
+          {RPE_OPTIONS.map((o) => (
+            <option key={o} value={o}>
+              {o === '' ? 'RPE' : `RPE ${o}`}
+            </option>
+          ))}
+        </select>
+        <span role="status" aria-live="polite" className="w-3 shrink-0 text-[11px] text-emerald-400">
+          {saved ? (
+            <>
+              <span aria-hidden="true" className="animate-pop">✓</span>
+              <span className="sr-only">{t('common.saved')}</span>
+            </>
+          ) : null}
+        </span>
+        <button
+          type="button"
+          onClick={onNote}
+          aria-label={set.notes ? t('train.editNote') : t('train.addNote')}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-base transition-colors active:scale-90 ${
+            set.notes ? 'text-soft' : 'text-dim2 hover:bg-surface2 hover:text-soft'
+          }`}
+          title={set.notes ? t('train.editNote') : t('train.addNote')}
+        >
+          ⋯
+        </button>
+        <button
+          type="button"
+          aria-label={t('train.deleteSetTitle')}
+          onClick={() =>
+            ask({
+              title: t('train.deleteSetTitle'),
+              message: t('train.deleteSetMessage', {
+                n: set.set_number,
+              }),
+              confirmLabel: t('train.delete'),
+              danger: true,
+              onConfirm: onDelete,
+            })
+          }
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 active:scale-90"
+          title={t('train.deleteSetTitle')}
+        >
+          <TrashIcon className="h-3.5 w-3.5" />
+        </button>
       </div>
       {dialog}
     </li>
