@@ -32,7 +32,7 @@ export default function BottomSheet({ title, onClose, children }: BottomSheetPro
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="glass-strong card-hairline w-full max-w-md animate-rise overscroll-contain rounded-t-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:rounded-2xl sm:pb-5"
+        className="ui-card w-full max-w-md animate-rise overscroll-contain rounded-t-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_18px_50px_-24px_rgba(0,0,0,0.8)] sm:rounded-2xl sm:pb-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-edge2" aria-hidden="true" />

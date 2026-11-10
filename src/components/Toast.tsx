@@ -71,7 +71,7 @@ function ToastRow({
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) resume()
       }}
-      className="glass-strong pointer-events-auto flex w-full max-w-sm animate-rise items-center gap-3 rounded-2xl px-4 py-3 text-sm shadow-[0_16px_40px_-12px_rgba(0,0,0,0.7)]"
+      className="pointer-events-auto flex w-full max-w-sm animate-rise items-center gap-3 rounded-2xl border border-edge bg-surface px-4 py-3 text-sm shadow-[0_16px_40px_-12px_rgba(0,0,0,0.7)]"
     >
       <span
         aria-hidden="true"

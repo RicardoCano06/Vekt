@@ -35,13 +35,6 @@
   --radius-xl: 12px;
   --radius-2xl: 16px;
 
-  /* Elevación discreta */
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -32px rgba(0, 0, 0, 0.9);
-  --shadow-pop: 0 18px 50px -24px rgba(0, 0, 0, 0.8);
-
-  --shadow-glow: none;
-  --shadow-glow-lg: none;
-
   --animate-shimmer: shimmer 1.8s linear infinite;
   --animate-rise: rise 0.34s ease-out both;
   --animate-scale-in: scale-in 0.18s ease-out both;
@@ -192,39 +185,6 @@ p {
 
   .ui-input {
     @apply min-h-11 w-full rounded-xl border border-edge bg-surface px-3.5 text-sm text-strong outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20;
-  }
-
-  /* Superficies planas. Los nombres viejos se mantienen para migrar por fases. */
-  .glass,
-  .glass-strong,
-  .glass-card {
-    background-color: var(--color-surface);
-    background-image: none;
-    border: 1px solid var(--color-edge);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  .glass-strong {
-    box-shadow: var(--shadow-pop);
-  }
-
-  .card-hairline {
-    border: 1px solid var(--color-edge);
-    box-shadow: none;
-  }
-
-  .edge-light {
-    border-top: 1px solid var(--color-edge);
-  }
-
-  .glow-emerald,
-  .glow-emerald-lg {
-    box-shadow: none;
-  }
-
-  .radial-top {
-    background-image: none;
   }
 
   .shimmer {

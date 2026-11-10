@@ -147,7 +147,7 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
         >
           ✕
         </button>
-        <h2 id={titleId} className="flex-1 text-lg font-bold">{t('add.title')}</h2>
+        <h2 id={titleId} className="flex-1 text-base font-semibold">{t('add.title')}</h2>
         {selected.size > 0 && (
           <span className="text-sm font-medium text-emerald-400">
             {selected.size} <span aria-hidden="true">✓</span>
@@ -168,10 +168,10 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
                     type="button"
                     aria-pressed={active}
                     onClick={() => (active ? setGroup('') : handleGroupSelect(key))}
-                    className={`flex min-h-[48px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
+                    className={`flex min-h-10 items-center rounded-lg border px-3 text-xs font-medium transition-colors ${
                       active
-                        ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
-                        : 'border-edge bg-surface text-soft hover:border-emerald-500/50'
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                        : 'border-edge bg-surface text-dim hover:text-high'
                     }`}
                   >
                     {t(`group.${key}`)}
@@ -191,30 +191,31 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('add.searchPlaceholder')}
-              className="flex-1 rounded-xl border border-edge bg-surface px-4 py-3 text-sm outline-none transition-colors placeholder:text-dim3 focus:border-emerald-500"
+              className="ui-input flex-1"
             />
             {hasFilters && (
               <button
+                type="button"
                 onClick={() => {
                   setQuery('')
                   setGroup('')
                   setKind('')
                   setCategory('')
                 }}
-                className="flex min-h-11 items-center rounded-xl border border-edge px-3 text-sm text-dim2 transition-colors hover:bg-surface2"
+                className="ui-button-secondary h-11 shrink-0 px-3 text-xs"
               >
                 {t('add.clear')}
               </button>
             )}
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="grid grid-cols-2 gap-2">
             <select
               name="equipment"
               aria-label={t('catalog.equipment')}
               value={kind}
               onChange={(e) => setKind(e.target.value)}
-              className="min-h-11 shrink-0 rounded-xl border border-edge bg-surface px-3 text-sm text-soft outline-none focus:border-emerald-500"
+              className="h-10 min-w-0 rounded-lg border border-edge bg-surface px-2 text-xs text-soft outline-none focus:border-emerald-500"
             >
               <option value="">{t('catalog.allEquipment')}</option>
               {kinds.map((k) => (
@@ -228,7 +229,7 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
               aria-label={t('catalog.category')}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="min-h-11 shrink-0 rounded-xl border border-edge bg-surface px-3 text-sm text-soft outline-none focus:border-emerald-500"
+              className="h-10 min-w-0 rounded-lg border border-edge bg-surface px-2 text-xs text-soft outline-none focus:border-emerald-500"
             >
               <option value="">{t('catalog.allCategories')}</option>
               {Object.entries(categories).map(([key]) => (
@@ -351,7 +352,7 @@ export default function AddExerciseOverlay({ day, onClose, onAdd }: Props) {
           <button
             onClick={addSelected}
             disabled={adding}
-            className="pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-emerald-500 px-6 text-sm font-semibold text-neutral-950 shadow-[0_8px_30px_rgba(167,139,250,0.45)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-emerald-400 active:scale-95 disabled:opacity-60"
+            className="ui-button-primary pointer-events-auto rounded-full px-6 shadow-[0_8px_30px_rgba(167,139,250,0.35)] active:scale-95"
           >
             {t('add.addSelected', { n: selected.size })}
           </button>

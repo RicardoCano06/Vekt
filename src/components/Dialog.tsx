@@ -53,7 +53,7 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="glass-strong card-hairline w-full max-w-sm animate-rise overscroll-contain rounded-t-2xl p-5 sm:rounded-2xl"
+        className="ui-card w-full max-w-sm animate-rise overscroll-contain rounded-t-2xl p-5 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.8)] sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id={titleId} className="font-semibold">{title}</h2>
