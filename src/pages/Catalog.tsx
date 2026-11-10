@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import BottomSheet from '@/components/BottomSheet'
 import ExerciseCard from '@/components/ExerciseCard'
 import ErrorState from '@/components/ErrorState'
+import PageHeader from '@/components/PageHeader'
 import { muscleGroupOrder, categories } from '@/lib/catalog'
 import { fetchEquipment, fetchExercises, fetchMuscles } from '@/lib/db'
 import type { Equipment, Exercise, Muscle } from '@/lib/types'
@@ -96,16 +97,12 @@ export default function Catalog() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <header className="mb-4">
-        <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
-          {t('catalog.title')}
-        </h1>
-        <p className="mt-1 text-sm text-dim">
-          {hasFilters
-            ? t('catalog.count', { n: total })
-            : t('catalog.available')}
-        </p>
-      </header>
+      <PageHeader
+        index="02"
+        eyebrow={t('nav.exercises')}
+        title={t('catalog.title')}
+        description={hasFilters ? t('catalog.count', { n: total }) : t('catalog.available')}
+      />
 
       <div className="sticky top-12 z-20 -mx-4 space-y-2.5 border-b border-edge bg-bg px-4 pb-3 pt-2 md:top-0 md:-mx-8 md:px-8">
         <div className="flex gap-2">

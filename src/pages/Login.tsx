@@ -129,19 +129,56 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col justify-center bg-bg px-5 py-10">
-      <div className="mx-auto w-full max-w-sm">
-        <div className="animate-rise">
-          <h1 className="text-[34px] font-semibold tracking-[-0.05em] text-strong">
-            <span aria-hidden="true">
-              vekt<span className="text-emerald-400">.</span>
-            </span>
-            <span className="sr-only">{t('login.title')}</span>
-          </h1>
-          <p className="mt-1 text-sm text-dim">{t('login.tagline')}</p>
+    <div className="min-h-dvh bg-bg lg:grid lg:grid-cols-[1.05fr_minmax(0,1fr)]">
+      <section className="relative hidden min-h-dvh flex-col justify-between overflow-hidden border-r border-edge px-10 py-10 lg:flex">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-dim2">
+          <span className="h-1.5 w-1.5 rotate-45 bg-emerald-400" aria-hidden="true" />
+          {t('login.system')} / 001
         </div>
 
-        <div className="ui-card animate-rise mt-7 p-4 sm:p-5">
+        <div className="relative max-w-xl">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-24 -top-28 h-64 w-64 rotate-45 border border-edge/70"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-10 top-10 h-24 w-24 rotate-45 border border-emerald-500/25"
+          />
+          <h1 className="relative font-display text-[clamp(5rem,9vw,8.5rem)] font-semibold leading-[0.78] tracking-[-0.08em] text-strong">
+            VEKT<span className="text-emerald-400">.</span>
+          </h1>
+          <p className="relative mt-7 max-w-md text-[15px] leading-relaxed text-soft">
+            {t('login.pitch')}
+          </p>
+          <div className="relative mt-6 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[9px] uppercase tracking-[0.12em] text-dim2">
+            <span>01 / Registro</span>
+            <span>02 / Volumen</span>
+            <span>03 / Progreso</span>
+          </div>
+        </div>
+
+        <div className="flex items-end justify-between gap-4 font-mono text-[9px] uppercase tracking-[0.16em] text-dim3">
+          <span>{t('login.tagline')}</span>
+          <span aria-hidden="true" className="h-px w-24 bg-emerald-500/40" />
+        </div>
+      </section>
+
+      <section className="flex min-h-dvh flex-col justify-center px-5 py-10 sm:px-10">
+        <div className="mx-auto w-full max-w-sm">
+          <div className="mb-7 lg:hidden">
+            <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-dim2">
+              <span className="h-1.5 w-1.5 rotate-45 bg-emerald-400" aria-hidden="true" />
+              {t('login.system')} / 001
+            </div>
+            <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.82] tracking-[-0.07em] text-strong">
+              VEKT<span className="text-emerald-400">.</span>
+              <span className="sr-only">{t('login.title')}</span>
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-dim">{t('login.pitch')}</p>
+          </div>
+
+          <div className="ui-card animate-rise p-4 sm:p-5">
           <div
             role="group"
             aria-label={t('login.mode')}
@@ -274,10 +311,11 @@ export default function Login() {
           </button>
         </div>
 
-        <p className="mt-3 text-center text-[11px] leading-relaxed text-dim3">
-          {t('login.demoHint')}
-        </p>
-      </div>
+          <p className="mt-3 text-center text-[11px] leading-relaxed text-dim3">
+            {t('login.demoHint')}
+          </p>
+        </div>
+      </section>
     </div>
   )
 }

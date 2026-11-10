@@ -15,6 +15,7 @@ import type { BodyMetric, Goal, Level, Sex, UserProfile } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageToggle from '@/components/LanguageToggle'
+import PageHeader from '@/components/PageHeader'
 
 const LEVELS: Level[] = ['principiante', 'intermedio', 'avanzado']
 const GOALS: Goal[] = ['perder_grasa', 'ganar_masa', 'mantener']
@@ -186,23 +187,23 @@ export default function Profile() {
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-      <header className="mb-5 flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
-            {t('profile.title')}
-          </h1>
-          <p className="mt-1 text-sm text-dim">{t('profile.subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-2 md:hidden">
-          <LanguageToggle />
-          <ThemeToggle />
-        </div>
-      </header>
+      <PageHeader
+        index="06"
+        eyebrow={t('nav.profile')}
+        title={t('profile.title')}
+        description={t('profile.subtitle')}
+        action={
+          <div className="flex items-center gap-1 md:hidden">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-4">
           <section className="ui-card p-4 sm:p-5">
-            <h2 className="mb-4 font-semibold">{t('profile.data')}</h2>
+            <h2 className="mb-4 font-display text-[15px] font-semibold">{t('profile.data')}</h2>
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -328,7 +329,7 @@ export default function Profile() {
           </section>
 
           <section className="ui-card p-4 sm:p-5">
-            <h2 className="mb-1 font-semibold">{t('profile.weight')}</h2>
+            <h2 className="mb-1 font-display text-[15px] font-semibold">{t('profile.weight')}</h2>
             <p className="mb-4 text-sm text-dim">{t('profile.weightHint')}</p>
             <form onSubmit={handleSaveWeight} className="space-y-4">
               <div>
@@ -384,11 +385,11 @@ export default function Profile() {
 
         <div className="space-y-4">
           <section className="ui-card p-4 sm:p-5">
-            <h2 className="mb-4 font-semibold">{t('profile.bmi')}</h2>
+            <h2 className="mb-4 font-display text-[15px] font-semibold">{t('profile.bmi')}</h2>
             {bmi ? (
               <>
                 <div className="flex items-end gap-3">
-                  <span className="font-mono text-4xl font-bold tracking-tight tabular-nums">
+                  <span className="font-display text-4xl font-semibold tabular-nums">
                     {bmi.bmi.toFixed(1)}
                   </span>
                   <span
@@ -411,7 +412,7 @@ export default function Profile() {
           </section>
 
           <section className="ui-card p-4 sm:p-5">
-            <h2 className="mb-3 font-semibold">{recommendations.title}</h2>
+            <h2 className="mb-3 font-display text-[15px] font-semibold">{recommendations.title}</h2>
             <ul className="space-y-2.5">
               {recommendations.items.map((item, i) => (
                 <li key={i} className="flex gap-2.5 text-sm text-soft">
@@ -423,7 +424,7 @@ export default function Profile() {
           </section>
 
           <section className="ui-card p-4 sm:p-5">
-            <h2 className="mb-4 font-semibold">{t('profile.weightHistory')}</h2>
+            <h2 className="mb-4 font-display text-[15px] font-semibold">{t('profile.weightHistory')}</h2>
             {metrics.length === 0 ? (
               <p className="text-sm text-dim">{t('profile.noWeights')}</p>
             ) : (
@@ -533,7 +534,14 @@ function WeightSparkline({
         aria-label={t('profile.weightHistory')}
         className="w-full"
       >
-        <polyline points={coords.map(([x, y]) => `${x},${y}`).join(' ')} className="fill-none stroke-emerald-500" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        <polyline
+          points={coords.map(([x, y]) => `${x},${y}`).join(' ')}
+          pathLength={1}
+          className="chart-line fill-none stroke-emerald-500"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
         {coords.map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r={2.5} className="fill-emerald-500" />
         ))}

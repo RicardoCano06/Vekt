@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
 import { fetchExportData, fetchSessionSetsWithExercises, fetchSessions } from '@/lib/db'
 import ErrorState from '@/components/ErrorState'
+import PageHeader from '@/components/PageHeader'
 import { ClockIcon } from '@/components/icons'
 import type { ExportRow } from '@/lib/db'
 import type { Session, SessionSet } from '@/lib/types'
@@ -167,30 +168,30 @@ export default function History() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <header className="mb-5 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
-            {t('history.title')}
-          </h1>
-          <p className="mt-1 text-sm text-dim">
-            {sessions.length > 0
-              ? sessions.length === 1
-                ? t('history.subtitleOne', { n: sessions.length })
-                : t('history.subtitleMany', { n: sessions.length })
-              : t('history.subtitleEmpty')}
-          </p>
-        </div>
-        {sessions.length > 0 && (
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={exporting}
-            className="ui-button-secondary h-9 shrink-0 px-3 text-xs"
-          >
-            {exporting ? t('history.exporting') : t('history.export')}
-          </button>
-        )}
-      </header>
+      <PageHeader
+        index="04"
+        eyebrow={t('nav.history')}
+        title={t('history.title')}
+        description={
+          sessions.length > 0
+            ? sessions.length === 1
+              ? t('history.subtitleOne', { n: sessions.length })
+              : t('history.subtitleMany', { n: sessions.length })
+            : t('history.subtitleEmpty')
+        }
+        action={
+          sessions.length > 0 ? (
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="ui-button-secondary h-9 shrink-0 px-3 text-xs"
+            >
+              {exporting ? t('history.exporting') : t('history.export')}
+            </button>
+          ) : undefined
+        }
+      />
 
       {error ? (
         <ErrorState message={error} onRetry={load} />

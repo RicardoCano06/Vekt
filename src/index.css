@@ -1,8 +1,9 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Unbounded', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
 
   /* Superficies */
   --color-bg: #0a0910;
@@ -39,6 +40,8 @@
   --animate-rise: rise 0.34s ease-out both;
   --animate-scale-in: scale-in 0.18s ease-out both;
   --animate-pop: pop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-page: page-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-line: line-draw 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @keyframes shimmer {
     0% {
@@ -76,6 +79,45 @@
     100% {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+  @keyframes page-in {
+    0% {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes line-draw {
+    0% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes draw-line {
+    0% {
+      stroke-dashoffset: 1;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes bar-rise {
+    0% {
+      transform: scaleY(0);
+    }
+    100% {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes bar-grow {
+    0% {
+      transform: scaleX(0);
     }
   }
 }
@@ -119,6 +161,39 @@ html.light {
 
 body {
   @apply bg-bg text-strong antialiased;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-strong) 3.2%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-strong) 3.2%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+h1 {
+  font-family: var(--font-display);
+  letter-spacing: -0.045em;
+}
+
+.page-enter {
+  animation: var(--animate-page);
+}
+
+.page-enter > * > * {
+  animation: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.page-enter > * > *:nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.page-enter > * > *:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.page-enter > * > *:nth-child(4) {
+  animation-delay: 135ms;
+}
+
+.page-enter > * > *:nth-child(5) {
+  animation-delay: 180ms;
 }
 
 button,
@@ -168,23 +243,52 @@ p {
 @layer components {
   /* Primitivas compartidas del rediseño. */
   .ui-card {
-    @apply rounded-2xl border border-edge bg-surface;
+    @apply rounded-sm border border-edge bg-surface;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
   }
 
   .ui-button {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm font-semibold transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50;
+    border-radius: 2px;
   }
 
   .ui-button-primary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 text-sm font-semibold text-neutral-950 transition-colors duration-150 hover:bg-emerald-400 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 bg-emerald-500 px-4 text-sm font-semibold text-neutral-950 transition-colors duration-150 hover:bg-emerald-400 active:translate-y-px disabled:pointer-events-none disabled:opacity-50;
+    border-radius: 2px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+
+  .chart-line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw-line 1s 0.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .chart-bar {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: bar-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .chart-bar-h {
+    transform-origin: left;
+    animation: bar-grow 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .dock {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-edge);
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
   }
 
   .ui-button-secondary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-surface px-4 text-sm font-semibold text-high transition-colors duration-150 hover:bg-surface2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 border border-edge bg-surface px-4 text-sm font-semibold text-high transition-colors duration-150 hover:bg-surface2 disabled:pointer-events-none disabled:opacity-50;
+    border-radius: 2px;
   }
 
   .ui-input {
-    @apply min-h-11 w-full rounded-xl border border-edge bg-surface px-3.5 text-sm text-strong outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20;
+    @apply min-h-11 w-full rounded-md border border-edge bg-surface px-3.5 text-sm text-strong outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20;
   }
 
   .shimmer {

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
 import ErrorState from '@/components/ErrorState'
+import PageHeader from '@/components/PageHeader'
 import { ProgressChart } from '@/components/ProgressChart'
 import { formatShortDate } from '@/lib/format'
 import {
@@ -64,12 +65,12 @@ export default function Stats() {
 
   return (
     <div className="mx-auto w-full max-w-4xl">
-      <header>
-        <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
-          {t('stats.title')}
-        </h1>
-        <p className="mt-1 text-sm text-dim">{t('stats.subtitle')}</p>
-      </header>
+      <PageHeader
+        index="05"
+        eyebrow={t('nav.stats')}
+        title={t('stats.title')}
+        description={t('stats.subtitle')}
+      />
 
       {error ? (
         <ErrorState message={error} onRetry={load} />
@@ -93,7 +94,7 @@ export default function Stats() {
           <VolumeChart volume={volume} lang={lang} t={t} />
 
           <section className="mt-6">
-            <h2 className="text-sm font-semibold text-high">{t('stats.prs')}</h2>
+            <h2 className="font-display text-sm font-semibold text-high">{t('stats.prs')}</h2>
             {prs.length === 0 ? (
               <p className="mt-2 rounded-xl border border-dashed border-edge2 p-4 text-sm text-dim">
                 {t('stats.noPrs')}
@@ -151,10 +152,10 @@ export default function Stats() {
 function StreakCard({ label, value }: { label: string; value: number | null }) {
   return (
     <div className="ui-card p-4">
-      <p className="font-mono text-[28px] font-semibold leading-none tracking-tight tabular-nums text-strong">
+      <p className="font-display text-[28px] font-semibold leading-none tabular-nums text-strong">
         {value ?? '—'}
       </p>
-      <p className="mt-1.5 text-[11px] text-dim2">{label}</p>
+      <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.08em] text-dim2">{label}</p>
     </div>
   )
 }
@@ -201,7 +202,7 @@ function VolumeChart({
 
   return (
     <section className="mt-6">
-      <h2 className="text-sm font-semibold text-high">
+      <h2 className="font-display text-sm font-semibold text-high">
         {t('stats.weeklyVolume')}
       </h2>
       {groups.length === 0 ? (
@@ -233,8 +234,18 @@ function VolumeChart({
                 }
                 return (
                   <g key={w.weekStart}>
-                    {segs.map((s) => (
-                      <rect key={s.y} x={s.x} y={s.y} width={bw} height={s.h} rx={2} fill={s.color} />
+                    {segs.map((s, si) => (
+                      <rect
+                        key={s.y}
+                        x={s.x}
+                        y={s.y}
+                        width={bw}
+                        height={s.h}
+                        rx={2}
+                        fill={s.color}
+                        className="chart-bar"
+                        style={{ animationDelay: `${i * 35 + si * 25}ms` }}
+                      />
                     ))}
                   </g>
                 )
@@ -312,7 +323,7 @@ function ExerciseEvolution({
 
   return (
     <section className="mt-6">
-      <h2 className="text-sm font-semibold text-high">{t('stats.evolution')}</h2>
+      <h2 className="font-display text-sm font-semibold text-high">{t('stats.evolution')}</h2>
       {prs.length === 0 ? null : (
         <>
           <select

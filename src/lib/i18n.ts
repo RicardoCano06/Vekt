@@ -71,11 +71,11 @@ export const messages: Record<Lang, Record<string, string>> = {
     'nav.exercises': 'Ejercicios',
     'nav.routines': 'Rutinas',
     'nav.history': 'Historial',
-    'nav.stats': 'Stats',
+    'nav.stats': 'Progreso',
     'nav.profile': 'Perfil',
 
     // ---------- catálogo ----------
-    'catalog.title': 'Catálogo de ejercicios',
+    'catalog.title': 'Biblioteca',
     'catalog.count': '{n} ejercicios encontrados',
     'catalog.available': '867 ejercicios disponibles, con fotos e instrucciones',
     'catalog.searchPlaceholder': 'Buscar ejercicio (ej: press, dominada, gemelos…)',
@@ -126,6 +126,9 @@ export const messages: Record<Lang, Record<string, string>> = {
     // ---------- login ----------
     'login.tagline': 'Registro offline de sobrecarga progresiva',
     'login.title': 'Acceder a Vekt',
+    'login.pitch':
+      'Cada serie es un vector. Entrená, registrá y mirá cómo cambia la dirección.',
+    'login.system': 'Sistema de entrenamiento',
     'login.mode': 'Modo de acceso',
     'login.or': 'o',
     'login.signIn': 'Ingresar',
@@ -159,7 +162,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'sync.pendingCount': '· {text}',
 
     // ---------- dashboard ----------
-    'dash.summary': 'Tu resumen semanal',
+    'dash.summary': 'Tu semana',
     'dash.lastWeight': 'Último peso: {weight} kg',
     'dash.lastWeightLabel': 'Último peso',
     'dash.todayTag': ' (hoy)',
@@ -334,7 +337,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'train.bodyweight': 'Peso corporal',
 
     // ---------- historial ----------
-    'history.title': 'Historial',
+    'history.title': 'Registro',
     'history.subtitleOne': '{n} sesión registrada',
     'history.subtitleMany': '{n} sesiones registradas',
     'history.subtitleEmpty': 'Todas tus sesiones de entrenamiento',
@@ -362,7 +365,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'history.csvHeader.Duracion_min': 'Duracion_min',
 
     // ---------- estadísticas ----------
-    'stats.title': 'Estadísticas',
+    'stats.title': 'Progreso',
     'stats.subtitle': 'Tu progreso, en números y gráficos.',
     'stats.loadError': 'Error al cargar estadísticas',
     'stats.currentStreak': 'Racha actual',
@@ -512,10 +515,10 @@ export const messages: Record<Lang, Record<string, string>> = {
     'nav.exercises': 'Exercises',
     'nav.routines': 'Routines',
     'nav.history': 'History',
-    'nav.stats': 'Stats',
+    'nav.stats': 'Progress',
     'nav.profile': 'Profile',
 
-    'catalog.title': 'Exercise catalog',
+    'catalog.title': 'Library',
     'catalog.count': '{n} exercises found',
     'catalog.available': '867 exercises available, with photos and instructions',
     'catalog.searchPlaceholder': 'Search exercise (e.g. bench press, pull-up…)',
@@ -565,6 +568,9 @@ export const messages: Record<Lang, Record<string, string>> = {
 
     'login.tagline': 'Offline progressive overload tracker',
     'login.title': 'Sign in to Vekt',
+    'login.pitch':
+      'Every set is a vector. Train, log it, and watch the direction change.',
+    'login.system': 'Training system',
     'login.mode': 'Access mode',
     'login.or': 'or',
     'login.signIn': 'Sign in',
@@ -595,7 +601,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'sync.pending': '{n} pending',
     'sync.pendingCount': '· {text}',
 
-    'dash.summary': 'Your weekly summary',
+    'dash.summary': 'Your week',
     'dash.lastWeight': 'Last weight: {weight} kg',
     'dash.lastWeightLabel': 'Last weight',
     'dash.todayTag': ' (today)',
@@ -762,7 +768,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'train.backRoutines': '← Back to routines',
     'train.bodyweight': 'Bodyweight',
 
-    'history.title': 'History',
+    'history.title': 'Log',
     'history.subtitleOne': '{n} session logged',
     'history.subtitleMany': '{n} sessions logged',
     'history.subtitleEmpty': 'All your workout sessions',
@@ -789,7 +795,7 @@ export const messages: Record<Lang, Record<string, string>> = {
     'history.csvHeader.Sensacion': 'Feeling',
     'history.csvHeader.Duracion_min': 'Duration_min',
 
-    'stats.title': 'Statistics',
+    'stats.title': 'Progress',
     'stats.subtitle': 'Your progress, in numbers and charts.',
     'stats.loadError': 'Error loading statistics',
     'stats.currentStreak': 'Current streak',

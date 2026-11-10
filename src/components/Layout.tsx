@@ -11,16 +11,16 @@ import { useConfirm } from '@/lib/use-confirm'
 import { logout } from '@/lib/auth'
 
 const mainLinks = [
-  { to: '/', key: 'nav.home', end: true },
-  { to: '/rutinas', key: 'nav.routines' },
-  { to: '/ejercicios', key: 'nav.exercises' },
-  { to: '/historial', key: 'nav.history' },
-  { to: '/perfil', key: 'nav.profile' },
+  { to: '/', key: 'nav.home', end: true, index: '01' },
+  { to: '/rutinas', key: 'nav.routines', index: '02' },
+  { to: '/ejercicios', key: 'nav.exercises', index: '03' },
+  { to: '/historial', key: 'nav.history', index: '04' },
+  { to: '/perfil', key: 'nav.profile', index: '06' },
 ]
 
 const desktopLinks = [
   ...mainLinks.slice(0, 4),
-  { to: '/estadisticas', key: 'nav.stats' },
+  { to: '/estadisticas', key: 'nav.stats', index: '05' },
   mainLinks[4],
 ]
 
@@ -89,9 +89,12 @@ function Brand() {
     <Link
       to="/"
       aria-label="Vekt"
-      className="inline-flex items-baseline text-[19px] font-semibold tracking-[-0.04em] text-strong"
+      className="inline-flex items-center gap-2 text-strong"
     >
-      vekt<span className="text-emerald-400">.</span>
+      <span className="font-display text-[15px] font-semibold tracking-[-0.06em]">
+        VEKT
+      </span>
+      <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 bg-emerald-400" />
     </Link>
   )
 }
@@ -118,7 +121,7 @@ function BottomNav() {
   return (
     <nav
       aria-label={t('nav.mobile')}
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-bg pb-[env(safe-area-inset-bottom)] transition-transform duration-200 ease-out md:hidden ${
+      className={`dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 transition-transform duration-200 ease-out md:hidden ${
         keyboardOpen ? 'pointer-events-none translate-y-full' : ''
       }`}
     >
@@ -129,7 +132,7 @@ function BottomNav() {
             to={link.to}
             end={link.end}
             className={({ isActive }) =>
-              `relative flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors duration-150 ${
+              `relative flex flex-col items-center justify-center gap-1 font-mono text-[9px] font-medium uppercase tracking-[0.06em] transition-colors duration-150 ${
                 isActive ? 'text-emerald-400' : 'text-dim2 hover:text-high'
               }`
             }
@@ -139,7 +142,7 @@ function BottomNav() {
                 {isActive && (
                   <span
                     aria-hidden="true"
-                    className="absolute top-0 h-0.5 w-7 rounded-full bg-emerald-400"
+                    className="absolute top-0 h-0.5 w-7 origin-left animate-line bg-emerald-400"
                   />
                 )}
                 {icons[link.to]}
@@ -200,7 +203,7 @@ export default function Layout() {
               to={link.to}
               end={link.end}
               className={({ isActive }) =>
-                `relative flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150 ${
+                `relative flex min-h-10 items-center gap-3 rounded-sm px-3 text-sm font-medium transition-colors duration-150 ${
                   isActive
                     ? 'bg-surface2 text-strong'
                     : 'text-dim hover:bg-surface hover:text-high'
@@ -209,6 +212,7 @@ export default function Layout() {
             >
               {({ isActive }) => (
                 <>
+                  <span className="w-5 font-mono text-[9px] text-dim3">{link.index}</span>
                   <span className={isActive ? 'text-emerald-400' : 'text-dim2'}>
                     {icons[link.to]}
                   </span>
@@ -259,14 +263,14 @@ export default function Layout() {
         tabIndex={-1}
         className="mx-auto w-full max-w-[1180px] flex-1 px-4 pb-28 pt-5 md:px-8 md:py-8"
       >
-        <div key={location.pathname} className="animate-rise">
+        <div key={location.pathname} className="page-enter">
           <Outlet />
         </div>
       </main>
 
       {!isTrainRoute && <BottomNav />}
 
-      <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-3 z-40 md:bottom-6 md:left-auto md:right-6">
+      <div className="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] left-3 z-40 md:bottom-6 md:left-auto md:right-6">
         {!isTrainRoute && <SyncStatus />}
       </div>
       {dialog}

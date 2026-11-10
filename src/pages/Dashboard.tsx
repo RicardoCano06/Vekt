@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import PageHeader from '@/components/PageHeader'
 import { useAuth } from '@/lib/auth-context'
 import {
   countSessionsSince,
@@ -139,35 +140,33 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-      <header className="mb-5 flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-xs font-medium text-dim2">
-            {t('common.week', {
-              date: weekStart.toLocaleDateString(
-                lang === 'en' ? 'en-US' : 'es-AR',
-                { day: 'numeric', month: 'long' },
-              ),
-            })}
-          </p>
-          <h1 className="mt-1 text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
-            {t('dash.summary')}
-          </h1>
-        </div>
-        {lastWeight && (
-          <Link
-            to="/perfil"
-            className="mt-1 shrink-0 rounded-lg border border-edge bg-surface px-2.5 py-1.5 text-right text-[11px] leading-tight text-dim2 transition-colors hover:border-edge2 hover:text-high"
-          >
-            <span className="block font-medium text-soft">
-              {lastWeight.weight}
-              <span className="ml-0.5 text-dim2">kg</span>
-            </span>
-            <span className="block">
-              {lastWeight.date === todayStr ? t('dash.todayTag') : t('dash.lastWeightLabel')}
-            </span>
-          </Link>
-        )}
-      </header>
+      <PageHeader
+        index="01"
+        eyebrow={t('nav.home')}
+        title={t('dash.summary')}
+        description={t('common.week', {
+          date: weekStart.toLocaleDateString(lang === 'en' ? 'en-US' : 'es-AR', {
+            day: 'numeric',
+            month: 'long',
+          }),
+        })}
+        action={
+          lastWeight ? (
+            <Link
+              to="/perfil"
+              className="block rounded-sm border border-edge bg-surface px-2.5 py-1.5 text-right font-mono text-[10px] leading-tight text-dim2 transition-colors hover:border-emerald-500/40 hover:text-high"
+            >
+              <span className="block text-sm font-medium text-soft">
+                {lastWeight.weight}
+                <span className="ml-0.5 text-dim2">kg</span>
+              </span>
+              <span className="block">
+                {lastWeight.date === todayStr ? t('dash.todayTag') : t('dash.lastWeightLabel')}
+              </span>
+            </Link>
+          ) : undefined
+        }
+      />
 
       {loading ? (
         <div role="status" aria-busy="true" aria-live="polite" className="space-y-4">
@@ -185,12 +184,12 @@ export default function Dashboard() {
           {nextDayId ? (
             <section className="ui-card p-4 sm:p-5">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+                <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
                   {activeSession ? t('dash.sessionActive') : t('dash.suggestion')}
                 </span>
               </div>
-              <h2 className="mt-3 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-strong">
+              <h2 className="mt-3 font-display text-[24px] font-semibold leading-[0.98] tracking-[-0.04em] text-strong">
                 {activeSession
                   ? next?.dayId === activeSession.day_id
                     ? next.dayName
@@ -243,7 +242,7 @@ export default function Dashboard() {
 
               <section className="ui-card">
                 <div className="px-4 pb-1 pt-4 sm:px-5">
-                  <h2 className="font-semibold text-strong">{t('dash.volumeByGroup')}</h2>
+                  <h2 className="font-display text-base font-semibold text-strong">{t('dash.volumeByGroup')}</h2>
                   <p className="mt-0.5 text-[11px] leading-relaxed text-dim2">
                     {t('dash.targetHint', { n: TARGET_SETS })}
                   </p>
@@ -271,7 +270,7 @@ export default function Dashboard() {
                           </div>
                           <div className="h-1.5 overflow-hidden rounded-full bg-surface2">
                             <div
-                              className={`h-full w-full origin-left rounded-full transition-transform duration-500 ease-out ${
+                              className={`chart-bar-h h-full w-full rounded-full ${
                                 reached ? 'bg-emerald-500' : 'bg-amber-400'
                               }`}
                               style={{ transform: `scaleX(${pct / 100})` }}
@@ -303,8 +302,8 @@ function StatCard({
   const { t } = useLang()
   return (
     <div className="ui-card p-3 sm:p-3.5">
-      <p className="text-[11px] leading-tight text-dim2">{label}</p>
-      <p className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums text-strong">
+      <p className="font-mono text-[9px] uppercase leading-tight tracking-[0.08em] text-dim2">{label}</p>
+      <p className="mt-1.5 font-display text-[26px] font-semibold leading-none tabular-nums text-strong">
         {value}
       </p>
       {delta !== undefined && delta !== 0 && (

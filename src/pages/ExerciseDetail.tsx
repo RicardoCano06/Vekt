@@ -119,14 +119,21 @@ export default function ExerciseDetail() {
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-      <Link
-        to="/ejercicios"
-        className="inline-flex items-center gap-1 text-xs font-medium text-dim2 transition-colors hover:text-high"
-      >
-        ← {t('catalog.title')}
-      </Link>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <Link
+          to="/ejercicios"
+          className="inline-flex items-center gap-1 text-xs font-medium text-dim2 transition-colors hover:text-high"
+        >
+          ← {t('catalog.title')}
+        </Link>
+        <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-dim2">
+          <span className="text-emerald-400">07</span>
+          <span aria-hidden="true" className="h-px w-5 origin-left animate-line bg-edge2" />
+          <span>{t('nav.exercises')}</span>
+        </div>
+      </div>
 
-      <div className="mt-3 lg:grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:items-start lg:gap-8">
+      <div className="lg:grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         <div className="aspect-video w-full overflow-hidden rounded-xl border border-edge bg-surface2 lg:aspect-square">
           {exercise.image_url ? (
             <img
@@ -178,7 +185,7 @@ export default function ExerciseDetail() {
           </div>
 
           <section className="mt-6">
-            <h2 className="text-sm font-semibold text-high">{t('detail.musclesWorked')}</h2>
+            <h2 className="font-display text-sm font-semibold text-high">{t('detail.musclesWorked')}</h2>
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {primary && (
                 <span className="rounded-md bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-400">
@@ -204,7 +211,7 @@ export default function ExerciseDetail() {
       <div className="mt-7 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)] lg:items-start">
         {instructions.length > 0 && (
           <section>
-            <h2 className="text-sm font-semibold text-high">{t('detail.howTo')}</h2>
+            <h2 className="font-display text-sm font-semibold text-high">{t('detail.howTo')}</h2>
             <ol className="mt-3 space-y-3">
               {instructions.map((step, i) => (
                 <li key={i} className="flex gap-3 text-sm leading-relaxed text-soft">
@@ -220,7 +227,7 @@ export default function ExerciseDetail() {
 
         {progress && (
           <section className="ui-card p-4">
-            <h2 className="text-sm font-semibold text-high">{t('detail.yourProgress')}</h2>
+            <h2 className="font-display text-sm font-semibold text-high">{t('detail.yourProgress')}</h2>
             {progress.length === 0 ? (
               <p className="mt-2 text-sm text-dim">{t('detail.noProgress')}</p>
             ) : (

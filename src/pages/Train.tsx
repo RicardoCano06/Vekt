@@ -374,11 +374,10 @@ export default function Train() {
             >
               ← {t('nav.routines')}
             </Link>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
-              <p className="text-[11px] font-medium text-emerald-400">
-                {t('train.activeSession')}
-              </p>
+            <div className="mt-3 flex items-center gap-2 font-mono text-[9px] font-medium uppercase tracking-[0.16em] text-dim2">
+              <span className="text-emerald-400">08</span>
+              <span aria-hidden="true" className="h-px w-5 origin-left animate-line bg-edge2" />
+              <span className="text-emerald-400">{t('train.activeSession')}</span>
             </div>
             <h1 className="mt-1 break-words text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
               {day.name ?? t('day.number', { n: day.day_number })}

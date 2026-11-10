@@ -5,6 +5,7 @@ import { useConfirm } from '@/lib/use-confirm'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
 import ErrorState from '@/components/ErrorState'
+import PageHeader from '@/components/PageHeader'
 import { createRoutine, deleteRoutine, fetchRoutines, updateRoutine } from '@/lib/db'
 import type { Routine } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
@@ -99,12 +100,12 @@ export default function Routines() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <header className="mb-5">
-        <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
-          {t('routines.title')}
-        </h1>
-        <p className="mt-1 text-sm text-dim">{t('routines.subtitle')}</p>
-      </header>
+      <PageHeader
+        index="03"
+        eyebrow={t('nav.routines')}
+        title={t('routines.title')}
+        description={t('routines.subtitle')}
+      />
 
       <form onSubmit={handleCreate} className="mb-5 flex gap-2">
         <input

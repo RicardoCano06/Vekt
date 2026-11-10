@@ -63,7 +63,8 @@ export function ProgressChart({ series }: { series: ExerciseProgressEntry[] }) {
         <polygon points={area} fill="url(#progress-area)" />
         <polyline
           points={line}
-          className="fill-none stroke-emerald-500"
+          pathLength={1}
+          className="chart-line fill-none stroke-emerald-500"
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
