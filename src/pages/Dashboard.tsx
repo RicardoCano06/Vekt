@@ -182,7 +182,7 @@ export default function Dashboard() {
       ) : (
         <div className="space-y-4">
           {nextDayId ? (
-            <section className="ui-card p-4 sm:p-5">
+            <section className="ui-card border-l-2 border-l-emerald-500 p-4 sm:p-5">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
@@ -226,7 +226,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="ui-card grid grid-cols-3 divide-x divide-edge">
                 <StatCard
                   label={t('dash.sessionsDone')}
                   value={sessionsCount}
@@ -251,13 +251,16 @@ export default function Dashboard() {
                   <p className="px-4 pb-4 pt-2 text-sm text-dim sm:px-5">{t('dash.noVolume')}</p>
                 ) : (
                   <ul className="grid gap-x-8 px-4 pb-2 pt-1 sm:grid-cols-2 sm:px-5">
-                    {volume.map((m) => {
+                    {volume.map((m, index) => {
                       const pct = Math.min(100, (m.sets / TARGET_SETS) * 100)
                       const reached = m.sets >= TARGET_SETS
                       return (
                         <li key={m.group_name} className="border-b border-edge/60 py-3 last:border-0">
                           <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
-                            <span className="font-medium capitalize text-high">
+                            <span className="flex items-baseline gap-2 font-medium capitalize text-high">
+                              <span className="font-mono text-[9px] text-dim3">
+                                {String(index + 1).padStart(2, '0')}
+                              </span>
                               {t(`group.${m.group_name}`)}
                             </span>
                             <span
@@ -301,8 +304,8 @@ function StatCard({
 }) {
   const { t } = useLang()
   return (
-    <div className="ui-card p-3 sm:p-3.5">
-      <p className="font-mono text-[9px] uppercase leading-tight tracking-[0.08em] text-dim2">{label}</p>
+    <div className="min-w-0 p-3 sm:p-3.5">
+      <p className="truncate font-mono text-[9px] uppercase leading-tight tracking-[0.08em] text-dim2">{label}</p>
       <p className="mt-1.5 font-display text-[26px] font-semibold leading-none tabular-nums text-strong">
         {value}
       </p>
