@@ -63,87 +63,85 @@ export default function Stats() {
   if (!user) return null
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-4xl">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">{t('stats.title')}</h1>
+        <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
+          {t('stats.title')}
+        </h1>
         <p className="mt-1 text-sm text-dim">{t('stats.subtitle')}</p>
       </header>
 
       {error ? (
         <ErrorState message={error} onRetry={load} />
       ) : loading ? (
-        <div role="status" aria-busy="true" aria-live="polite" className="mt-6 space-y-3">
+        <div role="status" aria-busy="true" aria-live="polite" className="mt-5 space-y-3">
           <span className="sr-only">{t('common.loading')}</span>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="shimmer h-24 rounded-2xl border border-edge bg-surface" />
-            <div className="shimmer h-24 rounded-2xl border border-edge bg-surface" />
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="shimmer h-20 rounded-2xl bg-surface" />
+            <div className="shimmer h-20 rounded-2xl bg-surface" />
           </div>
-          <div className="shimmer h-48 rounded-2xl border border-edge bg-surface" />
-          <div className="shimmer h-32 rounded-2xl border border-edge bg-surface" />
+          <div className="shimmer h-48 rounded-2xl bg-surface" />
+          <div className="shimmer h-32 rounded-2xl bg-surface" />
         </div>
       ) : (
         <>
-      <section className="mt-6 grid grid-cols-2 gap-3">
-        <StreakCard label={t('stats.currentStreak')} value={streak?.current ?? null} />
-        <StreakCard label={t('stats.bestStreak')} value={streak?.best ?? null} />
-      </section>
+          <section className="mt-5 grid grid-cols-2 gap-2.5">
+            <StreakCard label={t('stats.currentStreak')} value={streak?.current ?? null} />
+            <StreakCard label={t('stats.bestStreak')} value={streak?.best ?? null} />
+          </section>
 
-      <VolumeChart volume={volume} lang={lang} t={t} />
+          <VolumeChart volume={volume} lang={lang} t={t} />
 
-      <section className="mt-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-dim">
-          {t('stats.prs')}
-        </h2>
-        {prs.length === 0 ? (
-          <p className="mt-3 rounded-2xl border border-edge bg-surface p-4 text-sm text-dim">
-            {t('stats.noPrs')}
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {prs.map((pr) => (
-              <li key={pr.exerciseId}>
-                <Link
-                  to={`/ejercicios/${pr.exerciseId}`}
-                  className="glass-card card-hairline flex items-center gap-3 rounded-2xl p-3 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-emerald-500/40 active:bg-surface2"
-                >
-                  {pr.imageUrl ? (
-                    <img
-                      src={pr.imageUrl}
-                      alt=""
-                      width={44}
-                      height={44}
-                      className="h-11 w-11 shrink-0 rounded-xl object-cover ring-1 ring-inset ring-edge"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="h-11 w-11 shrink-0 rounded-xl bg-surface2" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-high">
-                      {displayName(pr, lang)}
-                    </p>
-                    <p className="mt-0.5 text-xs text-dim2">
-                      {t('stats.max', {
-                        n: String(pr.maxWeight ?? '—'),
-                        s: pr.sessions,
-                        es: pr.sessions === 1 ? '' : 'es',
-                      })}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono text-sm font-bold tabular-nums text-strong">
-                      {pr.maxOneRm!.toFixed(0)} kg
-                    </p>
-                    <p className="mt-0.5 text-xs text-dim2">{t('stats.estOneRm')}</p>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          <section className="mt-6">
+            <h2 className="text-sm font-semibold text-high">{t('stats.prs')}</h2>
+            {prs.length === 0 ? (
+              <p className="mt-2 rounded-xl border border-dashed border-edge2 p-4 text-sm text-dim">
+                {t('stats.noPrs')}
+              </p>
+            ) : (
+              <div className="ui-card mt-2 divide-y divide-edge overflow-hidden">
+                {prs.map((pr) => (
+                  <Link
+                    key={pr.exerciseId}
+                    to={`/ejercicios/${pr.exerciseId}`}
+                    className="flex items-center gap-3 px-3 py-3 transition-colors hover:bg-surface2/60 sm:px-4"
+                  >
+                    {pr.imageUrl ? (
+                      <img
+                        src={pr.imageUrl}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="h-10 w-10 shrink-0 rounded-lg bg-surface2" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-high">
+                        {displayName(pr, lang)}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-dim2">
+                        {t(pr.sessions === 1 ? 'stats.maxOne' : 'stats.maxMany', {
+                          n: String(pr.maxWeight ?? '—'),
+                          s: pr.sessions,
+                        })}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-mono text-sm font-semibold tabular-nums text-strong">
+                        {pr.maxOneRm!.toFixed(0)} kg
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-dim2">{t('stats.estOneRm')}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
 
-      <ExerciseEvolution prs={prs} lang={lang} t={t} />
+          <ExerciseEvolution prs={prs} lang={lang} t={t} />
         </>
       )}
     </div>
@@ -152,11 +150,11 @@ export default function Stats() {
 
 function StreakCard({ label, value }: { label: string; value: number | null }) {
   return (
-    <div className="card-hairline glass-card rounded-2xl p-4">
-      <p className="font-mono text-3xl font-bold tracking-tight tabular-nums text-strong">
+    <div className="ui-card p-4">
+      <p className="font-mono text-[28px] font-semibold leading-none tracking-tight tabular-nums text-strong">
         {value ?? '—'}
       </p>
-      <p className="mt-1 text-xs text-dim2">{label}</p>
+      <p className="mt-1.5 text-[11px] text-dim2">{label}</p>
     </div>
   )
 }
@@ -202,17 +200,17 @@ function VolumeChart({
   const H = 110
 
   return (
-    <section className="mt-8">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-dim">
+    <section className="mt-6">
+      <h2 className="text-sm font-semibold text-high">
         {t('stats.weeklyVolume')}
       </h2>
       {groups.length === 0 ? (
-        <p className="mt-3 rounded-2xl border border-edge bg-surface p-4 text-sm text-dim">
+        <p className="mt-2 rounded-xl border border-dashed border-edge2 p-4 text-sm text-dim">
           {t('stats.noVolume')}
         </p>
       ) : (
         <>
-          <div className="glass-card card-hairline mt-4 rounded-2xl p-4">
+          <div className="ui-card mt-2 p-4">
             <svg
               viewBox={`0 0 ${W} ${H}`}
               role="img"
@@ -313,10 +311,8 @@ function ExerciseEvolution({
   const selected = prs.find((p) => p.exerciseId === exerciseId)
 
   return (
-    <section className="mt-8">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-dim">
-        {t('stats.evolution')}
-      </h2>
+    <section className="mt-6">
+      <h2 className="text-sm font-semibold text-high">{t('stats.evolution')}</h2>
       {prs.length === 0 ? null : (
         <>
           <select
@@ -329,7 +325,7 @@ function ExerciseEvolution({
               else next.delete('ejercicio')
               setParams(next, { replace: true })
             }}
-            className="mt-3 min-h-11 w-full rounded-xl border border-edge bg-surface px-3 text-sm text-strong outline-none transition-[border-color,box-shadow] duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            className="ui-input mt-2 text-sm"
           >
             <option value="">{t('stats.pickExercise')}</option>
             {prs.map((p) => (
@@ -339,34 +335,34 @@ function ExerciseEvolution({
             ))}
           </select>
 
-          {loading && <p className="mt-4 text-sm text-dim">{t('stats.loading')}</p>}
+          {loading && <p className="mt-3 text-sm text-dim">{t('stats.loading')}</p>}
 
           {!loading && series && series.length < 2 && (
-            <p className="mt-4 rounded-2xl border border-edge bg-surface p-4 text-sm text-dim">
+            <p className="mt-2 rounded-xl border border-dashed border-edge2 p-4 text-sm text-dim">
               {t('stats.needTwo')}
             </p>
           )}
 
           {!loading && series && series.length >= 2 && selected && (
-            <div className="glass-card card-hairline mt-4 rounded-2xl p-4">
-              <div className="grid grid-cols-3 gap-3">
+            <div className="ui-card mt-3 p-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <p className="text-lg font-bold tracking-tight tabular-nums">
+                  <p className="text-base font-semibold tracking-tight tabular-nums text-strong">
                     {selected.maxWeight} kg
                   </p>
-                  <p className="mt-0.5 text-xs text-dim2">{t('stats.maxWeight')}</p>
+                  <p className="mt-0.5 text-[10px] text-dim2">{t('stats.maxWeight')}</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold tracking-tight tabular-nums text-strong">
+                  <p className="text-base font-semibold tracking-tight tabular-nums text-strong">
                     {selected.maxOneRm!.toFixed(1)} kg
                   </p>
-                  <p className="mt-0.5 text-xs text-dim2">{t('stats.estOneRm2')}</p>
+                  <p className="mt-0.5 text-[10px] text-dim2">{t('stats.estOneRm2')}</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold tracking-tight tabular-nums">
+                  <p className="text-base font-semibold tracking-tight tabular-nums text-strong">
                     {selected.sessions}
                   </p>
-                  <p className="mt-0.5 text-xs text-dim2">{t('stats.sessions')}</p>
+                  <p className="mt-0.5 text-[10px] text-dim2">{t('stats.sessions')}</p>
                 </div>
               </div>
               <ProgressChart series={series} />

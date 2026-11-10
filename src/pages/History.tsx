@@ -166,58 +166,59 @@ export default function History() {
   }
 
   return (
-    <div>
-      <header className="mb-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{t('history.title')}</h1>
-            <p className="mt-1 text-sm text-dim">
-              {sessions.length > 0
-                ? sessions.length === 1
-                  ? t('history.subtitleOne', { n: sessions.length })
-                  : t('history.subtitleMany', { n: sessions.length })
-                : t('history.subtitleEmpty')}
-            </p>
-          </div>
-          {sessions.length > 0 && (
-            <button
-              onClick={handleExport}
-              disabled={exporting}
-              className="rounded-lg border border-edge bg-surface px-4 py-2 text-sm font-medium text-dim transition-[color,border-color,transform] duration-200 hover:border-emerald-500 hover:text-emerald-400 active:scale-[0.98] disabled:opacity-50"
-            >
-              {exporting ? t('history.exporting') : t('history.export')}
-            </button>
-          )}
+    <div className="mx-auto w-full max-w-3xl">
+      <header className="mb-5 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
+            {t('history.title')}
+          </h1>
+          <p className="mt-1 text-sm text-dim">
+            {sessions.length > 0
+              ? sessions.length === 1
+                ? t('history.subtitleOne', { n: sessions.length })
+                : t('history.subtitleMany', { n: sessions.length })
+              : t('history.subtitleEmpty')}
+          </p>
         </div>
+        {sessions.length > 0 && (
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={exporting}
+            className="ui-button-secondary h-9 shrink-0 px-3 text-xs"
+          >
+            {exporting ? t('history.exporting') : t('history.export')}
+          </button>
+        )}
       </header>
 
       {error ? (
         <ErrorState message={error} onRetry={load} />
       ) : loading ? (
-        <div role="status" aria-busy="true" aria-live="polite" className="space-y-3">
+        <div role="status" aria-busy="true" aria-live="polite" className="space-y-2">
           <span className="sr-only">{t('common.loading')}</span>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="shimmer h-20 rounded-2xl border border-edge bg-surface" />
+            <div key={i} className="shimmer h-16 rounded-2xl bg-surface" />
           ))}
         </div>
       ) : sessions.length === 0 ? (
-        <div className="mt-16 flex flex-col items-center">
-          <ClockIcon className="h-12 w-12 text-dim3" />
-          <p className="mt-4 font-medium">{t('history.empty')}</p>
-          <p className="mt-1 text-sm text-dim">{t('history.emptyHint')}</p>
+        <div className="rounded-2xl border border-dashed border-edge2 px-5 py-10 text-center">
+          <ClockIcon className="mx-auto h-8 w-8 text-dim3" />
+          <p className="mt-3 font-medium text-high">{t('history.empty')}</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-dim">{t('history.emptyHint')}</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {Object.entries(
             groupBy(sessions, (s) => dateHeaderKey(s.started_at)),
           )
             .sort(([a], [b]) => (a < b ? 1 : -1))
             .map(([dateKey, daySessions]) => (
               <div key={dateKey}>
-                <p className="px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-dim2">
+                <p className="pb-1.5 pl-1 text-[11px] font-medium uppercase tracking-[0.08em] text-dim2">
                   {formatDateHeader(dateKey, t, lang)}
                 </p>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {daySessions.map((session) => (
                     <SessionCard
                       key={session.id}
@@ -285,24 +286,24 @@ function SessionCard({
   const feeling = feelingLabel(session.feeling, t)
 
   return (
-    <div className="glass-card card-hairline overflow-hidden rounded-2xl [contain-intrinsic-size:auto_96px] [content-visibility:auto]">
+    <div className="ui-card overflow-hidden [contain-intrinsic-size:auto_80px] [content-visibility:auto]">
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
         aria-controls={`session-panel-${session.id}`}
-        className="flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-surface2/40"
+        className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-surface2/40 sm:px-4"
       >
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">
+          <p className="truncate text-sm font-semibold text-high">
             {dayName}
             {session.routines?.name && (
-              <span className="ml-2 text-xs font-normal text-dim2">
+              <span className="ml-1.5 text-[11px] font-normal text-dim2">
                 {session.routines.name}
               </span>
             )}
           </p>
-          <p className="mt-0.5 text-xs text-dim2">
+          <p className="mt-0.5 truncate text-[11px] text-dim2">
             {date.toLocaleDateString(locale, {
               weekday: 'long',
               day: 'numeric',
@@ -311,16 +312,16 @@ function SessionCard({
             · {date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="flex items-center gap-1 text-dim">
+        <div className="flex shrink-0 items-center gap-2 text-[11px]">
+          <span className="flex items-center gap-1 text-dim2">
             <ClockIcon /> {duration}
           </span>
           {feeling ? (
-            <span role="img" aria-label={feeling} className="w-6 text-center text-lg">
+            <span role="img" aria-label={feeling} className="w-5 text-center text-base">
               {feelingEmoji(session.feeling)}
             </span>
           ) : (
-            <span aria-hidden="true" className="w-6 text-center text-lg">
+            <span aria-hidden="true" className="w-5 text-center text-base">
               {feelingEmoji(session.feeling)}
             </span>
           )}
@@ -334,13 +335,13 @@ function SessionCard({
       </button>
 
       {open && (
-        <div id={`session-panel-${session.id}`} className="border-t border-edge">
+        <div id={`session-panel-${session.id}`} className="border-t border-edge bg-bg/30">
           {loadingSets ? (
-            <p role="status" className="px-4 py-6 text-center text-sm text-dim2">
+            <p role="status" className="px-3 py-5 text-center text-xs text-dim2 sm:px-4">
               {t('history.loadingSets')}
             </p>
           ) : sets.length === 0 ? (
-            <p className="px-4 py-6 text-center text-sm text-dim2">
+            <p className="px-3 py-5 text-center text-xs text-dim2 sm:px-4">
               {t('history.noSets')}
             </p>
           ) : (
@@ -348,27 +349,29 @@ function SessionCard({
               {Object.entries(groupBy(sets, (s) => s.exercise_id)).map(([exerciseId, rows]) => {
                 const ex = (rows ?? [])[0]?.exercises
                 return (
-                  <div key={exerciseId} className="px-4 py-3">
+                  <div key={exerciseId} className="px-3 py-2.5 sm:px-4">
                     <div className="flex items-center gap-2">
                       {ex?.image_url && (
                         <img
                           src={ex.image_url}
                           alt=""
-                          width={32}
-                          height={32}
+                          width={28}
+                          height={28}
                           loading="lazy"
-                          className="h-8 w-8 rounded-md object-cover"
+                          className="h-7 w-7 rounded-md object-cover"
                         />
                       )}
-                      <p className="text-sm font-medium">{ex ? displayName(ex, lang) : t('history.exercise')}</p>
+                      <p className="min-w-0 truncate text-[13px] font-medium text-soft">
+                        {ex ? displayName(ex, lang) : t('history.exercise')}
+                      </p>
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
+                    <div className="mt-1.5 flex flex-wrap gap-1">
                       {rows.map((s) => (
                         <span
                           key={s.id}
-                          className={`rounded-md px-2 py-1 font-mono text-xs tabular-nums ${
+                          className={`rounded-md px-1.5 py-0.5 font-mono text-[11px] tabular-nums ${
                             s.completed
-                              ? 'bg-surface2 text-soft ring-1 ring-inset ring-edge'
+                              ? 'bg-surface2 text-soft'
                               : 'bg-surface2 text-dim2 line-through'
                           }`}
                         >
@@ -385,7 +388,7 @@ function SessionCard({
             </div>
           )}
           {session.notes && (
-            <p className="border-t border-edge px-4 py-3 text-sm text-dim">
+            <p className="border-t border-edge px-3 py-2.5 text-xs text-dim sm:px-4">
               <span aria-hidden="true">📝</span>{' '}
               <span className="break-words">{session.notes}</span>
             </p>

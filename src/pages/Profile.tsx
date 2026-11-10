@@ -185,10 +185,12 @@ export default function Profile() {
   }
 
   return (
-    <div>
-      <header className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('profile.title')}</h1>
+    <div className="mx-auto w-full max-w-5xl">
+      <header className="mb-5 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-strong sm:text-3xl">
+            {t('profile.title')}
+          </h1>
           <p className="mt-1 text-sm text-dim">{t('profile.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2 md:hidden">
@@ -199,12 +201,12 @@ export default function Profile() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-4">
-          <section className="card-hairline glass-card rounded-2xl p-5">
+          <section className="ui-card p-4 sm:p-5">
             <h2 className="mb-4 font-semibold">{t('profile.data')}</h2>
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="height" className="mb-1.5 block text-sm text-dim">{t('profile.height')}</label>
+                  <label htmlFor="height" className="mb-1.5 block text-xs font-medium text-dim">{t('profile.height')}</label>
                   <input
                     ref={heightRef}
                     id="height"
@@ -220,7 +222,7 @@ export default function Profile() {
                     value={height}
                     onChange={(e) => setHeight(e.target.value)}
                     placeholder="175"
-                    className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    className="ui-input"
                   />
                   {fieldErrors.height && (
                     <p id="height-error" role="alert" className="mt-1.5 text-xs text-red-400">
@@ -229,7 +231,7 @@ export default function Profile() {
                   )}
                 </div>
                 <div>
-                  <label htmlFor="age" className="mb-1.5 block text-sm text-dim">{t('profile.age')}</label>
+                  <label htmlFor="age" className="mb-1.5 block text-xs font-medium text-dim">{t('profile.age')}</label>
                   <input
                     ref={ageRef}
                     id="age"
@@ -244,7 +246,7 @@ export default function Profile() {
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
                     placeholder="28"
-                    className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    className="ui-input"
                   />
                   {fieldErrors.age && (
                     <p id="age-error" role="alert" className="mt-1.5 text-xs text-red-400">
@@ -255,13 +257,13 @@ export default function Profile() {
               </div>
 
               <div>
-                <label htmlFor="sex" className="mb-1.5 block text-sm text-dim">{t('profile.sex')}</label>
+                <label htmlFor="sex" className="mb-1.5 block text-xs font-medium text-dim">{t('profile.sex')}</label>
                 <select
                   id="sex"
                   name="sex"
                   value={sex}
                   onChange={(e) => setSex(e.target.value as Sex | '')}
-                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm text-strong outline-none transition-colors focus:border-emerald-500"
+                  className="ui-input"
                 >
                   <option value="">{t('profile.sexUndefined')}</option>
                   <option value="male">{t('profile.male')}</option>
@@ -271,13 +273,13 @@ export default function Profile() {
               </div>
 
               <div>
-                <label htmlFor="level" className="mb-1.5 block text-sm text-dim">{t('profile.level')}</label>
+                <label htmlFor="level" className="mb-1.5 block text-xs font-medium text-dim">{t('profile.level')}</label>
                 <select
                   id="level"
                   name="level"
                   value={level}
                   onChange={(e) => setLevel(e.target.value as Level)}
-                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm text-strong outline-none transition-colors focus:border-emerald-500"
+                  className="ui-input"
                 >
                   {LEVELS.map((l) => (
                     <option key={l} value={l}>
@@ -288,13 +290,13 @@ export default function Profile() {
               </div>
 
               <div>
-                <label htmlFor="goal" className="mb-1.5 block text-sm text-dim">{t('profile.goal')}</label>
+                <label htmlFor="goal" className="mb-1.5 block text-xs font-medium text-dim">{t('profile.goal')}</label>
                 <select
                   id="goal"
                   name="goal"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value as Goal)}
-                  className="w-full rounded-lg border border-edge2 bg-bg px-3.5 py-2.5 text-sm text-strong outline-none transition-colors focus:border-emerald-500"
+                  className="ui-input"
                 >
                   {GOALS.map((g) => (
                     <option key={g} value={g}>
@@ -318,19 +320,19 @@ export default function Profile() {
               <button
                 type="submit"
                 disabled={profileSaving}
-                className="w-full rounded-lg bg-emerald-500 py-2.5 text-sm font-semibold text-neutral-950 transition-colors hover:bg-emerald-400 disabled:opacity-60"
+                className="ui-button-primary w-full"
               >
                 {profileSaving ? t('profile.saving') : t('profile.save')}
               </button>
             </form>
           </section>
 
-          <section className="card-hairline glass-card rounded-2xl p-5">
+          <section className="ui-card p-4 sm:p-5">
             <h2 className="mb-1 font-semibold">{t('profile.weight')}</h2>
             <p className="mb-4 text-sm text-dim">{t('profile.weightHint')}</p>
             <form onSubmit={handleSaveWeight} className="space-y-4">
               <div>
-                <label htmlFor="weight" className="mb-1.5 block text-sm text-dim">{t('profile.weightKg')}</label>
+                <label htmlFor="weight" className="mb-1.5 block text-xs font-medium text-dim">{t('profile.weightKg')}</label>
                 <input
                   ref={weightRef}
                   id="weight"
@@ -347,7 +349,7 @@ export default function Profile() {
                   onChange={(e) => setWeight(e.target.value)}
                   placeholder="80.5"
                   required
-                  className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="ui-input"
                 />
                 {weightError && (
                   <p id="weight-error" role="alert" className="mt-1.5 text-xs text-red-400">
@@ -356,7 +358,7 @@ export default function Profile() {
                 )}
               </div>
               <div>
-                <label htmlFor="weight-note" className="mb-1.5 block text-sm text-dim">{t('profile.note')}</label>
+                <label htmlFor="weight-note" className="mb-1.5 block text-xs font-medium text-dim">{t('profile.note')}</label>
                 <input
                   id="weight-note"
                   name="weight-note"
@@ -365,14 +367,14 @@ export default function Profile() {
                   value={weightNotes}
                   onChange={(e) => setWeightNotes(e.target.value)}
                   placeholder={t('profile.notePlaceholder')}
-                  className="w-full rounded-xl border border-edge2 bg-bg px-3.5 py-2.5 text-sm outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dim3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  className="ui-input"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={weightSaving}
-                className="w-full rounded-lg bg-emerald-500 py-2.5 text-sm font-semibold text-neutral-950 transition-colors hover:bg-emerald-400 disabled:opacity-50"
+                className="ui-button-primary w-full"
               >
                 {weightSaving ? t('profile.saving') : t('profile.saveWeight')}
               </button>
@@ -381,7 +383,7 @@ export default function Profile() {
         </div>
 
         <div className="space-y-4">
-          <section className="card-hairline glass-card rounded-2xl p-5">
+          <section className="ui-card p-4 sm:p-5">
             <h2 className="mb-4 font-semibold">{t('profile.bmi')}</h2>
             {bmi ? (
               <>
@@ -408,7 +410,7 @@ export default function Profile() {
             )}
           </section>
 
-          <section className="card-hairline glass-card rounded-2xl p-5">
+          <section className="ui-card p-4 sm:p-5">
             <h2 className="mb-3 font-semibold">{recommendations.title}</h2>
             <ul className="space-y-2.5">
               {recommendations.items.map((item, i) => (
@@ -420,7 +422,7 @@ export default function Profile() {
             </ul>
           </section>
 
-          <section className="card-hairline glass-card rounded-2xl p-5">
+          <section className="ui-card p-4 sm:p-5">
             <h2 className="mb-4 font-semibold">{t('profile.weightHistory')}</h2>
             {metrics.length === 0 ? (
               <p className="text-sm text-dim">{t('profile.noWeights')}</p>

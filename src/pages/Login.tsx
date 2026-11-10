@@ -4,7 +4,6 @@ import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
 import { useLang } from '@/lib/lang-context'
-import { useTheme } from '@/lib/theme-context'
 import { DEMO_EMAIL, DEMO_PASSWORD, enterLocalDemo, purgeDemoLocal } from '@/lib/demo'
 import { resetDemoData } from '@/lib/demoData'
 import { DEMO_LOCAL_EVENT } from '@/lib/auth'
@@ -57,9 +56,6 @@ const EyeSlashIcon = (
 export default function Login() {
   const { user, loading } = useAuth()
   const { t } = useLang()
-  const { dark } = useTheme()
-  const logo = dark ? '/logo-vekt.png' : '/logo-vekt-dark.png'
-  const letras = dark ? '/letras-vekt-white.png' : '/letras-vekt.png'
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -132,29 +128,25 @@ export default function Login() {
     }
   }
 
-  const inputClass =
-    'h-11 w-full rounded-lg border border-edge bg-surface px-3.5 pl-10 pr-4 text-sm text-high outline-none transition-colors duration-200 placeholder:text-dim3 focus:border-emerald-500'
-
   return (
-    <div className="radial-top flex min-h-dvh flex-col justify-center bg-bg px-5 py-8">
+    <div className="flex min-h-dvh flex-col justify-center bg-bg px-5 py-10">
       <div className="mx-auto w-full max-w-sm">
-        <div className="mb-7 animate-rise">
-          <h1 className="sr-only">{t('login.title')}</h1>
-          <div className="flex items-center gap-2.5">
-            <img src={logo} alt="" aria-hidden width={768} height={512} className="h-[28px] w-auto" />
-            <img src={letras} alt="Vekt" width={900} height={300} className="h-10 w-auto" />
-          </div>
-          <p className="mt-3 text-sm text-dim">{t('login.tagline')}</p>
+        <div className="animate-rise">
+          <h1 className="text-[34px] font-semibold tracking-[-0.05em] text-strong">
+            <span aria-hidden="true">
+              vekt<span className="text-emerald-400">.</span>
+            </span>
+            <span className="sr-only">{t('login.title')}</span>
+          </h1>
+          <p className="mt-1 text-sm text-dim">{t('login.tagline')}</p>
         </div>
 
-        <div className="glass-card card-hairline animate-rise rounded-2xl p-5">
-          <div role="group" aria-label={t('login.mode')} className="relative mb-5 flex rounded-lg bg-surface2 p-1">
-            <span
-              aria-hidden
-              className={`absolute bottom-1 left-1 top-1 w-[calc(50%-4px)] rounded-md bg-edge2 transition-transform duration-300 ease-out ${
-                mode === 'register' ? 'translate-x-full' : ''
-              }`}
-            />
+        <div className="ui-card animate-rise mt-7 p-4 sm:p-5">
+          <div
+            role="group"
+            aria-label={t('login.mode')}
+            className="mb-4 grid grid-cols-2 gap-1 rounded-lg bg-surface2 p-1"
+          >
             {(['login', 'register'] as const).map((m) => (
               <button
                 key={m}
@@ -165,8 +157,10 @@ export default function Login() {
                   setError(null)
                   setMessage(null)
                 }}
-                className={`relative z-10 flex-1 rounded-md py-2 text-sm transition-colors duration-200 ${
-                  mode === m ? 'font-medium text-strong' : 'text-dim2 hover:text-dim'
+                className={`min-h-9 rounded-md text-sm font-medium transition-colors duration-150 ${
+                  mode === m
+                    ? 'bg-surface text-strong shadow-sm'
+                    : 'text-dim2 hover:text-high'
                 }`}
               >
                 {m === 'login' ? t('login.signIn') : t('login.signUp')}
@@ -176,7 +170,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm text-dim2">
+              <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-dim">
                 {t('login.email')}
               </label>
               <div className="relative">
@@ -196,13 +190,13 @@ export default function Login() {
                   aria-describedby={error ? 'login-error' : undefined}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={inputClass}
+                  className="ui-input pl-10"
                   placeholder="tu@email.com"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm text-dim2">
+              <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-dim">
                 {t('login.password')}
               </label>
               <div className="relative">
@@ -220,7 +214,7 @@ export default function Login() {
                   aria-describedby={error ? 'login-error' : undefined}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`${inputClass} pr-12`}
+                  className="ui-input pl-10 pr-11"
                   placeholder="••••••••"
                 />
                 <button
@@ -228,7 +222,7 @@ export default function Login() {
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
                   aria-pressed={showPassword}
-                  className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-dim2 transition-colors hover:text-dim focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+                  className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-dim2 transition-colors hover:text-high"
                 >
                   {showPassword ? EyeSlashIcon : EyeIcon}
                 </button>
@@ -239,7 +233,7 @@ export default function Login() {
               <p
                 id="login-error"
                 role="alert"
-                className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-400"
+                className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-400"
               >
                 {error}
               </p>
@@ -248,7 +242,7 @@ export default function Login() {
               <p
                 role="status"
                 aria-live="polite"
-                className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400"
+                className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-400"
               >
                 {message}
               </p>
@@ -257,15 +251,15 @@ export default function Login() {
             <button
               type="submit"
               disabled={submitting}
-              className="min-h-12 w-full rounded-lg bg-emerald-500 text-sm font-semibold text-neutral-950 transition-opacity duration-200 hover:opacity-90 active:opacity-80 disabled:opacity-50"
+              className="ui-button-primary w-full"
             >
               {submitting ? t('dialog.busy') : mode === 'login' ? t('login.signIn') : t('login.createAccount')}
             </button>
           </form>
 
-          <div className="my-5 flex items-center gap-3" aria-hidden>
+          <div className="my-4 flex items-center gap-3" aria-hidden="true">
             <span className="h-px flex-1 bg-edge" />
-            <span className="text-xs text-dim3">o</span>
+            <span className="text-[11px] text-dim3">{t('login.or')}</span>
             <span className="h-px flex-1 bg-edge" />
           </div>
 
@@ -274,14 +268,15 @@ export default function Login() {
             data-testid="demo-login"
             disabled={submitting}
             onClick={handleDemo}
-            className="min-h-12 w-full rounded-lg border border-edge bg-surface text-sm font-semibold text-soft transition-colors duration-200 hover:border-emerald-500/50 hover:text-strong active:opacity-80 disabled:opacity-50"
+            className="ui-button-secondary w-full"
           >
-            <span className="flex items-center justify-center gap-2">
-              <span aria-hidden="true">⚡</span> {t('login.demo')}
-            </span>
+            {t('login.demo')}
           </button>
-          <p className="mt-2 text-center text-xs text-dim3">{t('login.demoHint')}</p>
         </div>
+
+        <p className="mt-3 text-center text-[11px] leading-relaxed text-dim3">
+          {t('login.demoHint')}
+        </p>
       </div>
     </div>
   )
