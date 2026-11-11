@@ -185,7 +185,7 @@ export default function Layout() {
         >
           <Search aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
           <span className="flex-1 text-left">{t('command.short')}</span>
-          <kbd className="rounded border border-edge bg-surface2 px-1.5 py-0.5 font-mono text-[10px] text-dim2">
+          <kbd className="rounded border border-edge bg-surface2 px-1.5 py-0.5 font-mono text-[10px] text-soft">
             ⌘K
           </kbd>
         </button>
@@ -206,7 +206,7 @@ export default function Layout() {
             >
               {({ isActive }) => (
                 <>
-                  <span className="w-5 font-mono text-[10px] text-dim2">{link.index}</span>
+                  <span className="w-5 font-mono text-[10px] text-dim">{link.index}</span>
                   <span className={isActive ? 'text-emerald-400' : 'text-dim2'}>
                     {icons[link.to]}
                   </span>

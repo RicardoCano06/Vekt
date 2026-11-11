@@ -121,7 +121,7 @@ function Palette({ onClose }: { onClose: () => void }) {
             placeholder={t('command.placeholder')}
             className="h-14 flex-1 bg-transparent text-sm text-strong outline-none placeholder:text-dim3"
           />
-          <kbd className="rounded border border-edge bg-surface2 px-1.5 py-0.5 font-mono text-[9px] text-dim2">
+          <kbd className="rounded border border-edge bg-surface2 px-1.5 py-0.5 font-mono text-[9px] text-soft">
             esc
           </kbd>
         </div>
@@ -168,7 +168,7 @@ function Palette({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-edge px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] text-dim3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-edge px-4 py-2 font-mono text-[9px] uppercase tracking-[0.08em] text-dim2">
           <span>↑↓ {t('command.navigate')}</span>
           <span>↵ {t('command.open')}</span>
           <span>esc {t('command.close')}</span>
