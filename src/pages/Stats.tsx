@@ -115,6 +115,7 @@ export default function Stats() {
                   <Link
                     key={pr.exerciseId}
                     to={`/ejercicios/${pr.exerciseId}`}
+                    viewTransition
                     className="flex items-center gap-3 px-3 py-3 transition-colors hover:bg-surface2/60 sm:px-4"
                   >
                     {pr.imageUrl ? (
@@ -123,6 +124,7 @@ export default function Stats() {
                         alt=""
                         width={40}
                         height={40}
+                        style={{ viewTransitionName: `exercise-${pr.exerciseId}` }}
                         className="h-10 w-10 shrink-0 rounded-lg object-cover"
                         loading="lazy"
                       />

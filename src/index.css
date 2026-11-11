@@ -235,6 +235,12 @@ p {
   .shimmer::after {
     animation: none;
   }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 @layer base {

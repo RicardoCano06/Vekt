@@ -122,6 +122,7 @@ export default function ExerciseDetail() {
       <div className="mb-3 flex items-center justify-between gap-3">
         <Link
           to="/ejercicios"
+          viewTransition
           className="inline-flex items-center gap-1 text-xs font-medium text-dim2 transition-colors hover:text-high"
         >
           ← {t('catalog.title')}
@@ -142,6 +143,7 @@ export default function ExerciseDetail() {
               width={800}
               height={450}
               fetchPriority="high"
+              style={{ viewTransitionName: `exercise-${exercise.id}` }}
               className="h-full w-full object-cover"
             />
           ) : (

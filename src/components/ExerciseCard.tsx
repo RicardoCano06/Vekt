@@ -16,6 +16,7 @@ export default function ExerciseCard({ exercise, muscleName }: Props) {
   return (
     <Link
       to={`/ejercicios/${exercise.id}`}
+      viewTransition
       className="ui-card group overflow-hidden transition-colors duration-150 [contain-intrinsic-size:auto_240px] [content-visibility:auto] hover:border-emerald-500/40"
     >
       <div className="aspect-square overflow-hidden bg-surface2">
@@ -26,6 +27,7 @@ export default function ExerciseCard({ exercise, muscleName }: Props) {
             width={400}
             height={400}
             loading="lazy"
+            style={{ viewTransitionName: `exercise-${exercise.id}` }}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
