@@ -249,7 +249,7 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
                     : t('day.makeSuperset')
                 }
                 aria-pressed={item.superset_group != null}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30 ${
+                className={`relative flex h-10 w-10 items-center justify-center rounded-lg text-sm transition-colors before:absolute before:-inset-0.5 before:content-[''] disabled:opacity-30 ${
                   item.superset_group != null
                     ? 'bg-surface2 text-soft'
                     : 'text-dim2 hover:bg-surface2 hover:text-soft'
@@ -266,7 +266,7 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
                 type="button"
                 onClick={onRemove}
                 aria-label={t('day.removeExercise')}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                className="relative flex h-10 w-10 items-center justify-center rounded-lg text-sm text-dim2 transition-colors before:absolute before:-inset-0.5 before:content-[''] hover:bg-red-500/10 hover:text-red-400"
                 title={t('day.removeExercise')}
               >
                 <TrashIcon className="h-4 w-4" />
@@ -284,7 +284,7 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
               value={sets}
               onChange={(e) => setSets(Number(e.target.value))}
               onBlur={() => sets !== item.sets && save({ sets })}
-              className="h-8 w-10 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
+              className="h-9 w-11 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
             />
             <span className="whitespace-nowrap text-[11px] text-dim2">{t('day.setsShort')}</span>
             <span className="text-dim4">·</span>
@@ -296,7 +296,7 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
               value={reps}
               onChange={(e) => setReps(e.target.value)}
               onBlur={() => reps !== item.reps && save({ reps })}
-              className="h-8 w-10 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
+              className="h-9 w-11 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
             />
             <span className="whitespace-nowrap text-[11px] text-dim2">{t('day.repsShort')}</span>
             <span className="text-dim4">·</span>
@@ -311,7 +311,7 @@ function ExerciseRow({ item, canPair, onRemove, onUpdate, onToggleSuperset }: Ex
               value={rest}
               onChange={(e) => setRest(Number(e.target.value))}
               onBlur={() => rest !== item.rest_seconds && save({ rest_seconds: rest })}
-              className="h-8 w-11 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
+              className="h-9 w-12 rounded-md border border-edge bg-bg px-1 text-center text-xs tabular-nums outline-none focus:border-emerald-500"
             />
             <span className="whitespace-nowrap text-[11px] text-dim2">{t('day.sec')}</span>
             <span role="status" aria-live="polite" className="text-xs text-emerald-400">

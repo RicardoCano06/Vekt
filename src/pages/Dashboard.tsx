@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
 import { useCountUp } from '@/hooks/useCountUp'
+import { formatWeight } from '@/lib/format'
 import { useAuth } from '@/lib/auth-context'
 import {
   countSessionsSince,
@@ -158,7 +159,7 @@ export default function Dashboard() {
               className="block rounded-sm border border-edge bg-surface px-2.5 py-1.5 text-right font-mono text-[10px] leading-tight text-dim2 transition-colors hover:border-emerald-500/40 hover:text-high"
             >
               <span className="block text-sm font-medium text-soft">
-                {lastWeight.weight}
+                {formatWeight(lastWeight.weight, lang)}
                 <span className="ml-0.5 text-dim2">kg</span>
               </span>
               <span className="block">
@@ -183,7 +184,7 @@ export default function Dashboard() {
       ) : (
         <div className="space-y-4">
           {nextDayId ? (
-            <section className="ui-card border-l-2 border-l-emerald-500 p-4 sm:p-5">
+            <section className="ui-card ui-card-cut border-l-2 border-l-emerald-500 p-4 sm:p-5">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
@@ -227,7 +228,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <div className="ui-card grid grid-cols-3 divide-x divide-edge">
+              <div className="ui-card ui-card-cut grid grid-cols-3 divide-x divide-edge">
                 <StatCard
                   label={t('dash.sessionsDone')}
                   value={sessionsCount}
@@ -259,7 +260,7 @@ export default function Dashboard() {
                         <li key={m.group_name} className="border-b border-edge/60 py-3 last:border-0">
                           <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
                             <span className="flex items-baseline gap-2 font-medium capitalize text-high">
-                              <span className="font-mono text-[9px] text-dim3">
+                              <span className="font-mono text-[10px] text-dim3">
                                 {String(index + 1).padStart(2, '0')}
                               </span>
                               {t(`group.${m.group_name}`)}
@@ -307,7 +308,7 @@ function StatCard({
   const displayValue = useCountUp(value)
   return (
     <div className="min-w-0 p-3 sm:p-3.5">
-      <p className="truncate font-mono text-[9px] uppercase leading-tight tracking-[0.08em] text-dim2">{label}</p>
+      <p className="truncate font-mono text-[10px] uppercase leading-tight tracking-[0.08em] text-dim2">{label}</p>
       <p className="mt-1.5 font-display text-[26px] font-semibold leading-none tabular-nums text-strong">
         {displayValue}
       </p>

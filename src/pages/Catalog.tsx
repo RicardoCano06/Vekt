@@ -96,7 +96,7 @@ export default function Catalog() {
   const kinds = [...new Set(equipment.map((e) => e.kind))]
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <div className="mx-auto w-full max-w-5xl">
       <PageHeader
         index="02"
         eyebrow={t('nav.exercises')}
@@ -156,7 +156,7 @@ export default function Catalog() {
               <path d="M4 6h16M7 12h10M10 18h4" />
             </svg>
             {(kind || category) && (
-              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-semibold text-neutral-950">
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-semibold text-neutral-950">
                 {(kind ? 1 : 0) + (category ? 1 : 0)}
               </span>
             )}

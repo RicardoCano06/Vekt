@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ChartNoAxesColumn, Trophy } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
@@ -6,7 +7,7 @@ import ErrorState from '@/components/ErrorState'
 import PageHeader from '@/components/PageHeader'
 import { ProgressChart } from '@/components/ProgressChart'
 import { useCountUp } from '@/hooks/useCountUp'
-import { formatShortDate } from '@/lib/format'
+import { formatShortDate, formatWeight } from '@/lib/format'
 import {
   fetchExerciseProgress,
   fetchPRs,
@@ -70,7 +71,7 @@ export default function Stats() {
   if (!user) return null
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
+    <div className="mx-auto w-full max-w-5xl">
       <PageHeader
         index="05"
         eyebrow={t('stats.eyebrow')}
@@ -104,9 +105,10 @@ export default function Stats() {
           <section className="mt-6">
             <h2 className="font-display text-sm font-semibold text-high">{t('stats.prs')}</h2>
             {prs.length === 0 ? (
-              <p className="mt-2 rounded-xl border border-dashed border-edge2 p-4 text-sm text-dim">
-                {t('stats.noPrs')}
-              </p>
+              <div className="mt-2 flex items-center gap-3 rounded-xl border border-dashed border-edge2 p-4">
+                <Trophy aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 shrink-0 text-dim3" />
+                <p className="text-sm text-dim">{t('stats.noPrs')}</p>
+              </div>
             ) : (
               <div className="ui-card mt-2 divide-y divide-edge overflow-hidden">
                 {prs.map((pr) => (
@@ -133,14 +135,14 @@ export default function Stats() {
                       </p>
                       <p className="mt-0.5 text-[11px] text-dim2">
                         {t(pr.sessions === 1 ? 'stats.maxOne' : 'stats.maxMany', {
-                          n: String(pr.maxWeight ?? '—'),
+                          n: formatWeight(pr.maxWeight, lang),
                           s: pr.sessions,
                         })}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="font-mono text-sm font-semibold tabular-nums text-strong">
-                        {pr.maxOneRm!.toFixed(0)} kg
+                        {formatWeight(pr.maxOneRm, lang)} kg
                       </p>
                       <p className="mt-0.5 text-[10px] text-dim2">{t('stats.estOneRm')}</p>
                     </div>
@@ -164,7 +166,7 @@ function StreakCard({ label, value }: { label: string; value: number | null }) {
       <p className="font-display text-[28px] font-semibold leading-none tabular-nums text-strong">
         {value === null ? '—' : displayValue}
       </p>
-      <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.08em] text-dim2">{label}</p>
+      <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-dim2">{label}</p>
     </div>
   )
 }
@@ -215,9 +217,14 @@ function VolumeChart({
         {t('stats.weeklyVolume')}
       </h2>
       {groups.length === 0 ? (
-        <p className="mt-2 rounded-xl border border-dashed border-edge2 p-4 text-sm text-dim">
-          {t('stats.noVolume')}
-        </p>
+        <div className="mt-2 flex items-center gap-3 rounded-xl border border-dashed border-edge2 p-4">
+          <ChartNoAxesColumn
+            aria-hidden="true"
+            strokeWidth={1.8}
+            className="h-5 w-5 shrink-0 text-dim3"
+          />
+          <p className="text-sm text-dim">{t('stats.noVolume')}</p>
+        </div>
       ) : (
         <>
           <div className="ui-card mt-2 p-4">
@@ -241,8 +248,12 @@ function VolumeChart({
                   y -= h
                   segs.push({ x, y, h, color: GROUP_COLORS[gi % GROUP_COLORS.length] })
                 }
+                const total = [...w.groups.values()].reduce((a, b) => a + b, 0)
                 return (
                   <g key={w.weekStart}>
+                    <title>
+                      {formatShortDate(w.weekStart, lang)}: {total} {t('dash.setsShort')}
+                    </title>
                     {segs.map((s, si) => (
                       <rect
                         key={s.y}
@@ -368,13 +379,13 @@ function ExerciseEvolution({
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <p className="text-base font-semibold tracking-tight tabular-nums text-strong">
-                    {selected.maxWeight} kg
+                    {formatWeight(selected.maxWeight, lang)} kg
                   </p>
                   <p className="mt-0.5 text-[10px] text-dim2">{t('stats.maxWeight')}</p>
                 </div>
                 <div>
                   <p className="text-base font-semibold tracking-tight tabular-nums text-strong">
-                    {selected.maxOneRm!.toFixed(1)} kg
+                    {formatWeight(selected.maxOneRm, lang)} kg
                   </p>
                   <p className="mt-0.5 text-[10px] text-dim2">{t('stats.estOneRm2')}</p>
                 </div>
@@ -467,7 +478,7 @@ function TrainingHeatmap({ sessions }: { sessions: Session[] }) {
           </div>
         </div>
 
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.08em] text-dim2">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-dim2">
           <span>{t('stats.heatmapSummary', { n: totalSessions })}</span>
           <span className="flex items-center gap-1">
             {t('stats.less')}

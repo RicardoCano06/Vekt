@@ -212,7 +212,7 @@ export default function RoutineDetail() {
         >
           ← {t('nav.routines')}
         </Link>
-        <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-dim2">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-dim2">
           <span className="text-emerald-400">03</span>
           <span aria-hidden="true" className="h-px w-5 origin-left animate-line bg-edge2" />
           <span>{t('nav.routines')}</span>

@@ -13,6 +13,7 @@ import { computeBMI, bmiLabel, getRecommendations } from '@/lib/recommendations'
 import type { BMIResult } from '@/lib/recommendations'
 import type { BodyMetric, Goal, Level, Sex, UserProfile } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
+import { formatWeight } from '@/lib/format'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageToggle from '@/components/LanguageToggle'
 import PageHeader from '@/components/PageHeader'
@@ -434,7 +435,7 @@ export default function Profile() {
                   {metrics.slice(0, 14).map((m) => (
                     <div key={m.id} className="flex items-center justify-between py-2 text-sm">
                       <span className="text-dim">{formatDate(m.date, lang)}</span>
-                      <span className="font-mono font-medium tabular-nums">{m.weight_kg} kg</span>
+                      <span className="font-mono font-medium tabular-nums">{formatWeight(m.weight_kg, lang)} kg</span>
                     </div>
                   ))}
                 </div>
@@ -548,10 +549,10 @@ function WeightSparkline({
       </svg>
       <div className="mt-1 flex justify-between text-xs text-dim2">
         <span>
-          {formatDate(points[0].date, lang)} · {points[0].weight_kg} kg
+          {formatDate(points[0].date, lang)} · {formatWeight(points[0].weight_kg, lang)} kg
         </span>
         <span>
-          {points[points.length - 1].weight_kg} kg · {formatDate(points[points.length - 1].date, lang)}
+          {formatWeight(points[points.length - 1].weight_kg, lang)} kg · {formatDate(points[points.length - 1].date, lang)}
         </span>
       </div>
     </div>

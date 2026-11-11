@@ -47,7 +47,10 @@ function uuidFromRng(rng: () => number): string {
   return s
 }
 
-const round = (v: number, step = 0.5) => Math.round(v / step) * step
+const round = (v: number, step = 0.5) => {
+  const decimals = step < 1 ? `${step}`.split('.')[1]?.length ?? 0 : 0
+  return Number((Math.round(v / step) * step).toFixed(decimals))
+}
 
 // ---------- Catalogo embebido (ids = catalogo real de produccion) ----------
 

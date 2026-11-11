@@ -181,7 +181,7 @@ export default function Routines() {
                     setRenaming(routine.id)
                   }}
                   aria-label={t('routines.rename')}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-surface2 hover:text-soft"
+                  className="relative flex h-10 w-10 items-center justify-center rounded-lg text-dim2 transition-colors before:absolute before:-inset-0.5 before:content-[''] hover:bg-surface2 hover:text-soft"
                   title={t('routines.rename')}
                 >
                   <PencilIcon className="h-4 w-4" />
@@ -191,7 +191,7 @@ export default function Routines() {
                   onClick={() => handleDelete(routine.id, routine.name)}
                   disabled={deleting === routine.id}
                   aria-label={t('routines.deleteHint')}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-30"
+                  className="relative flex h-10 w-10 items-center justify-center rounded-lg text-dim2 transition-colors before:absolute before:-inset-0.5 before:content-[''] hover:bg-red-500/10 hover:text-red-400 disabled:opacity-30"
                   title={t('routines.deleteHint')}
                 >
                   <TrashIcon className="h-4 w-4" />

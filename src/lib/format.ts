@@ -5,6 +5,16 @@ export function formatShortDate(date: string, lang: 'es' | 'en' = 'es'): string 
   })
 }
 
+export function formatWeight(
+  value: number | null | undefined,
+  lang: 'es' | 'en' = 'es',
+): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—'
+  return new Intl.NumberFormat(lang === 'en' ? 'en-US' : 'es-AR', {
+    maximumFractionDigits: 1,
+  }).format(value)
+}
+
 export function formatDuration(minutes: number, locale: string): string {
   const hours = Math.floor(minutes / 60)
   const rest = minutes % 60

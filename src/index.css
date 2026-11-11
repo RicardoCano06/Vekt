@@ -167,6 +167,12 @@ body {
   background-size: 56px 56px;
 }
 
+@media (max-width: 767px) {
+  body {
+    background-image: none;
+  }
+}
+
 h1 {
   font-family: var(--font-display);
   letter-spacing: -0.045em;
@@ -243,7 +249,11 @@ p {
 @layer components {
   /* Primitivas compartidas del rediseño. */
   .ui-card {
-    @apply rounded-sm border border-edge bg-surface;
+    @apply rounded-xl border border-edge bg-surface;
+  }
+
+  .ui-card-cut {
+    border-radius: 2px;
     clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
   }
 

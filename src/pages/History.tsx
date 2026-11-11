@@ -10,7 +10,7 @@ import type { ExportRow } from '@/lib/db'
 import type { Session, SessionSet } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
 import { displayName } from '@/lib/i18n'
-import { formatDuration } from '@/lib/format'
+import { formatDuration, formatWeight } from '@/lib/format'
 
 type SessionWithMeta = Session & {
   routine_days: { name: string | null; day_number: number } | null
@@ -377,7 +377,7 @@ function SessionCard({
                           }`}
                         >
                           {s.weight_kg !== null
-                            ? `${s.weight_kg} kg × ${s.reps ?? '-'}`
+                            ? `${formatWeight(s.weight_kg, lang)} kg × ${s.reps ?? '-'}`
                             : t('history.repsOnly', { n: s.reps ?? '-' })}
                           {s.rpe !== null && ` · RPE ${s.rpe}`}
                         </span>

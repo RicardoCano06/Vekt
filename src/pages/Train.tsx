@@ -371,7 +371,7 @@ export default function Train() {
 
   return (
     <RestTimerProvider>
-      <div className="mx-auto w-full max-w-4xl">
+      <div className="mx-auto w-full max-w-3xl">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <Link
@@ -380,7 +380,7 @@ export default function Train() {
             >
               ← {t('nav.routines')}
             </Link>
-            <div className="mt-3 flex items-center gap-2 font-mono text-[9px] font-medium uppercase tracking-[0.16em] text-dim2">
+            <div className="mt-3 flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-dim2">
               <span className="text-emerald-400">08</span>
               <span aria-hidden="true" className="h-px w-5 origin-left animate-line bg-edge2" />
               <span className="text-emerald-400">{t('train.activeSession')}</span>
@@ -702,10 +702,10 @@ function SetRow({
   }
 
   const btn =
-    'flex h-9 w-7 shrink-0 items-center justify-center rounded-lg border border-edge bg-surface text-base font-medium text-soft transition-colors hover:bg-surface2 hover:text-strong active:scale-95'
+    'relative flex h-10 w-8 shrink-0 items-center justify-center rounded-lg border border-edge bg-surface text-base font-medium text-soft transition-colors before:absolute before:-inset-1.5 before:content-[\'\'] hover:bg-surface2 hover:text-strong active:scale-95'
 
   const field =
-    'h-9 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1 text-center font-mono text-sm font-semibold tabular-nums outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+    'h-10 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1 text-center font-mono text-sm font-semibold tabular-nums outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
 
   const completeClass = `flex shrink-0 items-center justify-center rounded-lg border text-sm font-semibold transition-colors active:scale-95 ${
     done
@@ -751,7 +751,7 @@ function SetRow({
               aria-label={done ? t('train.uncompleteSet') : t('train.completeSet')}
               aria-pressed={done}
               onClick={toggleComplete}
-              className={`${completeClass} h-9 w-9`}
+              className={`${completeClass} h-10 w-10`}
               title={done ? t('train.uncompleteSet') : t('train.completeSet')}
             >
               {done ? (
@@ -778,7 +778,7 @@ function SetRow({
               title={set.notes ?? undefined}
               className="flex min-w-0 flex-1 items-center gap-2 text-left"
             >
-              <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-dim3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-dim3">
                 SET {set.set_number}
               </span>
               <span className="truncate font-mono text-sm font-semibold tabular-nums text-soft">
@@ -814,7 +814,7 @@ function SetRow({
       >
         <div>
           <div className="px-3 pb-3 pt-1">
-            <p className="mb-1 text-right font-mono text-[8px] uppercase tracking-[0.14em] text-emerald-400">
+            <p className="mb-1 text-right font-mono text-[10px] uppercase tracking-[0.14em] text-emerald-400">
               {t('train.editingSet')}
             </p>
             <div className="flex items-end gap-2">
@@ -938,7 +938,7 @@ function SetRow({
                   onUpdate({ rpe: e.target.value === '' ? null : Number(e.target.value) })
                 }
                 onBlur={onCommit}
-                className={`h-8 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1.5 text-[11px] text-strong outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
+                className={`h-9 min-w-0 flex-1 rounded-lg border border-edge bg-bg px-1.5 text-[11px] text-strong outline-none transition-[border-color,box-shadow] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
                   done ? 'text-dim2' : ''
                 }`}
                 title={t('train.rpe')}
@@ -961,7 +961,7 @@ function SetRow({
                 type="button"
                 onClick={onNote}
                 aria-label={set.notes ? t('train.editNote') : t('train.addNote')}
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-base transition-colors active:scale-90 ${
+                className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-base transition-colors before:absolute before:-inset-1 before:content-[''] active:scale-90 ${
                   set.notes ? 'text-soft' : 'text-dim2 hover:bg-surface2 hover:text-soft'
                 }`}
                 title={set.notes ? t('train.editNote') : t('train.addNote')}
@@ -982,7 +982,7 @@ function SetRow({
                     onConfirm: onDelete,
                   })
                 }
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-red-500/10 hover:text-red-400 active:scale-90"
+                className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-dim2 transition-colors before:absolute before:-inset-1 before:content-[''] hover:bg-red-500/10 hover:text-red-400 active:scale-90"
                 title={t('train.deleteSetTitle')}
               >
                 <TrashIcon className="h-3.5 w-3.5" />

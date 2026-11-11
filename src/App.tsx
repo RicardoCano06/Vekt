@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import Layout from '@/components/Layout'
 import { AuthProvider } from '@/components/AuthProvider'
@@ -6,16 +7,17 @@ import { ThemeProvider } from '@/lib/theme-context'
 import { LangProvider } from '@/lib/lang-context'
 import { useAuth } from '@/lib/auth-context'
 import { useLang } from '@/lib/lang-context'
-import Dashboard from '@/pages/Dashboard'
-import Catalog from '@/pages/Catalog'
-import ExerciseDetail from '@/pages/ExerciseDetail'
-import Routines from '@/pages/Routines'
-import RoutineDetail from '@/pages/RoutineDetail'
-import Train from '@/pages/Train'
-import History from '@/pages/History'
-import Stats from '@/pages/Stats'
-import Profile from '@/pages/Profile'
-import Login from '@/pages/Login'
+
+const Dashboard = lazy(() => import('@/pages/Dashboard'))
+const Catalog = lazy(() => import('@/pages/Catalog'))
+const ExerciseDetail = lazy(() => import('@/pages/ExerciseDetail'))
+const Routines = lazy(() => import('@/pages/Routines'))
+const RoutineDetail = lazy(() => import('@/pages/RoutineDetail'))
+const Train = lazy(() => import('@/pages/Train'))
+const History = lazy(() => import('@/pages/History'))
+const Stats = lazy(() => import('@/pages/Stats'))
+const Profile = lazy(() => import('@/pages/Profile'))
+const Login = lazy(() => import('@/pages/Login'))
 
 function RequireAuth() {
   const { user, loading } = useAuth()
@@ -52,8 +54,32 @@ const router = createBrowserRouter([
       },
     ],
   },
-  { path: '/login', element: <Login /> },
+  {
+    path: '/login',
+    element: (
+      <Suspense fallback={<AppFallback />}>
+        <Login />
+      </Suspense>
+    ),
+  },
 ])
+
+function AppFallback() {
+  const { t } = useLang()
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex min-h-dvh items-center justify-center gap-3 bg-bg"
+    >
+      <div
+        aria-hidden="true"
+        className="h-8 w-8 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500"
+      />
+      <span className="sr-only">{t('common.loading')}</span>
+    </div>
+  )
+}
 
 export default function App() {
   return (
@@ -61,7 +87,9 @@ export default function App() {
       <LangProvider>
         <AuthProvider>
           <ToastProvider>
-            <RouterProvider router={router} />
+            <Suspense fallback={<AppFallback />}>
+              <RouterProvider router={router} />
+            </Suspense>
           </ToastProvider>
         </AuthProvider>
       </LangProvider>

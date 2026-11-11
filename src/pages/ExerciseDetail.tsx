@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth-context'
 import ErrorState from '@/components/ErrorState'
 import { DumbbellIcon } from '@/components/icons'
 import { ProgressChart } from '@/components/ProgressChart'
-import { formatShortDate } from '@/lib/format'
+import { formatShortDate, formatWeight } from '@/lib/format'
 import { fetchExerciseDetail, fetchExerciseProgress } from '@/lib/db'
 import type { ExerciseProgressEntry } from '@/lib/db'
 import type { Equipment, Exercise, Muscle } from '@/lib/types'
@@ -126,7 +126,7 @@ export default function ExerciseDetail() {
         >
           ← {t('catalog.title')}
         </Link>
-        <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-dim2">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-dim2">
           <span className="text-emerald-400">07</span>
           <span aria-hidden="true" className="h-px w-5 origin-left animate-line bg-edge2" />
           <span>{t('nav.exercises')}</span>
@@ -233,8 +233,8 @@ export default function ExerciseDetail() {
             ) : (
               <>
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <Stat label={t('detail.maxWeight')} value={maxWeight ? `${maxWeight} kg` : '—'} />
-                  <Stat label={t('detail.estOneRm')} value={maxOneRm ? `${maxOneRm.toFixed(1)} kg` : '—'} />
+                  <Stat label={t('detail.maxWeight')} value={maxWeight ? `${formatWeight(maxWeight, lang)} kg` : '—'} />
+                  <Stat label={t('detail.estOneRm')} value={maxOneRm ? `${formatWeight(maxOneRm, lang)} kg` : '—'} />
                   <Stat label={t('detail.sessions')} value={String(perSession.size)} />
                 </div>
 
@@ -248,7 +248,7 @@ export default function ExerciseDetail() {
                       <li key={e.session_id} className="flex items-center justify-between gap-3 py-2 text-[13px]">
                         <span className="shrink-0 text-dim2">{formatShortDate(e.date, lang)}</span>
                         <span className="text-right font-medium text-soft">
-                          {e.weight_kg ? `${e.weight_kg} kg` : t('detail.bodyweight')} × {e.reps ?? '—'}
+                          {e.weight_kg ? `${formatWeight(e.weight_kg, lang)} kg` : t('detail.bodyweight')} × {e.reps ?? '—'}
                           {e.rpe ? ` · RPE ${e.rpe}` : ''}
                         </span>
                       </li>

@@ -1,6 +1,17 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import {
+  ChartNoAxesColumn,
+  Clock,
+  Dumbbell,
+  House,
+  List,
+  LogOut,
+  Search,
+  UserRound,
+} from 'lucide-react'
+import CommandPalette from '@/components/CommandPalette'
 import SyncStatus from '@/components/SyncStatus'
 import HeaderStatus from '@/components/HeaderStatus'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -24,64 +35,15 @@ const desktopLinks = [
   mainLinks[4],
 ]
 
-function Icon({ children }: { children: ReactNode }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className="h-5 w-5"
-    >
-      {children}
-    </svg>
-  )
-}
-
-const HomeIcon = (
-  <Icon>
-    <path d="M3 10.5 12 3l9 7.5V21h-5.5v-6h-7v6H3z" />
-  </Icon>
-)
-const DumbbellIcon = (
-  <Icon>
-    <path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11" />
-  </Icon>
-)
-const ListIcon = (
-  <Icon>
-    <path d="M8 6h13M8 12h13M8 18h13" />
-    <path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01" />
-  </Icon>
-)
-const ClockIcon = (
-  <Icon>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M12 7v5l3 2" />
-  </Icon>
-)
-const ChartIcon = (
-  <Icon>
-    <path d="M3 20h18M5 20v-6M11 20V8M17 20v-10" />
-  </Icon>
-)
-const UserIcon = (
-  <Icon>
-    <circle cx="12" cy="8" r="4" />
-    <path d="M4 21c0-3.9 3.6-6 8-6s8 2.1 8 6" />
-  </Icon>
-)
+const iconProps = { 'aria-hidden': true, strokeWidth: 1.8, className: 'h-5 w-5' } as const
 
 const icons: Record<string, ReactNode> = {
-  '/': HomeIcon,
-  '/ejercicios': DumbbellIcon,
-  '/rutinas': ListIcon,
-  '/historial': ClockIcon,
-  '/estadisticas': ChartIcon,
-  '/perfil': UserIcon,
+  '/': <House {...iconProps} />,
+  '/ejercicios': <Dumbbell {...iconProps} />,
+  '/rutinas': <List {...iconProps} />,
+  '/historial': <Clock {...iconProps} />,
+  '/estadisticas': <ChartNoAxesColumn {...iconProps} />,
+  '/perfil': <UserRound {...iconProps} />,
 }
 
 function Brand() {
@@ -132,7 +94,7 @@ function BottomNav() {
             to={link.to}
             end={link.end}
             className={({ isActive }) =>
-              `relative flex flex-col items-center justify-center gap-1 font-mono text-[9px] font-medium uppercase tracking-[0.06em] transition-colors duration-150 ${
+              `relative flex flex-col items-center justify-center gap-1 font-mono text-[10px] font-medium uppercase tracking-[0.06em] transition-colors duration-150 ${
                 isActive ? 'text-emerald-400' : 'text-dim2 hover:text-high'
               }`
             }
@@ -160,8 +122,20 @@ export default function Layout() {
   const location = useLocation()
   const { t } = useLang()
   const { ask, dialog } = useConfirm()
+  const [paletteOpen, setPaletteOpen] = useState(false)
 
   const isTrainRoute = location.pathname.startsWith('/entrenar/')
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setPaletteOpen((open) => !open)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   return (
     <div className="min-h-dvh bg-bg md:flex">
@@ -176,12 +150,20 @@ export default function Layout() {
       <header className="sticky top-0 z-30 flex h-12 items-center gap-1 border-b border-edge bg-bg px-4 md:hidden">
         <Brand />
         <div className="ml-auto flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setPaletteOpen(true)}
+            aria-label={t('command.short')}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-surface2 hover:text-high"
+          >
+            <Search {...iconProps} />
+          </button>
           <Link
             to="/estadisticas"
             aria-label={t('nav.stats')}
             className="flex h-10 w-10 items-center justify-center rounded-lg text-dim2 transition-colors hover:bg-surface2 hover:text-high"
           >
-            {ChartIcon}
+            <ChartNoAxesColumn {...iconProps} />
           </Link>
           <HeaderStatus />
         </div>
@@ -191,10 +173,22 @@ export default function Layout() {
         aria-label={t('nav.primary')}
         className="hidden shrink-0 md:sticky md:top-0 md:flex md:h-dvh md:w-60 md:flex-col md:border-r md:border-edge md:bg-bg md:px-3 md:py-5"
       >
-        <div className="px-3 pb-7">
+        <div className="px-3 pb-5">
           <Brand />
           <p className="mt-0.5 text-[11px] text-dim2">{t('nav.tagline')}</p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setPaletteOpen(true)}
+          className="mb-2 flex min-h-10 items-center gap-2 rounded-lg border border-edge bg-surface px-3 text-sm text-dim2 transition-colors hover:border-edge2 hover:text-high"
+        >
+          <Search aria-hidden="true" strokeWidth={1.8} className="h-4 w-4" />
+          <span className="flex-1 text-left">{t('command.short')}</span>
+          <kbd className="rounded border border-edge bg-surface2 px-1.5 py-0.5 font-mono text-[10px] text-dim3">
+            ⌘K
+          </kbd>
+        </button>
 
         <div className="flex flex-col gap-0.5">
           {desktopLinks.map((link) => (
@@ -212,7 +206,7 @@ export default function Layout() {
             >
               {({ isActive }) => (
                 <>
-                  <span className="w-5 font-mono text-[9px] text-dim3">{link.index}</span>
+                  <span className="w-5 font-mono text-[10px] text-dim3">{link.index}</span>
                   <span className={isActive ? 'text-emerald-400' : 'text-dim2'}>
                     {icons[link.to]}
                   </span>
@@ -241,18 +235,7 @@ export default function Layout() {
             }
             className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-dim transition-colors duration-150 hover:bg-red-500/10 hover:text-red-400"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.8}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              className="h-5 w-5"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-            </svg>
+            <LogOut {...iconProps} />
             {t('profile.logout')}
           </button>
         </div>
@@ -263,9 +246,21 @@ export default function Layout() {
         tabIndex={-1}
         className="mx-auto w-full max-w-[1180px] flex-1 px-4 pb-28 pt-5 md:px-8 md:py-8"
       >
-        <div key={location.pathname} className="page-enter">
-          <Outlet />
-        </div>
+        <Suspense
+          fallback={
+            <div role="status" aria-live="polite" className="flex items-center justify-center gap-3 py-24">
+              <div
+                aria-hidden="true"
+                className="h-6 w-6 animate-spin rounded-full border-2 border-edge2 border-t-emerald-500"
+              />
+              <span className="sr-only">{t('common.loading')}</span>
+            </div>
+          }
+        >
+          <div key={location.pathname} className="page-enter">
+            <Outlet />
+          </div>
+        </Suspense>
       </main>
 
       {!isTrainRoute && <BottomNav />}
@@ -273,6 +268,7 @@ export default function Layout() {
       <div className="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] left-3 z-40 md:bottom-6 md:left-auto md:right-6">
         {!isTrainRoute && <SyncStatus />}
       </div>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
       {dialog}
     </div>
   )

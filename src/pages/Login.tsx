@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent } from 'react'
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth-context'
@@ -8,50 +9,11 @@ import { DEMO_EMAIL, DEMO_PASSWORD, enterLocalDemo, purgeDemoLocal } from '@/lib
 import { resetDemoData } from '@/lib/demoData'
 import { DEMO_LOCAL_EVENT } from '@/lib/auth'
 
-function Icon({ children }: { children: ReactNode }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className="h-[18px] w-[18px]"
-    >
-      {children}
-    </svg>
-  )
-}
-
-const EnvelopeIcon = (
-  <Icon>
-    <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
-    <path d="m22 6-10 7L2 6" />
-  </Icon>
-)
-
-const LockIcon = (
-  <Icon>
-    <rect x="3" y="11" width="18" height="11" rx="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-  </Icon>
-)
-
-const EyeIcon = (
-  <Icon>
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
-    <circle cx="12" cy="12" r="3" />
-  </Icon>
-)
-
-const EyeSlashIcon = (
-  <Icon>
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-    <line x1="1" y1="1" x2="23" y2="23" />
-  </Icon>
-)
+const iconClass = 'h-[18px] w-[18px]'
+const EnvelopeIcon = <Mail aria-hidden="true" strokeWidth={1.8} className={iconClass} />
+const LockIcon = <Lock aria-hidden="true" strokeWidth={1.8} className={iconClass} />
+const EyeIcon = <Eye aria-hidden="true" strokeWidth={1.8} className={iconClass} />
+const EyeSlashIcon = <EyeOff aria-hidden="true" strokeWidth={1.8} className={iconClass} />
 
 export default function Login() {
   const { user, loading } = useAuth()
@@ -151,14 +113,14 @@ export default function Login() {
           <p className="relative mt-7 max-w-md text-[15px] leading-relaxed text-soft">
             {t('login.pitch')}
           </p>
-          <div className="relative mt-6 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[9px] uppercase tracking-[0.12em] text-dim2">
+          <div className="relative mt-6 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-dim2">
             <span>01 / Registro</span>
             <span>02 / Volumen</span>
             <span>03 / Progreso</span>
           </div>
         </div>
 
-        <div className="flex items-end justify-between gap-4 font-mono text-[9px] uppercase tracking-[0.16em] text-dim3">
+        <div className="flex items-end justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.16em] text-dim3">
           <span>{t('login.tagline')}</span>
           <span aria-hidden="true" className="h-px w-24 bg-emerald-500/40" />
         </div>
@@ -167,7 +129,7 @@ export default function Login() {
       <section className="flex min-h-dvh flex-col justify-center px-5 py-10 sm:px-10">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-7 lg:hidden">
-            <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-dim2">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-dim2">
               <span className="h-1.5 w-1.5 rotate-45 bg-emerald-400" aria-hidden="true" />
               {t('login.system')} / 001
             </div>
@@ -178,7 +140,7 @@ export default function Login() {
             <p className="mt-3 text-sm leading-relaxed text-dim">{t('login.pitch')}</p>
           </div>
 
-          <div className="ui-card animate-rise p-4 sm:p-5">
+          <div className="ui-card ui-card-cut animate-rise p-4 sm:p-5">
           <div
             role="group"
             aria-label={t('login.mode')}
