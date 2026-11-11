@@ -258,6 +258,7 @@ export default function Catalog() {
         </div>
       ) : (
         <>
+          <h2 className="sr-only">{t('catalog.results')}</h2>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {exercises.map((exercise) => (
               <ExerciseCard
