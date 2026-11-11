@@ -139,6 +139,7 @@ export default function Stats() {
                           s: pr.sessions,
                         })}
                       </p>
+                      <PrSparkline values={pr.spark} />
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="font-mono text-sm font-semibold tabular-nums text-strong">
@@ -402,6 +403,42 @@ function ExerciseEvolution({
         </>
       )}
     </section>
+  )
+}
+
+function PrSparkline({ values }: { values: number[] }) {
+  if (values.length < 2) return null
+  const W = 56
+  const H = 18
+  const pad = 2
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const span = max - min || 1
+  const points = values
+    .map((value, index) => {
+      const x = (index / (values.length - 1)) * W
+      const y = H - pad - ((value - min) / span) * (H - pad * 2)
+      return `${x},${y}`
+    })
+    .join(' ')
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      aria-hidden="true"
+      className="mt-1 h-[18px] w-14 text-emerald-400"
+    >
+      <polyline
+        points={points}
+        pathLength={1}
+        className="chart-line"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 

@@ -85,6 +85,7 @@ export interface PR {
   maxOneRm: number | null
   sessions: number
   lastDate: string
+  spark: number[]
 }
 
 export interface ExportRow {
@@ -876,6 +877,7 @@ export async function fetchPRs(_userId: string, limit = 8): Promise<PR[]> {
   const sessions = await allSessions()
   const exercises = await store.loadAll<Exercise>('exercises')
   const byEx = new Map<string, PR>()
+  const sparkByDate = new Map<string, Map<string, number>>()
   for (const row of sets) {
     if (!row.completed) continue
     const ex = exercises.find((e) => e.id === row.exercise_id)
@@ -890,6 +892,7 @@ export async function fetchPRs(_userId: string, limit = 8): Promise<PR[]> {
       maxOneRm: null,
       sessions: 0,
       lastDate: '',
+      spark: [],
     }
     entry.sessions++
     const weight = row.weight_kg ?? 0
@@ -898,10 +901,24 @@ export async function fetchPRs(_userId: string, limit = 8): Promise<PR[]> {
       entry.maxWeight = entry.maxWeight == null ? weight : Math.max(entry.maxWeight, weight)
       const e1rm = reps > 0 ? weight * (1 + reps / 30) : weight
       entry.maxOneRm = entry.maxOneRm == null ? e1rm : Math.max(entry.maxOneRm, e1rm)
+      const started = session?.started_at
+      if (started) {
+        const day = started.slice(0, 10)
+        const dates = sparkByDate.get(ex.id) ?? new Map<string, number>()
+        dates.set(day, Math.max(dates.get(day) ?? 0, e1rm))
+        sparkByDate.set(ex.id, dates)
+      }
     }
     const started = session?.started_at
     if (started && started > entry.lastDate) entry.lastDate = started
     byEx.set(ex.id, entry)
+  }
+  for (const entry of byEx.values()) {
+    const points = [...(sparkByDate.get(entry.exerciseId) ?? new Map()).entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-8)
+      .map(([, value]) => value)
+    entry.spark = points.length >= 2 ? points : []
   }
   return [...byEx.values()]
     .filter((p) => p.maxWeight != null)
